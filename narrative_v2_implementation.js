@@ -212,14 +212,11 @@ class TarotSynthesizer {
       sting = magicStings[Math.floor(Math.random() * magicStings.length)];
     }
 
-    let summary = `*${sting}*`;
-
-    // Follow with the station-specific logic
-    summary += `\n\n${stationLogic}`;
+    let summary = stationLogic;
 
     // Add reversed logic if applicable
     if (this.isReversed && this.card.reversed_logic) {
-      summary += `\n\n**The Shadow Side:** ${this.card.reversed_logic} `;
+      summary += `\n\n${this.card.reversed_logic} `;
       summary += "The language here is notably vague, using conditional terms to limit your oversight.";
     } else if (!this.isReversed) {
       summary += "\n\nThe language used is standard for this industry, suggesting a structured, predictable flow of information.";

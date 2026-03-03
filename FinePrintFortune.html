@@ -31,16 +31,17 @@
     /* ── Nav ── */
     nav {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 10;
       display: flex;
-      justify-content: center;
       gap: 0;
-      padding: 0 24px;
-      height: 48px;
+      padding: 4px 8px;
       align-items: center;
+      background: #B5D3EB;
+      border-radius: 100px;
+      white-space: nowrap;
     }
     nav a {
       font-family: 'Courier Prime', monospace;
@@ -68,44 +69,43 @@
       min-height: 100vh;
       padding: 128px 24px 60px;
       gap: 24px;
+      justify-content: flex-start;
+      align-items: center;
     }
     .input-heading {
       font-family: 'Jacquard 24', serif;
-      font-size: 22px;
+      font-size: 55pt;
       font-weight: normal;
       letter-spacing: 0.08em;
       text-align: center;
     }
     .input-sub {
-      font-size: 13px;
+      font-size: 15pt;
       color: rgba(49,38,26,0.9);
       text-align: center;
       letter-spacing: 0.06em;
       max-width: 480px;
     }
-    .input-tabs {
+    .segmented-control {
       display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
+      background: rgba(49,38,26,0.10);
+      border-radius: 24px;
+      padding: 3px;
     }
-    .tab-btn {
+    .seg-btn {
       font-family: 'Courier Prime', monospace;
       font-size: 13px;
       letter-spacing: 0.08em;
       color: #31261A;
-      background: #F6C56C;
-      border: 1px solid #31261A;
-      padding: 10px 24px;
+      background: transparent;
+      border: none;
+      padding: 8px 28px;
       border-radius: 20px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.15s ease;
     }
-    .tab-btn:hover {
-      background: rgba(49,38,26,0.08);
-    }
-    .tab-btn.active {
-      background: #31261A;
-      color: #8CB6D4;
+    .seg-btn.active {
+      background: #F6C56C;
     }
 
     .input-container {
@@ -277,10 +277,14 @@
     }
 
     .slot-label {
+      display: inline-block;
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(49,38,26,0.65);
+      color: #31261A;
+      border: 1px solid #000;
+      border-radius: 100px;
+      padding: 5px 12px 3px;
       font-weight: normal;
       text-align: center;
     }
@@ -315,17 +319,32 @@
     }
 
 .card-reading-label {
-      font-size: 12px;
-      letter-spacing: 0.16em;
+      display: inline-block;
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(49,38,26,0.55);
-      margin-bottom: 4px;
+      color: #31261A;
+      border: 1px solid #000;
+      border-radius: 100px;
+      padding: 5px 12px 3px;
     }
+    .card-reading-label[data-category="collection"],
+    .slot-label.collection { background: #A8DDFF; }
+    .card-reading-label[data-category="sharing"],
+    .slot-label.sharing    { background: #F7E0AA; }
+    .card-reading-label[data-category="retention"],
+    .slot-label.retention  { background: #D9CDFC; }
     .card-reading-name {
-      font-size: 16px;
-      font-weight: bold;
+      font-family: 'Jacquard 24', serif;
+      font-size: 22px;
+      font-weight: normal;
       letter-spacing: 0.04em;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     .card-reading-body {
       font-size: 14px;
@@ -350,11 +369,12 @@
       justify-content: center;
       padding-top: 24px;
       text-align: center;
+      font-family: 'Courier Prime', monospace;
       font-size: 22px;
       font-weight: bold;
       color: rgba(49,38,26,0.9);
       letter-spacing: 0.14em;
-      font-style: italic;
+      font-style: normal;
     }
 
     .deck-area {
@@ -419,7 +439,7 @@
 
     .history-heading {
       font-family: 'Jacquard 24', serif;
-      font-size: 28px;
+      font-size: 55pt;
       font-weight: normal;
       letter-spacing: 0.08em;
       text-align: center;
@@ -427,7 +447,7 @@
     }
 
     .history-sub {
-      font-size: 13px;
+      font-size: 15pt;
       color: rgba(49,38,26,0.9);
       text-align: center;
       letter-spacing: 0.06em;
@@ -599,7 +619,7 @@
 
     .legal-page-title {
       font-family: 'Jacquard 24', serif;
-      font-size: 28px;
+      font-size: 55pt;
       font-weight: normal;
       letter-spacing: 0.12em;
       text-align: center;
@@ -607,7 +627,7 @@
     }
 
     .legal-page-sub {
-      font-size: 13px;
+      font-size: 15pt;
       color: rgba(49,38,26,0.75);
       text-align: center;
       letter-spacing: 0.08em;
@@ -688,7 +708,7 @@
 
     .explore-heading {
       font-family: 'Jacquard 24', serif;
-      font-size: 28px;
+      font-size: 55pt;
       font-weight: normal;
       letter-spacing: 0.12em;
       text-align: center;
@@ -696,7 +716,7 @@
     }
 
     .explore-sub {
-      font-size: 13px;
+      font-size: 15pt;
       color: rgba(49,38,26,0.75);
       text-align: center;
       letter-spacing: 0.06em;
@@ -761,7 +781,7 @@
       overflow-y: auto;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      background: #8CB6D4;
+      background: url('card_backs/blank.png') center / cover no-repeat;
       padding: 10px;
       display: flex;
       flex-direction: column;
@@ -799,19 +819,20 @@
     }
 
     .explore-card-name {
-      font-size: 12px;
+      font-size: 14px;
       font-weight: bold;
       letter-spacing: 0.03em;
       line-height: 1.35;
       margin-bottom: 8px;
       padding-right: 26px;
+      color: #31261A;
     }
 
     .explore-meanings {
       display: flex;
       flex-direction: column;
-      gap: 7px;
-      margin-bottom: 8px;
+      gap: 14px;
+      margin-bottom: 14px;
     }
 
     .explore-meaning-row {
@@ -821,41 +842,41 @@
     }
 
     .explore-meaning-label {
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: 0.13em;
       text-transform: uppercase;
-      color: rgba(49,38,26,0.45);
+      color: rgba(49,38,26,0.65);
       line-height: 1;
     }
 
     .explore-meaning-text {
-      font-size: 11px;
+      font-size: 12px;
       line-height: 1.45;
-      color: rgba(49,38,26,0.85);
+      color: #31261A;
     }
 
     .explore-reversed {
       display: flex;
       flex-direction: column;
       gap: 2px;
-      border-top: 1px solid rgba(49,38,26,0.15);
-      padding-top: 7px;
+      border-top: 1px solid rgba(49,38,26,0.25);
+      padding-top: 12px;
       margin-top: auto;
     }
 
     .explore-reversed-label {
-      font-size: 9px;
+      font-size: 10px;
       letter-spacing: 0.13em;
       text-transform: uppercase;
-      color: rgba(49,38,26,0.35);
+      color: rgba(49,38,26,0.6);
       font-style: italic;
       line-height: 1;
     }
 
     .explore-reversed-text {
-      font-size: 11px;
+      font-size: 12px;
       line-height: 1.45;
-      color: rgba(49,38,26,0.6);
+      color: rgba(49,38,26,0.85);
       font-style: italic;
     }
 
@@ -882,17 +903,40 @@
     }
 
     /* ── Learn More / Citations panel ── */
-    .learn-more-btn {
-      display: block;
-      margin: 24px auto 0;
+    .receipts-accordion {
+      margin-top: 20px;
     }
-
+    .receipts-accordion summary {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      padding: 0;
+      cursor: pointer;
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+    .receipts-accordion summary::-webkit-details-marker { display: none; }
+    .receipts-accordion summary span {
+      text-decoration: underline;
+    }
+    .receipts-accordion .hide-text { display: none; }
+    .receipts-accordion[open] .show-text { display: none; }
+    .receipts-accordion[open] .hide-text { display: inline; }
+    .receipts-accordion summary::after {
+      content: '›';
+      font-size: 16px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+    .receipts-accordion[open] summary::after {
+      transform: rotate(90deg);
+    }
     .citations-panel {
-      margin-top: 28px;
-      padding: 24px;
-      background: rgba(49,38,26,0.05);
-      border-radius: 12px;
-      border: 1px solid rgba(49,38,26,0.12);
+      padding: 20px 0 0;
     }
 
     .citations-panel-heading {
@@ -951,10 +995,10 @@
     <h1 class="input-heading">Fine Print Fortune</h1>
     <p class="input-sub">Upload your privacy policy, terms of service, or any legal document as a URL, screenshot, PDF, or paste text directly</p>
 
-    <div class="input-tabs">
-      <button class="tab-btn active" onclick="switchInputTab('text')">Text</button>
-      <button class="tab-btn" onclick="switchInputTab('url')">URL</button>
-      <button class="tab-btn" onclick="switchInputTab('file')">File</button>
+    <div class="segmented-control">
+      <button class="seg-btn active" onclick="switchInputTab('text')">Text</button>
+      <button class="seg-btn" onclick="switchInputTab('url')">URL</button>
+      <button class="seg-btn" onclick="switchInputTab('file')">File</button>
     </div>
 
     <div class="input-container">
@@ -964,7 +1008,6 @@
 
       <div class="input-panel" id="panel-url">
         <input type="url" id="urlInput" placeholder="https://example.com/terms-of-service">
-        <button class="btn-secondary" onclick="fetchFromURL()">Fetch Content</button>
       </div>
 
       <div class="input-panel" id="panel-file">
@@ -984,15 +1027,15 @@
   <div class="screen" id="screen-draw">
     <div class="spread" id="spread">
       <div class="spread-col" id="col-0">
-        <div class="slot-label">Data Collection</div>
+        <div class="slot-label collection">Data Collection</div>
         <div class="slot-wrapper"><div class="spread-slot"></div></div>
       </div>
       <div class="spread-col" id="col-1">
-        <div class="slot-label">Data Sharing</div>
+        <div class="slot-label sharing">Data Sharing</div>
         <div class="slot-wrapper"><div class="spread-slot"></div></div>
       </div>
       <div class="spread-col" id="col-2">
-        <div class="slot-label">Data Retention</div>
+        <div class="slot-label retention">Data Retention</div>
         <div class="slot-wrapper"><div class="spread-slot"></div></div>
       </div>
     </div>
@@ -1310,8 +1353,8 @@
   }
 
   function switchInputTab(tabName) {
-    // Update tab buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    // Update segmented control
+    document.querySelectorAll('.seg-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
 
     // Update panels
@@ -1389,13 +1432,16 @@
         const metadata = inferMetadata(extractedText);
         const detectedInfo = document.getElementById('detectedInfo');
         detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
+        return true;
       } else {
         statusEl.textContent = 'No text found at URL';
         statusEl.style.color = '#8B0000';
+        return false;
       }
     } catch (error) {
       statusEl.textContent = `Error: ${error.message}`;
       statusEl.style.color = '#8B0000';
+      return false;
     }
   }
 
@@ -1636,12 +1682,20 @@
     return shuffle([...selectedMajors, ...selectedMinors]);
   }
 
-  function proceedToDraw() {
-    // Get text from active input method
+  async function proceedToDraw() {
     const activePanel = document.querySelector('.input-panel.active');
     const panelId = activePanel.id;
+    const drawBtn = document.getElementById('drawBtn');
 
-    if (panelId === 'panel-text') {
+    if (panelId === 'panel-url') {
+      drawBtn.disabled = true;
+      drawBtn.textContent = 'Fetching...';
+      const success = await fetchFromURL();
+      drawBtn.disabled = false;
+      drawBtn.textContent = 'Draw your cards';
+      if (!success) return;
+      userText = extractedText;
+    } else if (panelId === 'panel-text') {
       userText = document.getElementById('userText').value.trim();
     } else {
       userText = extractedText;
@@ -2162,9 +2216,9 @@
       // Generate reading for each card using tarot_logic results
       drawnCards.forEach((card, i) => {
         const slot = SLOTS[i];
-        const label = slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
+        const label = 'Data ' + slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
         const name = card.name.charAt(0).toUpperCase() + card.name.slice(1);
-        const rev = card.reversed ? ' <em style="font-weight:normal;font-size:11px;letter-spacing:0.06em;">(reversed)</em>' : '';
+        const rev = card.reversed ? ' - Reversed' : '';
 
         // Use TarotSynthesizer from narrative_engine to generate the summary
         let reading = card.logic; // fallback if synthesizer unavailable
@@ -2189,9 +2243,10 @@
 
           // Convert markdown bold/italic to HTML, tighten paragraph spacing
           rawSummary = rawSummary
-            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-            .replace(/\n\n/g, '<br>');
+            .replace(/\*\*([^*]+)\*\*/g, '$1')
+            .replace(/\*([^*]+)\*/g, '$1')
+            .replace(/\n\n/g, ' ')
+            .trim();
 
           reading = rawSummary;
           citations = synthesizer.findCitations();
@@ -2200,35 +2255,25 @@
         const block = document.createElement('div');
         block.className = 'reading-card-block';
         block.innerHTML =
-          `<div class="card-reading-label">${label}</div>` +
-          `<div class="card-reading-name">${name}${rev}</div>` +
+          `<div class="card-reading-name">${name}${rev} <span class="card-reading-label" data-category="${slot.category}">${label}</span></div>` +
           `<p class="card-reading-body">${reading}</p>`;
 
-        // Per-card "Learn More" toggle
+        // Per-card "Show the receipts" accordion
         if (citations.length > 0) {
-          const btn = document.createElement('button');
-          btn.className = 'btn-secondary learn-more-btn';
-          btn.textContent = 'Learn More';
-          block.appendChild(btn);
-
-          const panel = document.createElement('div');
-          panel.className = 'citations-panel';
-          panel.style.display = 'none';
-          panel.innerHTML =
+          const accordion = document.createElement('details');
+          accordion.className = 'receipts-accordion';
+          accordion.innerHTML =
+            `<summary><span class="show-text">Show the receipts</span><span class="hide-text">Hide the receipts</span></summary>` +
+            `<div class="citations-panel">` +
             `<div class="citations-panel-heading">From your policy</div>` +
             citations.map(c => {
               const sectionTag = c.section
                 ? `<span class="citation-section">${c.section}</span>`
                 : '';
               return `<blockquote class="citation-quote">${sectionTag}${c.sentence}</blockquote>`;
-            }).join('');
-          block.appendChild(panel);
-
-          btn.addEventListener('click', () => {
-            const isOpen = panel.style.display !== 'none';
-            panel.style.display = isOpen ? 'none' : 'block';
-            btn.textContent = isOpen ? 'Learn More' : 'Show Less';
-          });
+            }).join('') +
+            `</div>`;
+          block.appendChild(accordion);
         }
 
         section.appendChild(block);
@@ -2252,7 +2297,7 @@
       const conclusionBlock = document.createElement('div');
       conclusionBlock.className = 'reading-conclusion';
       conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
-      section.appendChild(conclusionBlock);
+      section.insertBefore(conclusionBlock, section.firstChild);
 
       // Save to history
       saveReadingToHistory(drawnCards, '', conclusion, userText);
@@ -2260,6 +2305,12 @@
       // Fallback to old narrator if V2 not available
       const narrator = new TarotNarrator(drawnCards, userText);
       const { intro, body, conclusion } = narrator.generateReading();
+
+      // Add conclusion at top
+      const conclusionBlock = document.createElement('div');
+      conclusionBlock.className = 'reading-conclusion';
+      conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
+      section.appendChild(conclusionBlock);
 
       // Add intro
       const introBlock = document.createElement('div');
@@ -2270,24 +2321,17 @@
       // Add each card reading
       body.forEach((card, i) => {
         const slot  = SLOTS[i];
-        const label = slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
+        const label = 'Data ' + slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
         const name  = card.name.charAt(0).toUpperCase() + card.name.slice(1);
-        const rev   = card.reversed ? ' <em style="font-weight:normal;font-size:11px;letter-spacing:0.06em;">(reversed)</em>' : '';
+        const rev   = card.reversed ? ' - Reversed' : '';
 
         const block = document.createElement('div');
         block.className = 'reading-card-block';
         block.innerHTML =
-          `<div class="card-reading-label">${label}</div>` +
-          `<div class="card-reading-name">${name}${rev}</div>` +
+          `<div class="card-reading-name">${name}${rev} <span class="card-reading-label" data-category="${slot.category}">${label}</span></div>` +
           `<p class="card-reading-body">${card.reading}</p>`;
         section.appendChild(block);
       });
-
-      // Add conclusion
-      const conclusionBlock = document.createElement('div');
-      conclusionBlock.className = 'reading-conclusion';
-      conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
-      section.appendChild(conclusionBlock);
 
       // Save to history
       saveReadingToHistory(drawnCards, intro, conclusion, userText);
@@ -2658,10 +2702,10 @@
     container.appendChild(buildExploreSection('Major Arcana', tarotDeck.major_arcana, 'major'));
 
     const suits = [
-      { key: 'pentacles', label: 'Suit of Pentacles' },
-      { key: 'swords',    label: 'Suit of Swords'    },
-      { key: 'wands',     label: 'Suit of Wands'     },
-      { key: 'cups',      label: 'Suit of Cups'      },
+      { key: 'pentacles', label: 'Pentacles' },
+      { key: 'swords',    label: 'Swords'    },
+      { key: 'wands',     label: 'Wands'     },
+      { key: 'cups',      label: 'Cups'      },
     ];
 
     suits.forEach(({ key, label }) => {
