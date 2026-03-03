@@ -193,16 +193,29 @@ class TarotSynthesizer {
     return lastSection;
   }
 
-  createSummary() {
+  createSummary(sting) {
     // Get the station-specific logic
     const stationLogic = this.card.station_logic?.[this.station] ||
       `Vague ${this.station} terms detected.`;
 
-    const cardName = this.cardResult.name;
+    // Open with the mystical "magic sting" (caller may pass a pre-assigned one)
+    if (!sting) {
+      const magicStings = [
+        "The stars suggest this digital bond is written in permanent ink.",
+        "A flickering light remains in the digital void, should you choose to follow it.",
+        "The scales are tipped; the price of entry is your own reflection.",
+        "The cards see a mirror held up to your data, but whose eyes are looking back?",
+        "What is hidden in shadow will eventually find the light—or remain buried forever.",
+        "The thread of your data weaves through unseen hands.",
+        "In this digital realm, transparency is both illusion and truth."
+      ];
+      sting = magicStings[Math.floor(Math.random() * magicStings.length)];
+    }
 
-    // Build the straightforward summary
-    let summary = `**${cardName}** appears in your ${this.station} reading. `;
-    summary += `${stationLogic}`;
+    let summary = `*${sting}*`;
+
+    // Follow with the station-specific logic
+    summary += `\n\n${stationLogic}`;
 
     // Add reversed logic if applicable
     if (this.isReversed && this.card.reversed_logic) {
@@ -211,20 +224,6 @@ class TarotSynthesizer {
     } else if (!this.isReversed) {
       summary += "\n\nThe language used is standard for this industry, suggesting a structured, predictable flow of information.";
     }
-
-    // Add a "magic sting" - mystical closing
-    const magicStings = [
-      "The stars suggest this digital bond is written in permanent ink.",
-      "A flickering light remains in the digital void, should you choose to follow it.",
-      "The scales are tipped; the price of entry is your own reflection.",
-      "The cards see a mirror held up to your data, but whose eyes are looking back?",
-      "What is hidden in shadow will eventually find the light—or remain buried forever.",
-      "The thread of your data weaves through unseen hands.",
-      "In this digital realm, transparency is both illusion and truth."
-    ];
-
-    const randomSting = magicStings[Math.floor(Math.random() * magicStings.length)];
-    summary += `\n\n*${randomSting}*`;
 
     return summary;
   }

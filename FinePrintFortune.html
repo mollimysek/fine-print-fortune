@@ -2129,6 +2129,21 @@
 
     // Use V2 logic if cards have pre-computed logic from tarot_logic.py
     if (drawnCards[0].logic !== undefined) {
+      // Pre-shuffle magic stings so each card gets a unique one
+      const magicStings = [
+        "The stars suggest this digital bond is written in permanent ink.",
+        "A flickering light remains in the digital void, should you choose to follow it.",
+        "The scales are tipped; the price of entry is your own reflection.",
+        "The cards see a mirror held up to your data, but whose eyes are looking back?",
+        "What is hidden in shadow will eventually find the light—or remain buried forever.",
+        "The thread of your data weaves through unseen hands.",
+        "In this digital realm, transparency is both illusion and truth."
+      ];
+      for (let s = magicStings.length - 1; s > 0; s--) {
+        const r = Math.floor(Math.random() * (s + 1));
+        [magicStings[s], magicStings[r]] = [magicStings[r], magicStings[s]];
+      }
+
       // Generate reading for each card using tarot_logic results
       drawnCards.forEach((card, i) => {
         const slot = SLOTS[i];
@@ -2155,12 +2170,13 @@
           );
 
           // Generate narrative summary from narrative_engine logic
-          let rawSummary = synthesizer.createSummary();
+          let rawSummary = synthesizer.createSummary(magicStings[i]);
 
-          // Convert markdown bold/italic to HTML
+          // Convert markdown bold/italic to HTML, tighten paragraph spacing
           rawSummary = rawSummary
             .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+            .replace(/\n\n/g, '<br>');
 
           reading = rawSummary;
           citations = synthesizer.findCitations();
@@ -2171,7 +2187,7 @@
         block.innerHTML =
           `<div class="card-reading-label">${label}</div>` +
           `<div class="card-reading-name">${name}${rev}</div>` +
-          `<p class="card-reading-body" style="white-space:pre-line;">${reading}</p>`;
+          `<p class="card-reading-body">${reading}</p>`;
 
         // Per-card "Learn More" toggle
         if (citations.length > 0) {
