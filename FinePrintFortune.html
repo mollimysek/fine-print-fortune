@@ -669,6 +669,193 @@
       margin-bottom: 12px;
     }
 
+    /* ── SCREEN: EXPLORE DECK ── */
+    #screen-explore {
+      width: 100%;
+      min-height: 100vh;
+      padding: 88px 24px 80px;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    .explore-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .explore-heading {
+      font-size: 28px;
+      font-weight: normal;
+      letter-spacing: 0.12em;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .explore-sub {
+      font-size: 13px;
+      color: rgba(49,38,26,0.75);
+      text-align: center;
+      letter-spacing: 0.06em;
+      margin-bottom: 48px;
+    }
+
+    .explore-section {
+      margin-bottom: 52px;
+    }
+
+    .explore-section-title {
+      font-size: 11px;
+      font-weight: normal;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.5);
+      border-bottom: 1px solid rgba(49,38,26,0.15);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .explore-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .explore-card-wrap {
+      cursor: pointer;
+      perspective: 800px;
+    }
+
+    .explore-card-inner {
+      position: relative;
+      width: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .explore-card-wrap.flipped .explore-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .explore-card-front {
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .explore-card-front img {
+      width: 100%;
+      display: block;
+    }
+
+    .explore-card-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+      border-radius: 10px;
+      overflow-y: auto;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: #8CB6D4;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .explore-card-back::-webkit-scrollbar { width: 3px; }
+    .explore-card-back::-webkit-scrollbar-track { background: transparent; }
+    .explore-card-back::-webkit-scrollbar-thumb {
+      background: rgba(49,38,26,0.3);
+      border-radius: 2px;
+    }
+
+    .explore-flip-btn {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      background: rgba(49,38,26,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: rgba(49,38,26,0.65);
+      line-height: 1;
+      transition: background 0.15s;
+      z-index: 2;
+    }
+
+    .explore-flip-btn:hover {
+      background: rgba(49,38,26,0.22);
+    }
+
+    .explore-card-name {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      padding-right: 26px;
+    }
+
+    .explore-meanings {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 8px;
+    }
+
+    .explore-meaning-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .explore-meaning-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.45);
+      line-height: 1;
+    }
+
+    .explore-meaning-text {
+      font-size: 11px;
+      line-height: 1.45;
+      color: rgba(49,38,26,0.85);
+    }
+
+    .explore-reversed {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-top: 1px solid rgba(49,38,26,0.15);
+      padding-top: 7px;
+      margin-top: auto;
+    }
+
+    .explore-reversed-label {
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.35);
+      font-style: italic;
+      line-height: 1;
+    }
+
+    .explore-reversed-text {
+      font-size: 11px;
+      line-height: 1.45;
+      color: rgba(49,38,26,0.6);
+      font-style: italic;
+    }
+
     @keyframes liftReorient {
       0% {
         transform: rotateX(50deg) rotateY(-11deg) rotateZ(40deg) translateZ(0px) translateY(0px) scale(1);
@@ -785,6 +972,15 @@
           <p>No readings yet. Start a new reading to begin your journey.</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: EXPLORE DECK -->
+  <div class="screen" id="screen-explore">
+    <div class="explore-container">
+      <h1 class="explore-heading">Explore the Deck</h1>
+      <p class="explore-sub">The Privacy Arcana — every card and its meaning in the context of your data</p>
+      <div id="explore-content"></div>
     </div>
   </div>
 
@@ -2148,7 +2344,7 @@
       'input': 'screen-input',
       'draw': 'screen-draw',
       'history': 'screen-history',
-      'explore': 'screen-input', // TODO: Create explore screen
+      'explore': 'screen-explore',
       'legal': 'screen-legal',
     };
 
@@ -2159,6 +2355,9 @@
     if (screenName === 'history') {
       window.location.hash = 'your-history';
       loadHistory();
+    } else if (screenName === 'explore') {
+      window.location.hash = 'explore';
+      initExploreDeck();
     } else if (screenName === 'legal') {
       window.location.hash = 'legal';
       initLegalReading();
@@ -2289,12 +2488,124 @@
     loadHistory();
   }
 
+  // ── Explore Deck ────────────────────────────────────────────────────────
+
+  function getMajorArcanaFilename(cardName) {
+    const lower = cardName.toLowerCase();
+    const exact = MAJOR_ARCANA.find(f => f.replace('.png', '') === lower);
+    if (exact) return exact;
+    // Handle cases where deck.json name omits "The" prefix (e.g. "Wheel of Fortune")
+    const withThe = MAJOR_ARCANA.find(f =>
+      f.replace('.png', '').replace(/^the /, '') === lower.replace(/^the /, '')
+    );
+    return withThe || (lower + '.png');
+  }
+
+  function buildExploreSection(title, cards, type) {
+    const section = document.createElement('div');
+    section.className = 'explore-section';
+
+    const heading = document.createElement('h2');
+    heading.className = 'explore-section-title';
+    heading.textContent = title;
+    section.appendChild(heading);
+
+    const grid = document.createElement('div');
+    grid.className = 'explore-grid';
+
+    cards.forEach(card => {
+      const name = card.card || `${card.rank} of ${card.suit}`;
+      const imgSrc = type === 'major'
+        ? `major_arcana/${getMajorArcanaFilename(card.card)}`
+        : `minor_arcana/${card.rank.toLowerCase()} of ${card.suit.toLowerCase()}.png`;
+
+      const sl = card.station_logic || {};
+      const meanings = `
+        <div class="explore-meaning-row">
+          <span class="explore-meaning-label">Collection</span>
+          <span class="explore-meaning-text">${sl.collection || ''}</span>
+        </div>
+        <div class="explore-meaning-row">
+          <span class="explore-meaning-label">Sharing</span>
+          <span class="explore-meaning-text">${sl.sharing || ''}</span>
+        </div>
+        <div class="explore-meaning-row">
+          <span class="explore-meaning-label">Retention</span>
+          <span class="explore-meaning-text">${sl.retention || ''}</span>
+        </div>`;
+
+      const reversed = card.reversed_logic ? `
+        <div class="explore-reversed">
+          <span class="explore-reversed-label">Reversed</span>
+          <span class="explore-reversed-text">${card.reversed_logic}</span>
+        </div>` : '';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'explore-card-wrap';
+      wrap.innerHTML = `
+        <div class="explore-card-inner">
+          <div class="explore-card-front">
+            <img src="${imgSrc}" alt="${name}">
+          </div>
+          <div class="explore-card-back">
+            <button class="explore-flip-btn" title="Flip back">↻</button>
+            <div class="explore-card-name">${name}</div>
+            <div class="explore-meanings">${meanings}</div>
+            ${reversed}
+          </div>
+        </div>`;
+
+      wrap.querySelector('.explore-card-front').addEventListener('click', () => {
+        wrap.classList.add('flipped');
+      });
+
+      wrap.querySelector('.explore-flip-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        wrap.classList.remove('flipped');
+      });
+
+      grid.appendChild(wrap);
+    });
+
+    section.appendChild(grid);
+    return section;
+  }
+
+  function initExploreDeck() {
+    const container = document.getElementById('explore-content');
+
+    if (!tarotDeck) {
+      container.innerHTML = '<p style="text-align:center;padding:40px;color:rgba(49,38,26,0.6);">Loading deck data…</p>';
+      // Retry once deck finishes loading
+      setTimeout(initExploreDeck, 500);
+      return;
+    }
+
+    container.innerHTML = '';
+
+    container.appendChild(buildExploreSection('Major Arcana', tarotDeck.major_arcana, 'major'));
+
+    const suits = [
+      { key: 'pentacles', label: 'Suit of Pentacles' },
+      { key: 'swords',    label: 'Suit of Swords'    },
+      { key: 'wands',     label: 'Suit of Wands'     },
+      { key: 'cups',      label: 'Suit of Cups'      },
+    ];
+
+    suits.forEach(({ key, label }) => {
+      const cards = tarotDeck.minor_arcana[key] || [];
+      container.appendChild(buildExploreSection(label, cards, 'minor'));
+    });
+  }
+
   // Handle URL hash on page load
   window.addEventListener('load', () => {
     if (window.location.hash === '#your-history') {
       navigateTo('history');
     } else if (window.location.hash === '#legal') {
       navigateTo('legal');
+    } else if (window.location.hash === '#explore') {
+      navigateTo('explore');
     }
 
     // Add listener to text input for automatic detection
