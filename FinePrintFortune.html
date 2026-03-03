@@ -5,6 +5,7 @@
   <title>Tarot Draw</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="narrative_v2_implementation.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -92,42 +93,6 @@
       letter-spacing: 0.06em;
       max-width: 480px;
     }
-    .metadata-inputs {
-      width: min(640px, 90vw);
-      margin-bottom: 20px;
-    }
-
-    .metadata-row {
-      display: flex;
-      gap: 12px;
-    }
-
-    #platformInput, #typeInput {
-      flex: 1;
-      height: 48px;
-      background: #8CB6D4;
-      border: 1px solid #31261A;
-      border-radius: 12px;
-      padding: 0 18px;
-      color: #31261A;
-      font-family: Georgia, serif;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    #platformInput:focus, #typeInput:focus {
-      border-color: rgba(49,38,26,0.4);
-    }
-
-    #platformInput::placeholder {
-      color: rgba(49,38,26,0.88);
-    }
-
-    #typeInput {
-      cursor: pointer;
-    }
-
     .input-tabs {
       display: flex;
       gap: 12px;
@@ -749,22 +714,6 @@
       <button class="tab-btn" onclick="switchInputTab('file')">File</button>
     </div>
 
-    <div class="metadata-inputs">
-      <div class="metadata-row">
-        <input type="text" id="platformInput" placeholder="Platform (e.g., Facebook, Google)">
-        <select id="typeInput">
-          <option value="">Select Document Type</option>
-          <option value="Privacy Policy">Privacy Policy</option>
-          <option value="Terms of Service">Terms of Service</option>
-          <option value="User Agreement">User Agreement</option>
-          <option value="Cookie Policy">Cookie Policy</option>
-          <option value="Data Policy">Data Policy</option>
-          <option value="EULA">EULA</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-    </div>
-
     <div class="input-container">
       <div class="input-panel active" id="panel-text">
         <textarea id="userText" placeholder="Paste in your fine print..."></textarea>
@@ -785,6 +734,7 @@
     </div>
 
     <div id="processingStatus"></div>
+    <div id="detectedInfo" style="text-align:center;font-size:12px;color:rgba(49,38,26,0.7);margin-top:12px;min-height:18px;"></div>
     <button class="btn" onclick="proceedToDraw()" id="drawBtn">Draw your cards</button>
   </div>
 
@@ -898,10 +848,220 @@
   let userText   = '';
   let drawnCards = [];
   let extractedText = '';
+  let tarotDeck = null; // Will hold the loaded deck.json
 
   // Configure PDF.js worker
   if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  // Load deck.json on page load
+  async function loadTarotDeck() {
+    try {
+      const response = await fetch('deck.json');
+      tarotDeck = await response.json();
+      console.log('Tarot deck loaded:', tarotDeck.deck_name);
+    } catch (error) {
+      console.error('Failed to load deck.json:', error);
+      // Fallback - will use hardcoded cards
+    }
+  }
+
+  // Call immediately
+  loadTarotDeck();
+
+  // Infer platform and document type from text
+  function inferMetadata(text) {
+    const lowerText = text.toLowerCase();
+
+    // Platform detection - look for company names, references, and legal entities in the content
+    const platforms = {
+      'Facebook': [
+        'facebook, inc', 'meta platforms', 'meta platforms, inc', 'facebook ireland',
+        'we at facebook', 'facebook provides', 'facebook services', 'facebook products',
+        'instagram', 'whatsapp', 'oculus', 'meta technologies'
+      ],
+      'Google': [
+        'google llc', 'google ireland', 'alphabet inc', 'google provides',
+        'we at google', 'google services', 'youtube', 'gmail', 'google workspace',
+        'google play', 'android', 'chrome'
+      ],
+      'Twitter/X': [
+        'twitter, inc', 'x corp', 'twitter international', 'we at twitter',
+        'twitter provides', 'twitter services', 'tweet', 'retweet'
+      ],
+      'TikTok': [
+        'tiktok inc', 'bytedance', 'tiktok pte', 'tiktok technology',
+        'we at tiktok', 'tiktok provides', 'tiktok platform'
+      ],
+      'Amazon': [
+        'amazon.com, inc', 'amazon services', 'amazon web services', 'aws',
+        'we at amazon', 'amazon provides', 'amazon marketplace', 'prime'
+      ],
+      'Apple': [
+        'apple inc', 'apple distribution international', 'we at apple',
+        'apple provides', 'app store', 'itunes', 'icloud', 'apple services'
+      ],
+      'Microsoft': [
+        'microsoft corporation', 'microsoft ireland', 'we at microsoft',
+        'microsoft provides', 'microsoft services', 'windows', 'xbox', 'office 365'
+      ],
+      'LinkedIn': [
+        'linkedin corporation', 'linkedin ireland', 'we at linkedin',
+        'linkedin provides', 'linkedin services', 'linkedin platform'
+      ],
+      'Snapchat': [
+        'snap inc', 'snap group limited', 'we at snap', 'snapchat provides',
+        'snapchat services', 'snapchat platform'
+      ],
+      'Pinterest': [
+        'pinterest, inc', 'pinterest europe', 'we at pinterest',
+        'pinterest provides', 'pinterest services'
+      ],
+      'Reddit': [
+        'reddit, inc', 'we at reddit', 'reddit provides',
+        'reddit services', 'subreddit'
+      ],
+      'Netflix': [
+        'netflix, inc', 'netflix international', 'we at netflix',
+        'netflix provides', 'netflix service'
+      ],
+      'Spotify': [
+        'spotify ab', 'spotify usa', 'we at spotify',
+        'spotify provides', 'spotify service', 'spotify premium'
+      ],
+      'Uber': [
+        'uber technologies', 'uber b.v.', 'we at uber',
+        'uber provides', 'uber services', 'uber platform'
+      ],
+      'Airbnb': [
+        'airbnb, inc', 'airbnb ireland', 'we at airbnb',
+        'airbnb provides', 'airbnb platform', 'airbnb services'
+      ],
+      'Zoom': [
+        'zoom video communications', 'we at zoom', 'zoom provides',
+        'zoom services', 'zoom meetings'
+      ],
+      'Discord': [
+        'discord inc', 'we at discord', 'discord provides',
+        'discord services', 'discord platform'
+      ],
+      'Slack': [
+        'slack technologies', 'we at slack', 'slack provides',
+        'slack services', 'slack platform'
+      ],
+      'Dropbox': [
+        'dropbox, inc', 'we at dropbox', 'dropbox provides',
+        'dropbox services'
+      ],
+      'PayPal': [
+        'paypal, inc', 'paypal holdings', 'we at paypal',
+        'paypal provides', 'paypal services'
+      ],
+      'Venmo': [
+        'venmo llc', 'we at venmo', 'venmo provides',
+        'venmo services'
+      ],
+      'Cash App': [
+        'block, inc', 'square, inc', 'cash app',
+        'we at cash app', 'cash app provides'
+      ],
+      'OpenAI': [
+        'openai, l.l.c', 'openai opco', 'we at openai',
+        'openai provides', 'chatgpt'
+      ],
+      'Anthropic': [
+        'anthropic pbc', 'anthropic, pbc', 'we at anthropic',
+        'anthropic provides', 'claude'
+      ],
+    };
+
+    let detectedPlatform = 'Unknown';
+    let maxMatches = 0;
+
+    // Count keyword matches for each platform to find the best match
+    for (const [platform, keywords] of Object.entries(platforms)) {
+      let matches = 0;
+      for (const keyword of keywords) {
+        const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        const count = (lowerText.match(regex) || []).length;
+        matches += count;
+      }
+      if (matches > maxMatches) {
+        maxMatches = matches;
+        detectedPlatform = platform;
+      }
+    }
+
+    // If no matches found, remain Unknown
+    if (maxMatches === 0) {
+      detectedPlatform = 'Unknown';
+    }
+
+    // Document type detection - prioritize title/header matches
+    const docTypes = {
+      'Privacy Policy': [
+        'privacy policy', 'privacy notice', 'privacy statement',
+        'data protection policy', 'how we use your information',
+        'information we collect'
+      ],
+      'Terms of Service': [
+        'terms of service', 'terms of use', 'terms and conditions',
+        'user agreement', 'service agreement', 'terms & conditions'
+      ],
+      'Cookie Policy': [
+        'cookie policy', 'cookies policy', 'use of cookies',
+        'cookie notice', 'about cookies'
+      ],
+      'Data Policy': [
+        'data policy', 'data usage policy', 'data processing agreement',
+        'how we handle data'
+      ],
+      'EULA': [
+        'end user license agreement', 'eula', 'software license agreement',
+        'license agreement', 'software terms'
+      ],
+      'Community Guidelines': [
+        'community guidelines', 'community standards', 'community rules',
+        'acceptable use policy', 'code of conduct'
+      ],
+      'Content Policy': [
+        'content policy', 'prohibited content', 'content guidelines',
+        'user content policy'
+      ],
+      'Advertising Policy': [
+        'advertising policy', 'ad policy', 'advertising terms',
+        'advertising guidelines'
+      ],
+    };
+
+    let detectedType = 'Legal Document';
+    let maxTypeMatches = 0;
+
+    // Count matches for each document type
+    for (const [docType, keywords] of Object.entries(docTypes)) {
+      let matches = 0;
+      for (const keyword of keywords) {
+        if (lowerText.includes(keyword)) {
+          // Weight matches in the first 500 characters more heavily (likely title/header)
+          const firstPart = lowerText.substring(0, 500);
+          if (firstPart.includes(keyword)) {
+            matches += 3; // Title match worth more
+          } else {
+            matches += 1; // Body match
+          }
+        }
+      }
+      if (matches > maxTypeMatches) {
+        maxTypeMatches = matches;
+        detectedType = docType;
+      }
+    }
+
+    return {
+      platform: detectedPlatform,
+      type: detectedType
+    };
   }
 
   function switchInputTab(tabName) {
@@ -916,6 +1076,7 @@
     // Clear status
     document.getElementById('processingStatus').textContent = '';
     document.getElementById('fileStatus').textContent = '';
+    document.getElementById('detectedInfo').textContent = '';
   }
 
   async function fetchFromURL() {
@@ -956,6 +1117,11 @@
       if (extractedText.length > 0) {
         statusEl.textContent = `✓ Extracted ${extractedText.length} characters`;
         statusEl.style.color = '#2E7D32';
+
+        // Show detected metadata from content
+        const metadata = inferMetadata(extractedText);
+        const detectedInfo = document.getElementById('detectedInfo');
+        detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
       } else {
         statusEl.textContent = 'No text found at URL';
         statusEl.style.color = '#8B0000';
@@ -989,6 +1155,11 @@
       if (extractedText.length > 0) {
         processingStatusEl.textContent = `✓ Extracted ${extractedText.length} characters`;
         processingStatusEl.style.color = '#2E7D32';
+
+        // Show detected metadata
+        const metadata = inferMetadata(extractedText);
+        const detectedInfo = document.getElementById('detectedInfo');
+        detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
       } else {
         processingStatusEl.textContent = 'No text found in file';
         processingStatusEl.style.color = '#8B0000';
@@ -1103,39 +1274,56 @@
   }
 
   function selectCards(text) {
-    if (!text || text.length < 10) {
-      // Fallback to random selection
-      const numMajor = Math.random() < 0.5 ? 1 : 2;
-      const numMinor = 3 - numMajor;
-      const majors = shuffle(MAJOR_ARCANA).slice(0, numMajor).map(f => ({
-        src: `major_arcana/${f}`, name: f.replace('.png', ''), reversed: Math.random() < 0.35,
-      }));
-      const minors = shuffle(MINOR_ARCANA).slice(0, numMinor).map(f => ({
-        src: `minor_arcana/${f}`, name: f.replace('.png', ''), reversed: Math.random() < 0.35,
-      }));
-      return shuffle([...majors, ...minors]);
+    // Use V2 narrative engine if deck is loaded
+    if (tarotDeck && window.PrivacyTarotEngine) {
+      const engine = new window.PrivacyTarotEngine(tarotDeck);
+
+      // Split text into thirds for the three stations
+      const textLength = text.length;
+      const third = Math.floor(textLength / 3);
+
+      const collectionText = text.substring(0, third);
+      const sharingText = text.substring(third, third * 2);
+      const retentionText = text.substring(third * 2);
+
+      // Perform the spread using tarot_logic algorithm
+      const spread = engine.performSpread(collectionText, sharingText, retentionText);
+
+      // Convert to format expected by the rest of the app
+      const segments = {
+        collection: collectionText,
+        sharing: sharingText,
+        retention: retentionText
+      };
+
+      const cards = ['collection', 'sharing', 'retention'].map(station => {
+        const result = spread[station];
+        const cardName = result.name;
+        const cardFile = cardName.toLowerCase().replace(/\s+/g, ' ') + '.png';
+
+        // Determine if it's major or minor arcana
+        // Major arcana have 'card' field, minor arcana have 'rank' and 'suit' fields
+        const isMajor = result.card.card !== undefined;
+        const folder = isMajor ? 'major_arcana' : 'minor_arcana';
+
+        return {
+          src: `${folder}/${cardFile}`,
+          name: cardName,
+          reversed: result.isReversed,
+          cardData: result.card,
+          logic: result.logic, // The pre-computed logic from tarot_logic
+          segmentText: segments[station],
+          station: station,
+          score: result.score
+        };
+      });
+
+      console.log('Card spread selected:', cards.map(c => `${c.name} (score: ${c.score}, reversed: ${c.reversed})`));
+      return cards;
     }
 
-    const { majorScores, suitScores } = analyzeText(text);
-
-    // Weighted selection: higher scores = higher probability
-    const selectWeighted = (items, scores) => {
-      const weighted = items.map(item => ({
-        item,
-        weight: (scores[item] || 0) + 1 // +1 ensures all cards have a chance
-      }));
-
-      const totalWeight = weighted.reduce((sum, w) => sum + w.weight, 0);
-      let random = Math.random() * totalWeight;
-
-      for (const w of weighted) {
-        random -= w.weight;
-        if (random <= 0) return w.item;
-      }
-      return weighted[0].item;
-    };
-
-    // Select 1-2 major arcana based on text analysis
+    // Fallback to random selection if deck not loaded
+    console.warn('Deck not loaded, using random selection');
     const numMajor = Math.random() < 0.5 ? 1 : 2;
     const numMinor = 3 - numMajor;
 
@@ -1194,9 +1382,10 @@
       return;
     }
 
-    // Get metadata
-    window.currentPlatform = document.getElementById('platformInput').value.trim() || 'Unknown';
-    window.currentType = document.getElementById('typeInput').value || 'Unknown';
+    // Automatically infer platform and document type
+    const metadata = inferMetadata(userText);
+    window.currentPlatform = metadata.platform;
+    window.currentType = metadata.type;
 
     drawnCards = selectCards(userText);
     document.getElementById('screen-input').classList.remove('active');
@@ -1715,42 +1904,113 @@
   }
 
   function populateReading() {
-    const narrator = new TarotNarrator(drawnCards, userText);
-    const { intro, body, conclusion } = narrator.generateReading();
-
     const section = document.getElementById('reading-section');
     section.innerHTML = '';
 
-    // Add intro
-    const introBlock = document.createElement('div');
-    introBlock.className = 'reading-intro';
-    introBlock.innerHTML = `<p style="font-style:italic;font-size:15px;text-align:center;margin-bottom:32px;color:rgba(49,38,26,0.85);">${intro}</p>`;
-    section.appendChild(introBlock);
+    // Use V2 logic if cards have pre-computed logic from tarot_logic.py
+    if (drawnCards[0].logic !== undefined) {
+      const intro = "The cards have been dealt, and your digital aura is clear.";
 
-    // Add each card reading
-    body.forEach((card, i) => {
-      const slot  = SLOTS[i];
-      const label = slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
-      const name  = card.name.charAt(0).toUpperCase() + card.name.slice(1);
-      const rev   = card.reversed ? ' <em style="font-weight:normal;font-size:11px;letter-spacing:0.06em;">(reversed)</em>' : '';
+      // Add intro
+      const introBlock = document.createElement('div');
+      introBlock.className = 'reading-intro';
+      introBlock.innerHTML = `<p style="font-style:italic;font-size:15px;text-align:center;margin-bottom:32px;color:rgba(49,38,26,0.85);">${intro}</p>`;
+      section.appendChild(introBlock);
 
-      const block = document.createElement('div');
-      block.className = 'reading-card-block';
-      block.innerHTML =
-        `<div class="card-reading-label">${label}</div>` +
-        `<div class="card-reading-name">${name}${rev}</div>` +
-        `<p class="card-reading-body">${card.reading}</p>`;
-      section.appendChild(block);
-    });
+      // Generate reading for each card using tarot_logic results
+      drawnCards.forEach((card, i) => {
+        const slot = SLOTS[i];
+        const label = slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
+        const name = card.name.charAt(0).toUpperCase() + card.name.slice(1);
+        const rev = card.reversed ? ' <em style="font-weight:normal;font-size:11px;letter-spacing:0.06em;">(reversed)</em>' : '';
 
-    // Add conclusion
-    const conclusionBlock = document.createElement('div');
-    conclusionBlock.className = 'reading-conclusion';
-    conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
-    section.appendChild(conclusionBlock);
+        // Use the logic from tarot_logic engine
+        let reading = card.logic;
 
-    // Save to history
-    saveReadingToHistory(drawnCards, intro, conclusion, userText);
+        // Optionally enhance with Synthesizer if available
+        if (window.TarotSynthesizer && card.cardData) {
+          const synthesizer = new window.TarotSynthesizer(
+            { card: card.cardData, name: card.name, isReversed: card.reversed },
+            card.segmentText || userText,
+            slot.category
+          );
+
+          // Get citations for "Learn More" functionality
+          const citations = synthesizer.findCitations();
+          if (citations.length > 0) {
+            reading += '\n\n<small style="color:rgba(49,38,26,0.6);"><em>Key phrases: ' +
+              citations.slice(0, 1).map(c => `"${c.substring(0, 80)}..."`).join('; ') +
+              '</em></small>';
+          }
+        }
+
+        const block = document.createElement('div');
+        block.className = 'reading-card-block';
+        block.innerHTML =
+          `<div class="card-reading-label">${label}</div>` +
+          `<div class="card-reading-name">${name}${rev}</div>` +
+          `<p class="card-reading-body" style="white-space:pre-line;">${reading}</p>`;
+        section.appendChild(block);
+      });
+
+      // Generate conclusion based on reversals and specific cards
+      const reversals = drawnCards.filter(c => c.reversed).length;
+      const cardNames = drawnCards.map(c => c.name.toLowerCase());
+
+      let conclusion;
+      if (reversals >= 2) {
+        conclusion = "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is blocked.";
+      } else if (cardNames.includes('the devil')) {
+        conclusion = "🔗 <strong>The Contract is Signed:</strong> Your data is bound to a material master. Proceed with extreme caution.";
+      } else if (cardNames.includes('justice') || cardNames.includes('the star')) {
+        conclusion = "✨ <strong>A Clear Path:</strong> This policy shines with transparency. Your rights are balanced and respected.";
+      } else {
+        conclusion = "🔮 <strong>The Reading is Complete.</strong> Your digital fate is in your hands.";
+      }
+
+      const conclusionBlock = document.createElement('div');
+      conclusionBlock.className = 'reading-conclusion';
+      conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
+      section.appendChild(conclusionBlock);
+
+      // Save to history
+      saveReadingToHistory(drawnCards, intro, conclusion, userText);
+    } else {
+      // Fallback to old narrator if V2 not available
+      const narrator = new TarotNarrator(drawnCards, userText);
+      const { intro, body, conclusion } = narrator.generateReading();
+
+      // Add intro
+      const introBlock = document.createElement('div');
+      introBlock.className = 'reading-intro';
+      introBlock.innerHTML = `<p style="font-style:italic;font-size:15px;text-align:center;margin-bottom:32px;color:rgba(49,38,26,0.85);">${intro}</p>`;
+      section.appendChild(introBlock);
+
+      // Add each card reading
+      body.forEach((card, i) => {
+        const slot  = SLOTS[i];
+        const label = slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
+        const name  = card.name.charAt(0).toUpperCase() + card.name.slice(1);
+        const rev   = card.reversed ? ' <em style="font-weight:normal;font-size:11px;letter-spacing:0.06em;">(reversed)</em>' : '';
+
+        const block = document.createElement('div');
+        block.className = 'reading-card-block';
+        block.innerHTML =
+          `<div class="card-reading-label">${label}</div>` +
+          `<div class="card-reading-name">${name}${rev}</div>` +
+          `<p class="card-reading-body">${card.reading}</p>`;
+        section.appendChild(block);
+      });
+
+      // Add conclusion
+      const conclusionBlock = document.createElement('div');
+      conclusionBlock.className = 'reading-conclusion';
+      conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
+      section.appendChild(conclusionBlock);
+
+      // Save to history
+      saveReadingToHistory(drawnCards, intro, conclusion, userText);
+    }
   }
 
   function initLegalReading() {
@@ -1818,13 +2078,14 @@
 
     // Clear input fields
     document.getElementById('userText').value = '';
-    document.getElementById('platformInput').value = '';
-    document.getElementById('typeInput').value = '';
     document.getElementById('urlInput').value = '';
     document.getElementById('fileInput').value = '';
     document.getElementById('processingStatus').textContent = '';
     document.getElementById('fileStatus').textContent = '';
+    document.getElementById('detectedInfo').textContent = '';
     extractedText = '';
+    window.currentPlatform = '';
+    window.currentType = '';
 
     // Snap deck back to bottom-center without animation
     const deckSection = document.getElementById('deckSection');
@@ -2017,6 +2278,22 @@
       navigateTo('history');
     } else if (window.location.hash === '#legal') {
       navigateTo('legal');
+    }
+
+    // Add listener to text input for automatic detection
+    const userTextEl = document.getElementById('userText');
+    if (userTextEl) {
+      userTextEl.addEventListener('input', () => {
+        const text = userTextEl.value.trim();
+        const detectedInfo = document.getElementById('detectedInfo');
+
+        if (text.length > 50) {
+          const metadata = inferMetadata(text);
+          detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
+        } else {
+          detectedInfo.textContent = '';
+        }
+      });
     }
   });
 

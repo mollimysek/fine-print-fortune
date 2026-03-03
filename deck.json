@@ -1,0 +1,739 @@
+{
+  "deck_name": "The Privacy Arcana: Complete Edition",
+  "major_arcana": [
+    {
+      "card": "The Fool",
+      "keywords": ["unspecified", "experimental", "as-is", "variable", "random"],
+      "station_logic": {
+        "collection": "Data is collected erratically or via experimental features with no clear boundary.",
+        "sharing": "Sharing is unpredictable; your data may be sent to unforeseen future partners.",
+        "retention": "There is no set lifespan for your data; it exists in a state of perpetual limbo."
+      },
+      "reversed_logic": "Recklessness. The policy ignores basic safety standards, putting your identity at risk."
+    },
+    {
+      "card": "The Magician",
+      "keywords": ["input", "active", "form", "creation", "service-providers"],
+      "station_logic": {
+        "collection": "You are the source of power; data is only gathered when you actively provide it.",
+        "sharing": "Sharing is limited to essential tools needed to make the service work.",
+        "retention": "Data is kept only as long as the active 'spell' (the service) is being cast."
+      },
+      "reversed_logic": "Manipulation. The service uses 'dark patterns' to trick you into hidden data actions."
+    },
+    {
+      "card": "The High Priestess",
+      "keywords": ["metadata", "logs", "pixel", "internal", "encrypted"],
+      "station_logic": {
+        "collection": "Collection happens in the shadows; logs and metadata track you silently.",
+        "sharing": "Data is kept in an internal silo, shared only with mysterious affiliates.",
+        "retention": "Data is moved to cold storage or hidden archives, away from the light of day."
+      },
+      "reversed_logic": "Hidden agendas. There are secrets within the policy intentionally kept from you."
+    },
+    {
+      "card": "The Empress",
+      "keywords": ["biometric", "face-print", "voice", "ecosystem", "ai training"],
+      "station_logic": {
+        "collection": "Fertile harvesting of rich, sensory data (voice, face, and behavior).",
+        "sharing": "Your data feeds a massive ecosystem of partners and interconnected apps.",
+        "retention": "Data is kept indefinitely to 'nurture' and grow the company's AI models."
+      },
+      "reversed_logic": "Smothering. Data collection is overbearing, leaving no room for personal boundaries."
+    },
+    {
+      "card": "The Emperor",
+      "keywords": ["mandatory", "kyc", "government", "legal hold", "statute"],
+      "station_logic": {
+        "collection": "Strict, mandatory collection of legal identity and official documents.",
+        "sharing": "Sharing is strictly controlled and aimed at law enforcement or regulators.",
+        "retention": "Data is bound by strict statutory periods; it remains until the law says so."
+      },
+      "reversed_logic": "Tyranny. The company exerts excessive control, using legal jargon to strip autonomy."
+    },
+    {
+      "card": "The Hierophant",
+      "keywords": ["standardized", "iso", "framework", "compliance", "auditor"],
+      "station_logic": {
+        "collection": "Collection follows rigid, traditional industry standards and protocols.",
+        "sharing": "Data is shared only with accredited institutions and standardized auditors.",
+        "retention": "Data is archived for historical interest, following a traditional lifecycle."
+      },
+      "reversed_logic": "Blind Dogma. Following the letter of the law while ignoring actual user safety."
+    },
+    {
+      "card": "The Lovers",
+      "keywords": ["sso", "sync", "social login", "joint-marketing", "partnership"],
+      "station_logic": {
+        "collection": "Collection is a union; data is synced across multiple social accounts.",
+        "sharing": "A marriage of data; shared with trusted partners for marketing efforts.",
+        "retention": "Data stays as long as the 'relationship' (your account) remains active."
+      },
+      "reversed_logic": "Incompatibility. The 'partners' are not what they seem; a breach of trust is likely."
+    },
+    {
+      "card": "The Chariot",
+      "keywords": ["gps", "precise location", "cross-border", "international", "real-time"],
+      "station_logic": {
+        "collection": "Active and relentless tracking of your physical movements and momentum.",
+        "sharing": "Your data travels across borders to international entities at high speed.",
+        "retention": "Retention is transient; data is captured in motion and overwritten quickly."
+      },
+      "reversed_logic": "Loss of control. Your data is moving too fast through too many hands."
+    },
+    {
+      "card": "Justice",
+      "keywords": ["gdpr", "ccpa", "opt-in", "rights", "audit"],
+      "station_logic": {
+        "collection": "Collection is balanced and fair, requiring explicit consent for every action.",
+        "sharing": "Shared only for accountability and to uphold your specific legal rights.",
+        "retention": "Data is kept only as long as is strictly 'necessary' for the original purpose."
+      },
+      "reversed_logic": "Injustice. The policy uses legal loopholes to bypass the spirit of privacy."
+    },
+    {
+      "card": "The Hermit",
+      "keywords": ["local-only", "on-device", "isolated", "no-third-party"],
+      "station_logic": {
+        "collection": "Data is collected in solitude; it stays on your device and never hits the cloud.",
+        "sharing": "Total isolation; no data leaves the device to be shared with anyone.",
+        "retention": "Ephemeral storage; data is designed to be forgotten almost immediately."
+      },
+      "reversed_logic": "Isolation. Privacy promises are so strict the service becomes unusable."
+    },
+    {
+      "card": "Wheel of Fortune",
+      "keywords": ["cookies", "rtb", "auction", "session", "browsing-history"],
+      "station_logic": {
+        "collection": "Collection is a game of chance based on the 'Wheel' of your history.",
+        "sharing": "Data is tossed into real-time ad auctions to see where it lands today.",
+        "retention": "Retention is tied to the 'Session'; once the wheel stops, the data vanishes."
+      },
+      "reversed_logic": "Bad luck. Automated systems have categorized you into a disadvantageous group."
+    },
+    {
+      "card": "Strength",
+      "keywords": ["fraud", "security", "resilience", "threat-detection", "backup"],
+      "station_logic": {
+        "collection": "Collection is focused on identifying 'beastly' behavior and security threats.",
+        "sharing": "Shared with cybersecurity firms to maintain the integrity of the wall.",
+        "retention": "Hardened storage; backups are kept long-term to survive system attacks."
+      },
+      "reversed_logic": "Brute force. Security measures are overly aggressive, treating users as suspects."
+    },
+    {
+      "card": "The Hanged Man",
+      "keywords": ["suspension", "pause", "restriction", "dispute", "frozen"],
+      "station_logic": {
+        "collection": "Collection is restricted or paused while your status is under review.",
+        "sharing": "Sharing is suspended; your data is in a 'wait-and-see' state.",
+        "retention": "Data is frozen in time; retention is extended while a dispute is resolved."
+      },
+      "reversed_logic": "Stagnation. Data is stuck in legal limbo with no clear path to deletion."
+    },
+    {
+      "card": "Death",
+      "keywords": ["scrubbed", "purge", "erasure", "hard-delete", "merger"],
+      "station_logic": {
+        "collection": "Collection triggers the end of anonymity; identity is captured for transition.",
+        "sharing": "Data is shared as part of a total transition, such as a company merger.",
+        "retention": "Absolute deletion. Once the cycle ends, the data is irreversibly scrubbed."
+      },
+      "reversed_logic": "Resistance to change. Data refuses to die; traces linger after deletion."
+    },
+    {
+      "card": "Temperance",
+      "keywords": ["anonymized", "aggregated", "compatible", "blended", "de-identified"],
+      "station_logic": {
+        "collection": "Data is diluted upon collection, blended into anonymized pools.",
+        "sharing": "Shared only for 'compatible' purposes where identity is hidden.",
+        "retention": "Data is 'tempered' over time, becoming less specific as it ages."
+      },
+      "reversed_logic": "Imbalance. The 'anonymization' is weak and easily de-masked."
+    },
+    {
+      "card": "The Devil",
+      "keywords": ["sell", "monetize", "broker", "dark pattern", "shadow-profile"],
+      "station_logic": {
+        "collection": "Collection is a trap; 'dark patterns' force you to give up too much.",
+        "sharing": "Your data is sold to brokers; you are the product in this transaction.",
+        "retention": "Bound indefinitely. 'Shadow profiles' keep your essence after you leave."
+      },
+      "reversed_logic": "Release. You've seen the trap, but the cost of breaking the terms is high."
+    },
+    {
+      "card": "The Tower",
+      "keywords": ["breach", "bankruptcy", "incident", "forced-disclosure", "wipe"],
+      "station_logic": {
+        "collection": "Collection via emergency bypass; privacy structures are falling.",
+        "sharing": "Forced disclosure; shared during bankruptcy or catastrophic failure.",
+        "retention": "Sudden destruction; data is wiped or lost due to an unforeseen event."
+      },
+      "reversed_logic": "Avoiding disaster. A near-miss; a breach happened, but your data survived."
+    },
+    {
+      "card": "The Star",
+      "keywords": ["public", "transparency-report", "open-source", "visibility"],
+      "station_logic": {
+        "collection": "Transparent collection; the process is clear, bright, and easy to see.",
+        "sharing": "Data is shared for public inspiration or through transparency reports.",
+        "retention": "Kept as a 'guiding light' for future community development."
+      },
+      "reversed_logic": "False hope. Transparency is performative; hidden details remain."
+    },
+    {
+      "card": "The Moon",
+      "keywords": ["inferred", "likely", "estimated", "probabilistic", "vague"],
+      "station_logic": {
+        "collection": "Collection of shadows; they collect what they 'think' they know about you.",
+        "sharing": "Shared with 'unnamed' partners in a murky, ill-defined network.",
+        "retention": "Unclear retention schedules; your data fades into a long night."
+      },
+      "reversed_logic": "Deception. Inferences are wrong and used to misguide your experience."
+    },
+    {
+      "card": "The Sun",
+      "keywords": ["plain-english", "benefit", "joy", "success", "clear-purposes"],
+      "station_logic": {
+        "collection": "Radiant clarity; you know exactly why data is taken.",
+        "sharing": "Shared only to bring you more value and better experiences.",
+        "retention": "Data is kept for 'User Success' and deleted once the joy is fulfilled."
+      },
+      "reversed_logic": "Burnout. 'Joyous' features harvest so much data they drain your battery."
+    },
+    {
+      "card": "Judgement",
+      "keywords": ["sar", "access-request", "rectification", "audit-logs"],
+      "station_logic": {
+        "collection": "Collection for accountability; every action is logged for review.",
+        "sharing": "Shared with regulators to judge whether rules are being followed.",
+        "retention": "Periodic re-evaluation; data is 'called up' to see if it should exist."
+      },
+      "reversed_logic": "Harsh judgment. Unfairly penalized based on your data history."
+    },
+    {
+      "card": "The World",
+      "keywords": ["cross-border", "universal", "all-encompassing", "holistic"],
+      "station_logic": {
+        "collection": "A global net; a holistic picture of your life across all borders.",
+        "sharing": "Universal sharing; data becomes part of global infrastructure.",
+        "retention": "Data is part of a 'Final Archive' kept as part of world history."
+      },
+      "reversed_logic": "Incompleteness. The global picture is fragmented and lost."
+    }
+  ],
+  "minor_arcana": {
+    "pentacles": [
+      {
+        "rank": "Ace", "suit": "pentacles", "keywords": ["payment", "billing", "credit", "debit"],
+        "station_logic": {
+          "collection": "New financial beginnings; collection of primary payment methods.",
+          "sharing": "Sharing with banks and processors to plant the seed of trade.",
+          "retention": "Retained as a physical ledger for tax and audit purposes."
+        },
+        "reversed_logic": "Financial loss. Payment data is vulnerable or improperly handled."
+      },
+      {
+        "rank": "Two", "suit": "pentacles", "keywords": ["freemium", "tier", "subscription", "balance"],
+        "station_logic": {
+          "collection": "Balancing data collection across different service tiers.",
+          "sharing": "Trading your data in exchange for 'free' features.",
+          "retention": "Retention fluctuates based on your current subscription status."
+        },
+        "reversed_logic": "Instability. The balance of trade is unfair; you give more than you get."
+      },
+      {
+        "rank": "Three", "suit": "pentacles", "keywords": ["employment", "professional", "linkedin", "hr"],
+        "station_logic": {
+          "collection": "Collection of your professional 'craft' and work history.",
+          "sharing": "Shared with workplace partners to manage your employment.",
+          "retention": "Retained as a permanent record of your professional labor."
+        },
+        "reversed_logic": "Poor craftsmanship. Data is used to sabotage professional reputation."
+      },
+      {
+        "rank": "Four", "suit": "pentacles", "keywords": ["imei", "mac address", "hardware id", "serial"],
+        "station_logic": {
+          "collection": "Hoarding physical device IDs to lock your digital identity.",
+          "sharing": "Internal use only; the company guards this data like a treasure.",
+          "retention": "Refusal to let go; device IDs are kept even after you leave."
+        },
+        "reversed_logic": "Greed. Data hoarding prevents you from using your own devices freely."
+      },
+      {
+        "rank": "Five", "suit": "pentacles", "keywords": ["unpaid", "arrears", "debt", "hardship"],
+        "station_logic": {
+          "collection": "Collection of data regarding your financial struggles.",
+          "sharing": "Shared with debt collectors or 'outside the wall' agencies.",
+          "retention": "Kept until all debts and 'losses' are settled."
+        },
+        "reversed_logic": "Poverty of privacy. Data is used to exploit your financial vulnerability."
+      },
+      {
+        "rank": "Six", "suit": "pentacles", "keywords": ["charity", "philanthropy", "gift", "donation"],
+        "station_logic": {
+          "collection": "Voluntary collection for social or charitable programs.",
+          "sharing": "Data is 'gifted' to non-profits or research partners.",
+          "retention": "Data is kept as a legacy of your contribution."
+        },
+        "reversed_logic": "Selfishness. The 'charitable' sharing is actually a hidden data sale."
+      },
+      {
+        "rank": "Seven", "suit": "pentacles", "keywords": ["investment", "portfolio", "growth", "yield"],
+        "station_logic": {
+          "collection": "Tracking your assets to see how your value grows.",
+          "sharing": "Shared with market analysts to evaluate your potential.",
+          "retention": "Long-term storage to track the 'yield' of your data over time."
+        },
+        "reversed_logic": "Failed investment. Data is kept long-term but provides no value to you."
+      },
+      {
+        "rank": "Eight", "suit": "pentacles", "keywords": ["ux", "heatmap", "optimize", "quality"],
+        "station_logic": {
+          "collection": "Meticulous tracking of movements to refine the app.",
+          "sharing": "Shared with UX tools to study your behavior.",
+          "retention": "Data is kept while 'craftsmen' polish the product."
+        },
+        "reversed_logic": "Wasted labor. Extensive tracking that fails to improve the user experience."
+      },
+      {
+        "rank": "Nine", "suit": "pentacles", "keywords": ["luxury", "vip", "high-net-worth", "affluence"],
+        "station_logic": {
+          "collection": "Profiling your refined tastes and financial independence.",
+          "sharing": "Shared with high-end, exclusive marketing partners.",
+          "retention": "Retained as a V.I.P. profile for a life of digital luxury."
+        },
+        "reversed_logic": "Isolation. Your wealth profile causes you to be excluded or upcharged."
+      },
+      {
+        "rank": "Ten", "suit": "pentacles", "keywords": ["family plan", "household", "smart home", "iot"],
+        "station_logic": {
+          "collection": "Collection that encompasses your entire home and household.",
+          "sharing": "Shared with 'Parent Companies' and across the corporate family.",
+          "retention": "A permanent legacy; data passed through account generations."
+        },
+        "reversed_logic": "Family burden. Household data is used to control or surveil the family."
+      },
+      {
+        "rank": "Page", "suit": "pentacles", "keywords": ["startup", "beta", "prototype", "test"],
+        "station_logic": {
+          "collection": "A new, small stream of financial or physical data.",
+          "sharing": "Shared with early-stage testers and startup partners.",
+          "retention": "Temporary storage during the prototype phase."
+        },
+        "reversed_logic": "Lack of focus. Experimental data is leaked due to poor testing."
+      },
+      {
+        "rank": "Knight", "suit": "pentacles", "keywords": ["shipping", "logistics", "courier", "package"],
+        "station_logic": {
+          "collection": "Methodical tracking of location for physical delivery.",
+          "sharing": "Shared with carriers who move goods in the real world.",
+          "retention": "Kept until delivery is confirmed and mission is over."
+        },
+        "reversed_logic": "Stagnation. Logistic data is stuck; delivery of privacy is delayed."
+      },
+      {
+        "rank": "Queen", "suit": "pentacles", "keywords": ["health", "fitness", "wellness", "biometric"],
+        "station_logic": {
+          "collection": "Nurturing your body through health and wellness data.",
+          "sharing": "Shared with health practitioners and fitness ecosystems.",
+          "retention": "Long-term storage to track physical well-being history."
+        },
+        "reversed_logic": "Neglect. Health data is mishandled, causing worry or insecurity."
+      },
+      {
+        "rank": "King", "suit": "pentacles", "keywords": ["enterprise", "b2b", "assets", "commercial"],
+        "station_logic": {
+          "collection": "Collection of data that defines you as a business asset.",
+          "sharing": "Shared with commercial giants to manage the marketplace.",
+          "retention": "Permanent cornerstone of business infrastructure."
+        },
+        "reversed_logic": "Materialism. Data is treated only as a commodity, ignoring its humanity."
+      }
+    ],
+    "swords": [
+      {
+        "rank": "Ace", "suit": "swords", "keywords": ["arbitration", "class action", "waive", "jurisdiction"],
+        "station_logic": {
+          "collection": "Collection requires signing away your right to a day in court.",
+          "sharing": "Shared with legal counsel to defend against future claims.",
+          "retention": "Retained as 'Exhibit A' in case of a legal dispute."
+        },
+        "reversed_logic": "Legal chaos. Unenforceable or confusingly written arbitration."
+      },
+      {
+        "rank": "Two", "suit": "swords", "keywords": ["conflict", "choice of law", "deadlock", "neutral"],
+        "station_logic": {
+          "collection": "Data collected under two conflicting sets of rules.",
+          "sharing": "Sharing is stuck in a stalemate between 'yes' and 'no'.",
+          "retention": "Retention is in limbo while the company decides on the law."
+        },
+        "reversed_logic": "Indecision. Conflicting terms lead to accidental data exposure."
+      },
+      {
+        "rank": "Three", "suit": "swords", "keywords": ["breach", "leak", "unauthorized", "separation"],
+        "station_logic": {
+          "collection": "Heartbreak: collection methods have been compromised.",
+          "sharing": "Shared during a 'separation' or painful security leak.",
+          "retention": "Retained only as a record of a 'broken' privacy promise."
+        },
+        "reversed_logic": "Healing. Recovering from a breach; data is being secured."
+      },
+      {
+        "rank": "Four", "suit": "swords", "keywords": ["dnt", "do not track", "hibernate", "quarantine"],
+        "station_logic": {
+          "collection": "Collection is resting; 'Do Not Track' signals are honored.",
+          "sharing": "Sharing is in a meditative state; nothing is moving.",
+          "retention": "Data is in 'deep sleep' storage, safe from processing."
+        },
+        "reversed_logic": "Restlessness. Data is supposedly 'at rest' but is being used."
+      },
+      {
+        "rank": "Five", "suit": "swords", "keywords": ["aggressive", "scrape", "hostile", "advantage"],
+        "station_logic": {
+          "collection": "Collection is aggressive and forceful, often without realizing.",
+          "sharing": "Shared to 'gain an advantage' or win a battle.",
+          "retention": "Kept as a 'spiteful' record to prevent using other services."
+        },
+        "reversed_logic": "Defeat. The company has lost the legal battle over your data."
+      },
+      {
+        "rank": "Six", "suit": "swords", "keywords": ["portability", "export", "transfer", "migration"],
+        "station_logic": {
+          "collection": "Collection happens as you transition from a troubled past.",
+          "sharing": "Shared with a new platform as you move your digital life.",
+          "retention": "Kept only long enough to ensure a safe journey to a new app."
+        },
+        "reversed_logic": "Baggage. You cannot leave; your data is 'anchored' to the platform."
+      },
+      {
+        "rank": "Seven", "suit": "swords", "keywords": ["stealth", "background", "unauthorized", "spy"],
+        "station_logic": {
+          "collection": "Collection by stealth; done in the background while you sleep.",
+          "sharing": "Shared with 'secret' partners through a backdoor API.",
+          "retention": "Hidden retention; the data exists in places not told about."
+        },
+        "reversed_logic": "Confession. The company admits to stealth tracking and stops."
+      },
+      {
+        "rank": "Eight", "suit": "swords", "keywords": ["locked", "cannot delete", "trapped", "restrict"],
+        "station_logic": {
+          "collection": "You are blind to collection; trapped by the interface.",
+          "sharing": "Shared with entities that keep you 'locked' in.",
+          "retention": "Forbidden from deleting; retained against your will."
+        },
+        "reversed_logic": "Release. You have found the loophole to delete your data."
+      },
+      {
+        "rank": "Nine", "suit": "swords", "keywords": ["threat", "vulnerability", "anxiety", "risk"],
+        "station_logic": {
+          "collection": "Collection based on fear; tracking every 'threat'.",
+          "sharing": "Shared with threat-intel firms to manage anxiety.",
+          "retention": "Kept because of 'what might happen' if they delete it."
+        },
+        "reversed_logic": "Reality check. The 'threats' were exaggerated to justify tracking."
+      },
+      {
+        "rank": "Ten", "suit": "swords", "keywords": ["terminate", "cease", "scrub", "betrayal"],
+        "station_logic": {
+          "collection": "The final collection. They take everything one last time.",
+          "sharing": "Sharing ends in a final settlement of all accounts.",
+          "retention": "Data is truly dead. Final, irreversible termination."
+        },
+        "reversed_logic": "Resurrection. Data thought deleted has suddenly reappeared."
+      },
+      {
+        "rank": "Page", "suit": "swords", "keywords": ["copyright", "dmca", "ip", "intellectual"],
+        "station_logic": {
+          "collection": "Collection of 'intellectual' data to monitor for theft.",
+          "sharing": "Shared with copyright agents to protect property.",
+          "retention": "Kept as a record of legal thoughts and creations."
+        },
+        "reversed_logic": "All talk. Legal threats with no actual policy substance."
+      },
+      {
+        "rank": "Knight", "suit": "swords", "keywords": ["automated", "rapid", "ai-decision", "fast"],
+        "station_logic": {
+          "collection": "Swift collection using rapid-fire AI sensors.",
+          "sharing": "Shared in milliseconds with automated engines.",
+          "retention": "Kept for 'quick-strike' analysis before cycling out."
+        },
+        "reversed_logic": "Impulsiveness. AI makes a fast, wrong decision about your data."
+      },
+      {
+        "rank": "Queen", "suit": "swords", "keywords": ["audit", "compliance", "objective", "independent"],
+        "station_logic": {
+          "collection": "Objective and sharp collection, filtered for facts.",
+          "sharing": "Shared with independent auditors who judge with a cold eye.",
+          "retention": "Retained for quality control and objective evaluation."
+        },
+        "reversed_logic": "Coldness. Objective data used to make a heartless decision."
+      },
+      {
+        "rank": "King", "suit": "swords", "keywords": ["court order", "subpoena", "ruling", "law"],
+        "station_logic": {
+          "collection": "Collection mandated by the highest legal authority.",
+          "sharing": "Shared with governments and courts under legal command.",
+          "retention": "Permanent retention as an official record of the law."
+        },
+        "reversed_logic": "Abuse of power. Legal authority used to over-collect data."
+      }
+    ],
+    "wands": [
+      {
+        "rank": "Ace", "suit": "wands", "keywords": ["opt-in", "launch", "campaign", "new initiative"],
+        "station_logic": {
+          "collection": "A new spark; collection begins for a creative new feature.",
+          "sharing": "Shared with promoters launching your data into the world.",
+          "retention": "Kept to ignite future marketing possibilities."
+        },
+        "reversed_logic": "Flash in the pan. A new feature that leaks data instantly."
+      },
+      {
+        "rank": "Two", "suit": "wands", "keywords": ["roadmap", "strategy", "expansion", "future"],
+        "station_logic": {
+          "collection": "Collection for future planning and vision.",
+          "sharing": "Shared with global strategists to expand reach.",
+          "retention": "Kept long-term as part of the grand design."
+        },
+        "reversed_logic": "Lack of vision. Data collected for no clear future purpose."
+      },
+      {
+        "rank": "Three", "suit": "wands", "keywords": ["reach", "impressions", "clicks", "discovery"],
+        "station_logic": {
+          "collection": "Tracking how far your influence travels.",
+          "sharing": "Shared with ad-networks to see who is watching.",
+          "retention": "Retained to build a history of digital outreach."
+        },
+        "reversed_logic": "Over-extension. Sharing with too many networks at once."
+      },
+      {
+        "rank": "Four", "suit": "wands", "keywords": ["community", "event", "gathering", "celebration"],
+        "station_logic": {
+          "collection": "Data collected during community celebrations.",
+          "sharing": "Shared within the group to foster connection.",
+          "retention": "Kept as a record of a stable digital home."
+        },
+        "reversed_logic": "Unstable foundation. The 'community' is selling your data."
+      },
+      {
+        "rank": "Five", "suit": "wands", "keywords": ["a/b test", "competitor", "battle", "conflict"],
+        "station_logic": {
+          "collection": "Collection for competition; testing versions of you.",
+          "sharing": "Shared with testers to see how you react.",
+          "retention": "Kept until the 'winning' version is decided."
+        },
+        "reversed_logic": "Meaningless conflict. Chaotic A/B testing that confuses users."
+      },
+      {
+        "rank": "Six", "suit": "wands", "keywords": ["achievement", "points", "badge", "victory"],
+        "station_logic": {
+          "collection": "Collection of victories, points, and rewards.",
+          "sharing": "Shared publicly to celebrate success.",
+          "retention": "Retained forever as a trophy of user status."
+        },
+        "reversed_logic": "Fall from grace. Rewards are stripped based on data changes."
+      },
+      {
+        "rank": "Seven", "suit": "wands", "keywords": ["defense", "bot", "captcha", "firewall"],
+        "station_logic": {
+          "collection": "Collection to defend the 'wall'; proving you are human.",
+          "sharing": "Shared with security partners to keep intruders out.",
+          "retention": "Kept to identify you as a trusted defender."
+        },
+        "reversed_logic": "Giving up. The 'defenses' are down; data is wide open."
+      },
+      {
+        "rank": "Eight", "suit": "wands", "keywords": ["websocket", "real-time", "live", "instant"],
+        "station_logic": {
+          "collection": "Rapid-fire collection happening in a blink.",
+          "sharing": "Shared instantly through live data feeds.",
+          "retention": "Transient retention; processed and gone in a flash."
+        },
+        "reversed_logic": "Haste makes waste. Real-time data is sent to the wrong place."
+      },
+      {
+        "rank": "Nine", "suit": "wands", "keywords": ["resilient", "uptime", "backup", "persist"],
+        "station_logic": {
+          "collection": "Collection for endurance and system survival.",
+          "sharing": "Shared with reliability engineers to keep things running.",
+          "retention": "Persistent storage; data survives any catastrophe."
+        },
+        "reversed_logic": "Defensive posture. Over-collection to 'prepare' for failure."
+      },
+      {
+        "rank": "Ten", "suit": "wands", "keywords": ["bandwidth", "large files", "burden", "load"],
+        "station_logic": {
+          "collection": "Collection of heavy data straining the system.",
+          "sharing": "Shared with CDNs to manage the load.",
+          "retention": "Retention is a burden; large files are a heavy weight."
+        },
+        "reversed_logic": "Burnout. The 'burden' of your data causes the service to fail."
+      },
+      {
+        "rank": "Page", "suit": "wands", "keywords": ["discovery", "trend", "algorithm", "interest"],
+        "station_logic": {
+          "collection": "Collection to find the 'next big thing'.",
+          "sharing": "Shared with trend-forecasters to predict the future.",
+          "retention": "Kept as a record of early 'sparks' of interest."
+        },
+        "reversed_logic": "False news. Algorithms create a trend you didn't start."
+      },
+      {
+        "rank": "Knight", "suit": "wands", "keywords": ["lead gen", "direct mail", "sales", "pursuit"],
+        "station_logic": {
+          "collection": "Aggressive collection to turn you into a sales lead.",
+          "sharing": "Shared with hungry agencies to pursue you.",
+          "retention": "Kept in the 'funnel' until ready to buy."
+        },
+        "reversed_logic": "Scattered energy. Selling your data to too many leads."
+      },
+      {
+        "rank": "Queen", "suit": "wands", "keywords": ["influencer", "social", "advocacy", "voice"],
+        "station_logic": {
+          "collection": "Collection of your voice to build social presence.",
+          "sharing": "Shared with brand advocates to spread influence.",
+          "retention": "Retained to nurture the fire of your digital brand."
+        },
+        "reversed_logic": "Intimidation. Your 'voice' data is used to silence you."
+      },
+      {
+        "rank": "King", "suit": "wands", "keywords": ["dominance", "market leader", "vision", "power"],
+        "station_logic": {
+          "collection": "Collection that defines market energy.",
+          "sharing": "Shared with leaders to maintain total control.",
+          "retention": "Retained as cornerstone of the digital vision."
+        },
+        "reversed_logic": "Ruthlessness. Power used to crush user privacy."
+      }
+    ],
+    "cups": [
+      {
+        "rank": "Ace", "suit": "cups", "keywords": ["chat", "message", "emotional", "sentiment"],
+        "station_logic": {
+          "collection": "New flow of personal communication and feelings.",
+          "sharing": "Shared with trusted and intimate contacts.",
+          "retention": "Kept for its sentimental value."
+        },
+        "reversed_logic": "Emotional spill. Private messages leaked or mishandled."
+      },
+      {
+        "rank": "Two", "suit": "cups", "keywords": ["dating", "match", "partner", "pair"],
+        "station_logic": {
+          "collection": "Collection to find an intimate 'pair'.",
+          "sharing": "Shared with potential matches.",
+          "retention": "Kept while the connection remains."
+        },
+        "reversed_logic": "Disharmony. Dating data leads to a toxic connection."
+      },
+      {
+        "rank": "Three", "suit": "cups", "keywords": ["friends", "contacts", "circles", "group"],
+        "station_logic": {
+          "collection": "Collection within your social group.",
+          "sharing": "Shared with friends to foster community.",
+          "retention": "Retained for social celebration."
+        },
+        "reversed_logic": "Gossip. Friends' data shared with the wrong people."
+      },
+      {
+        "rank": "Four", "suit": "cups", "keywords": ["spam", "uninterested", "unsubscribe", "stale"],
+        "station_logic": {
+          "collection": "Collection of data you are bored with.",
+          "sharing": "Shared with 'junk' filters.",
+          "retention": "Stagnant retention; data sits unused."
+        },
+        "reversed_logic": "New awareness. Realizing you shared too much out of boredom."
+      },
+      {
+        "rank": "Five", "suit": "cups", "keywords": ["complaint", "regret", "grievance", "sorrow"],
+        "station_logic": {
+          "collection": "Collection of data about disappointment.",
+          "sharing": "Shared with support to manage grief.",
+          "retention": "Kept as a record of what went wrong."
+        },
+        "reversed_logic": "Acceptance. Moving on from a bad privacy experience."
+      },
+      {
+        "rank": "Six", "suit": "cups", "keywords": ["nostalgia", "archive", "memories", "history"],
+        "station_logic": {
+          "collection": "Collection of historical memories.",
+          "sharing": "Shared with past self via history features.",
+          "retention": "Perpetual storage for digital nostalgia."
+        },
+        "reversed_logic": "Living in the past. Retaining data that should be forgotten."
+      },
+      {
+        "rank": "Seven", "suit": "cups", "keywords": ["wishlist", "fantasy", "dream", "option"],
+        "station_logic": {
+          "collection": "Collection of dreams and future desires.",
+          "sharing": "Shared with engines trying to fulfill fantasies.",
+          "retention": "Kept until digital dreams are realized."
+        },
+        "reversed_logic": "Illusion. Marketing data that sells you a fake dream."
+      },
+      {
+        "rank": "Eight", "suit": "cups", "keywords": ["deactivate", "abandon", "churn", "exit"],
+        "station_logic": {
+          "collection": "Collection of the moment you decided to walk away.",
+          "sharing": "Shared during the 'exit interview'.",
+          "retention": "Kept as a record of the path when you left."
+        },
+        "reversed_logic": "Fear of leaving. Terms that make deactivation impossible."
+      },
+      {
+        "rank": "Nine", "suit": "cups", "keywords": ["satisfaction", "survey", "happiness", "wish"],
+        "station_logic": {
+          "collection": "Collection of what makes you happy.",
+          "sharing": "Shared with partners to maintain joy.",
+          "retention": "Retained to ensure future satisfaction."
+        },
+        "reversed_logic": "Greed. Satisfaction data used to manipulate your desires."
+      },
+      {
+        "rank": "Ten", "suit": "cups", "keywords": ["home", "family", "circle", "harmony"],
+        "station_logic": {
+          "collection": "Collection representing harmony of your group.",
+          "sharing": "Shared across your entire ecosystem.",
+          "retention": "Permanent storage for digital legacy."
+        },
+        "reversed_logic": "Broken home. Household data used to divide the family."
+      },
+      {
+        "rank": "Page", "suit": "cups", "keywords": ["intuition", "empathy", "sensitive", "mood"],
+        "station_logic": {
+          "collection": "Collection of 'moods' to predict needs.",
+          "sharing": "Shared with 'sensitive' AI to learn how you feel.",
+          "retention": "Kept to foster an empathetic future."
+        },
+        "reversed_logic": "Escapism. AI uses your mood data to distract you."
+      },
+      {
+        "rank": "Knight", "suit": "cups", "keywords": ["passionate", "advocacy", "quest", "offer"],
+        "station_logic": {
+          "collection": "Collection to pursue your deepest quests.",
+          "sharing": "Shared with those who can help achieve missions.",
+          "retention": "Retained to keep the spirit of your quest alive."
+        },
+        "reversed_logic": "Unrequited love. You give data, but get no service in return."
+      },
+      {
+        "rank": "Queen", "suit": "cups", "keywords": ["counseling", "support", "empathy", "care"],
+        "station_logic": {
+          "collection": "Sensitive collection, handled with care.",
+          "sharing": "Shared only with those providing emotional support.",
+          "retention": "Retained in a 'nurturing' environment."
+        },
+        "reversed_logic": "Insecurity. Care data used to make you feel vulnerable."
+      },
+      {
+        "rank": "King", "suit": "cups", "keywords": ["stewardship", "ethics", "trust", "wise"],
+        "station_logic": {
+          "collection": "Collection managed with a calm, ethical hand.",
+          "sharing": "Shared only for wise and trusted stewardship.",
+          "retention": "Kept as a sacred trust, managed with maturity."
+        },
+        "reversed_logic": "Emotional instability. The 'stewards' are volatile with your data."
+      }
+    ]
+  }
+}
