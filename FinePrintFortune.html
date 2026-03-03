@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarot Draw</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #6E9FC4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: Georgia, serif;
+      color: #31261A;
+    }
+
+    /* ── Top-to-bottom gradient ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.10) 100%);
+    }
+
+    /* ── Texture canvas sits above the gradient but below screen content,
+       so it shows through transparent areas (card slots, page bg) but not
+       through solid-background elements like buttons or the textarea ── */
+    #texture-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 3; }
+    .screen.active { display: flex; }
+
+    /* ── SCREEN 1 ── */
+    #screen-input {
+      width: 100%;
+      min-height: 100vh;
+      padding: 60px 24px;
+      gap: 24px;
+    }
+    .input-heading {
+      font-size: 22px;
+      font-weight: normal;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+    .input-sub {
+      font-size: 13px;
+      color: rgba(49,38,26,0.9);
+      text-align: center;
+      letter-spacing: 0.06em;
+      max-width: 480px;
+    }
+    #userText {
+      width: min(640px, 90vw);
+      height: 260px;
+      background: #8CB6D4;
+      border: 1px solid #31261A;
+      border-radius: 12px;
+      padding: 18px;
+      color: #31261A;
+      font-family: Georgia, serif;
+      font-size: 14px;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #userText:focus { border-color: rgba(49,38,26,0.4); }
+    #userText::placeholder { color: rgba(49,38,26,0.88); }
+
+    /* ── SCREEN 2 ── */
+    #screen-draw {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      padding: 40px 24px 24px;
+      gap: 0;
+      justify-content: flex-start;
+    }
+
+    .spread {
+      display: flex;
+      flex-direction: row;
+      gap: 28px;
+      align-items: flex-start;
+      flex-shrink: 0;
+      margin-bottom: 20px;
+    }
+
+    #reading-area {
+      flex: 1;
+      min-height: 0;
+      overflow-y: scroll;
+      width: 100%;
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    #reading-area::-webkit-scrollbar {
+      width: 6px;
+    }
+    #reading-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #reading-area::-webkit-scrollbar-thumb {
+      background: rgba(49,38,26,0.35);
+      border-radius: 3px;
+    }
+    #reading-area::-webkit-scrollbar-thumb:hover {
+      background: rgba(49,38,26,0.55);
+    }
+
+    #reading-section {
+      display: none;
+      opacity: 0;
+      max-width: min(876px, 90vw);
+      margin: 0 auto;
+      width: 100%;
+    }
+    .reading-card-block {
+      padding: 28px 0;
+      border-top: 1px solid rgba(49,38,26,0.18);
+    }
+    .reading-card-block:first-child {
+      border-top: none;
+      padding-top: 4px;
+    }
+
+    .spread-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 198px;
+    }
+
+    .slot-wrapper {
+      position: relative;
+      width: 198px;
+      height: 320px;
+    }
+
+    .spread-slot {
+      width: 198px;
+      height: 320px;
+    }
+
+    .placed-card {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(0.88);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
+    }
+    .placed-card.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .placed-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+.card-reading-label {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.55);
+      margin-bottom: 4px;
+    }
+    .card-reading-name {
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .card-reading-body {
+      font-size: 14px;
+      line-height: 1.72;
+      margin: 0;
+    }
+
+    .deck-section {
+      flex-shrink: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0 8px;
+    }
+
+    .reading-empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: rgba(49,38,26,0.9);
+      letter-spacing: 0.14em;
+      font-style: italic;
+    }
+
+    .deck-area {
+      width: 260px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .deck-img {
+      width: 240px;
+      transition: transform 0.15s ease, filter 0.15s ease;
+      display: block;
+    }
+    .deck-area:hover .deck-img {
+      transform: translateY(-5px);
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+    }
+    .deck-area.done { cursor: default; }
+    .deck-area.done:hover .deck-img { transform: none; filter: none; }
+
+    .status {
+      font-size: 12px;
+      color: rgba(49,38,26,0.9);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      height: 18px;
+    }
+
+    .btn {
+      padding: 11px 34px;
+      background: #6E9FC4;
+      color: #31261A;
+      border: 1px solid #31261A;
+      border-radius: 30px;
+      font-size: 14px;
+      font-family: Georgia, serif;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+    }
+    .btn:hover  { transform: translateY(-4px); filter: drop-shadow(0 5px 14px rgba(49,38,26,0.22)); }
+    .btn:active { transform: scale(0.97); filter: none; }
+
+    .reset-btn {
+      display: none;
+      white-space: nowrap;
+      background: #6E9FC4;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      opacity: 0;
+      pointer-events: none;
+    }
+    .reset-btn:hover {
+      transform: translateY(-4px);
+      filter: drop-shadow(0 5px 14px rgba(49,38,26,0.22));
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+    }
+    .reset-btn:active {
+      transform: scale(0.97);
+      filter: none;
+    }
+
+    /* ── Stages 1–3: Lift & reorient (800ms total) ──
+       Perspective is provided by a full-viewport wrapper (not inline here).
+       Stage 1 (0–30%):  lift only — angle unchanged, card rises off deck.
+       Stage 2 (30–70%): rotate from deck angle to flat face-on while rising.
+       Stage 3 (70–80%): micro-settle at flat orientation.
+       Stage 4 (flip) is triggered via JS transition after this ends.          */
+    @keyframes liftReorient {
+      0% {
+        transform: rotateX(50deg) rotateY(-11deg) rotateZ(40deg) translateZ(0px) translateY(0px) scale(1);
+        filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18));
+        animation-timing-function: ease-out;
+      }
+      30% {
+        transform: rotateX(50deg) rotateY(-11deg) rotateZ(40deg) translateZ(20px) translateY(-20px) scale(1);
+        filter: drop-shadow(0 6px 14px rgba(0,0,0,0.22));
+        animation-timing-function: cubic-bezier(0.42,0,0.58,1);
+      }
+      70% {
+        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateZ(20px) translateX(var(--center-tx)) translateY(var(--center-ty)) scale(2.0);
+        filter: drop-shadow(0 14px 28px rgba(0,0,0,0.28));
+        animation-timing-function: ease-out;
+      }
+      80%, 100% {
+        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateZ(20px) translateX(var(--center-tx)) translateY(var(--center-ty)) scale(1.8);
+        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="texture-canvas" aria-hidden="true"></canvas>
+
+  <!-- SCREEN 1 -->
+  <div class="screen active" id="screen-input">
+    <h1 class="input-heading">What's on your mind?</h1>
+    <textarea id="userText" placeholder="Paste in your fine print..."></textarea>
+    <button class="btn" onclick="proceedToDraw()">Draw your cards</button>
+  </div>
+
+  <!-- SCREEN 2 -->
+  <div class="screen" id="screen-draw">
+    <div class="spread" id="spread">
+      <div class="spread-col" id="col-0">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="col-1">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="col-2">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="col-3">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+    </div>
+
+    <div class="deck-section" id="deckSection">
+      <div class="status" id="status"></div>
+      <div class="deck-area" id="deckArea" onclick="drawCard()">
+        <img class="deck-img" id="deckImg" src="card_backs/Stack.png" alt="Deck">
+      </div>
+      <button class="btn reset-btn" id="resetBtn" onclick="resetSpread()">Start over</button>
+    </div>
+
+    <div id="reading-area">
+      <div class="reading-empty-state" id="readingEmpty">Draw 4 cards to reveal your fine print fortune.</div>
+      <div id="reading-section"></div>
+    </div>
+  </div>
+
+<script>
+  const MAJOR_ARCANA = [
+    'the high priestess.png','the magician.png','the fool.png','the empress.png',
+    'the emperor.png','the hierophant.png','the lovers.png','the chariot.png',
+    'strength.png','the hermit.png','the wheel of fortune.png','justice.png',
+    'the hanged man.png','death.png','temperance.png','the devil.png',
+    'the tower.png','the star.png','the moon.png','the sun.png','the world.png',
+  ];
+
+  const MINOR_ARCANA = [
+    'page of wands.png','king of pentacles.png','king of swords.png','king of cups.png',
+    'king of wands.png','queen of pentacles.png','queen of swords.png','queen of cups.png',
+    'queen of wands.png','knight of pentacles.png','knight of swords.png','knight of cups.png',
+    'knight of wands.png','ace of pentacles.png','ace of swords.png','ace of cups.png',
+    'ace of wands.png','two of pentacles.png','two of swords.png','two of cups.png',
+    'two of wands.png','three of pentacles.png','three of swords.png','three of cups.png',
+    'three of wands.png','four of pentacles.png','four of swords.png','four of cups.png',
+    'four of wands.png','five of pentacles.png','five of swords.png','five of cups.png',
+    'five of wands.png','six of pentacles.png','six of swords.png','six of cups.png',
+    'six of wands.png','seven of pentacles.png','seven of swords.png','seven of cups.png',
+    'seven of wands.png','eight of pentacles.png','eight of swords.png','eight of cups.png',
+    'eight of wands.png','nine of pentacles.png','nine of swords.png','nine of cups.png',
+    'nine of wands.png','ten of pentacles.png','ten of swords.png','ten of cups.png',
+    'ten of wands.png','page of pentacles.png','page of swords.png','page of cups.png',
+  ];
+
+  // Draw order: Past → Present → Future → Advice
+  const SLOTS = [
+    { col: 0, category: 'past'    },
+    { col: 1, category: 'present' },
+    { col: 2, category: 'future'  },
+    { col: 3, category: 'advice'  },
+  ];
+
+  const CARD_RATIO = 320 / 198; // height / width, matches slot
+
+  let drawn      = 0;
+  let animating  = false;
+  let userText   = '';
+  let drawnCards = [];
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function selectCards() {
+    const numMajor = Math.random() < 0.5 ? 1 : 2;
+    const numMinor = 4 - numMajor;
+    const majors = shuffle(MAJOR_ARCANA).slice(0, numMajor).map(f => ({
+      src: `major_arcana/${f}`, name: f.replace('.png', ''), reversed: Math.random() < 0.35,
+    }));
+    const minors = shuffle(MINOR_ARCANA).slice(0, numMinor).map(f => ({
+      src: `minor_arcana/${f}`, name: f.replace('.png', ''), reversed: Math.random() < 0.35,
+    }));
+    return shuffle([...majors, ...minors]);
+  }
+
+  function proceedToDraw() {
+    userText   = document.getElementById('userText').value.trim();
+    drawnCards = selectCards();
+    document.getElementById('screen-input').classList.remove('active');
+    document.getElementById('screen-draw').classList.add('active');
+  }
+
+  function getSlotRect(colIndex) {
+    return document.querySelector(`#col-${colIndex} .slot-wrapper`).getBoundingClientRect();
+  }
+
+  function drawCard() {
+    if (animating || drawn >= SLOTS.length) return;
+    animating = true;
+
+    const deckArea  = document.getElementById('deckArea');
+    const deckImgEl = document.getElementById('deckImg');
+    const statusEl  = document.getElementById('status');
+    statusEl.textContent = '';
+    deckArea.style.pointerEvents = 'none';
+
+    if (drawn === SLOTS.length - 1) {
+      document.getElementById('readingEmpty').style.display = 'none';
+    }
+
+    const deckImgRect = deckImgEl.getBoundingClientRect();
+    const cardData    = drawnCards[drawn];
+
+    // Visual center of the deck image — card element will be centered here.
+    const cx = deckImgRect.left + deckImgRect.width  / 2;
+    const cy = deckImgRect.top  + deckImgRect.height / 2;
+
+    // Translation needed to move card center from deck position to viewport center.
+    const tx = Math.round(window.innerWidth  / 2 - cx);
+    const ty = Math.round(window.innerHeight / 2 - cy);
+
+    // Full-viewport wrapper provides the perspective context for all 3D transforms.
+    const perspWrap = document.createElement('div');
+    perspWrap.style.cssText = `
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 200;
+      perspective: 2000px;
+      perspective-origin: ${cx}px ${cy}px;
+    `;
+
+    // Card element — 130×210, transform-style:preserve-3d so both faces work.
+    // liftReorient animates it from deck angle → flat face-on over 800ms.
+    const cardEl = document.createElement('div');
+    cardEl.style.cssText = `
+      position: absolute;
+      left: ${cx - 99}px;
+      top:  ${cy - 160}px;
+      width: 198px;
+      height: 320px;
+      transform-style: preserve-3d;
+      transform-origin: center center;
+      animation: liftReorient 800ms forwards;
+      --center-tx: ${tx}px;
+      --center-ty: ${ty}px;
+    `;
+
+    // Back face — visible during stages 1–3 and at flip start.
+    const faceBack = document.createElement('div');
+    faceBack.style.cssText = `
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+      transform: translateZ(2px);
+    `;
+    faceBack.innerHTML = `<img src="card_backs/Card back.png"
+      style="width:100%;height:100%;object-fit:contain;" alt="">`;
+
+    // Front face — pre-rotated 180° so it appears after the Y-axis flip.
+    const faceFront = document.createElement('div');
+    faceFront.style.cssText = `
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+      transform: rotateY(180deg) translateZ(2px);
+    `;
+    const frontImgStyle = 'width:100%;height:100%;object-fit:contain;'
+      + (cardData.reversed ? 'transform:rotate(180deg);' : '');
+    faceFront.innerHTML = `<img src="${cardData.src}" style="${frontImgStyle}" alt="${cardData.name}">`;
+
+    cardEl.appendChild(faceBack);
+    cardEl.appendChild(faceFront);
+    perspWrap.appendChild(cardEl);
+    document.body.appendChild(perspWrap);
+
+    // Stage 4 — Flip: triggered the instant liftReorient ends.
+    cardEl.addEventListener('animationend', () => {
+      // Pin the final animation state as an inline transform, then clear the
+      // animation so it no longer holds the value.  No visual snap occurs
+      // because the explicit value matches the forwards-fill value.
+      // Translations come first so rotateY pivots at the card's screen-center
+      // position rather than at the deck, eliminating the swoop.
+      const flatTransform = `translateX(${tx}px) translateY(${ty}px) translateZ(20px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1.8)`;
+      cardEl.style.transform = flatTransform;
+      cardEl.style.animation  = 'none';
+      cardEl.style.filter     = 'none';
+
+      // Force a style recalc so the browser registers flatTransform as the
+      // "before" state before we set the "after" state for the transition.
+      cardEl.offsetHeight; // eslint-disable-line no-unused-expressions
+
+      cardEl.style.transition = 'transform 200ms ease-in-out';
+      cardEl.style.transform  = `translateX(${tx}px) translateY(${ty}px) translateZ(20px) rotateX(0deg) rotateY(180deg) rotateZ(0deg) scale(1.8)`;
+
+      // After flip completes, capture visual position and fly card to slot.
+      setTimeout(() => {
+        const rect = cardEl.getBoundingClientRect();
+        perspWrap.remove();
+
+        // Simple 2D fly element — no 3D transforms.
+        const flyEl = document.createElement('div');
+        flyEl.style.cssText = `
+          position: fixed;
+          left:   ${rect.left}px;
+          top:    ${rect.top}px;
+          width:  ${rect.width}px;
+          height: ${rect.height}px;
+          pointer-events: none;
+          z-index: 200;
+          filter: drop-shadow(0 8px 16px rgba(0,0,0,0.22));
+        `;
+        flyEl.innerHTML = `<img src="${cardData.src}" style="${frontImgStyle}" alt="${cardData.name}">`;
+        document.body.appendChild(flyEl);
+
+        const slotRect = getSlotRect(SLOTS[drawn].col);
+        requestAnimationFrame(() => {
+          flyEl.style.transition = [
+            'left 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'top 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'width 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'height 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'filter 0.5s ease',
+          ].join(', ');
+          flyEl.style.left   = `${slotRect.left}px`;
+          flyEl.style.top    = `${slotRect.top}px`;
+          flyEl.style.width  = `${slotRect.width}px`;
+          flyEl.style.height = `${slotRect.height}px`;
+          flyEl.style.filter = 'drop-shadow(0 4px 10px rgba(0,0,0,0.22))';
+        });
+
+        setTimeout(() => {
+          placePermanentCard(drawn);
+          requestAnimationFrame(() => flyEl.remove());
+          drawn++;
+          animating = false;
+          deckArea.style.pointerEvents = 'auto';
+          deckArea.classList.toggle('done', drawn >= SLOTS.length);
+          if (drawn >= SLOTS.length) {
+            statusEl.textContent = '';
+            moveDeckToCorner();
+            generateReading();
+          } else {
+            statusEl.textContent = '';
+          }
+        }, 580);
+      }, 220); // flip duration
+    }, { once: true });
+
+  }
+
+  function placePermanentCard(index) {
+    const wrapper  = document.querySelector(`#col-${SLOTS[index].col} .slot-wrapper`);
+    const cardData = drawnCards[index];
+    const card     = document.createElement('div');
+    card.className = 'placed-card visible';
+    const imgStyle = 'width:100%;height:100%;object-fit:contain;'
+      + (cardData.reversed ? 'transform:rotate(180deg);' : '');
+    card.innerHTML = `<img src="${cardData.src}" style="${imgStyle}" alt="${cardData.name}">`;
+    wrapper.appendChild(card);
+  }
+
+  function moveDeckToCorner() {
+    const deckSection = document.getElementById('deckSection');
+    const deckImg     = document.getElementById('deckImg');
+    const deckArea    = document.getElementById('deckArea');
+    const status      = document.getElementById('status');
+
+    // Capture current rendered position before changing anything
+    const rect = deckSection.getBoundingClientRect();
+
+    // Pull out of flow and freeze at the exact current screen position
+    deckSection.style.transition = 'none';
+    deckSection.style.position   = 'fixed';
+    deckSection.style.top        = rect.top  + 'px';
+    deckSection.style.left       = rect.left + 'px';
+
+    // Freeze current sizes as inline values so transitions have a defined start point
+    deckImg.style.transition  = 'none';
+    deckImg.style.width       = deckImg.offsetWidth + 'px';
+    deckArea.style.transition = 'none';
+    deckArea.style.width      = deckArea.offsetWidth + 'px';
+
+    // Fade out status label
+    status.style.transition = 'opacity 0.3s';
+    status.style.opacity    = '0';
+
+    // Force reflow so the browser registers the frozen values as the "before" state
+    deckSection.offsetHeight; // eslint-disable-line no-unused-expressions
+
+    // Animate everything to the top-left corner simultaneously
+    const ease = '0.9s cubic-bezier(0.4, 0, 0.2, 1)';
+    deckSection.style.transition = `top ${ease}, left ${ease}`;
+    deckImg.style.transition     = `width ${ease}`;
+    deckArea.style.transition    = `width ${ease}`;
+
+    deckSection.style.top  = '16px';
+    deckSection.style.left = '16px';
+    deckImg.style.width    = '110px';
+    deckArea.style.width   = '120px';
+
+    // Reveal reset button once deck has settled in its corner
+    readingTimers.push(setTimeout(() => {
+      const resetBtn = document.getElementById('resetBtn');
+      resetBtn.style.display = 'block';
+      resetBtn.offsetHeight; // force reflow so opacity transition fires
+      resetBtn.style.transition    = 'opacity 0.5s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, box-shadow 0.2s';
+      resetBtn.style.opacity       = '1';
+      resetBtn.style.pointerEvents = 'auto';
+    }, 950));
+  }
+
+  // ── Background texture ──────────────────────────────────────────────────
+  // Layer A: large soft mottling blobs (watercolor pooling)
+  // Layer B: fine grain — half-res random noise scaled up via drawImage so
+  //          bilinear interpolation softens sharp pixel edges automatically.
+  (function paintTexture() {
+    const canvas = document.getElementById('texture-canvas');
+    const W = canvas.width  = window.innerWidth;
+    const H = canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+
+    // Mottling blobs: [cx%, cy%, rx%, ry%, r, g, b, peakAlpha]
+    [
+      [0.76, 0.14, 0.70, 0.60, 255, 255, 255, 0.10],
+      [0.18, 0.82, 0.60, 0.70,   0,   0,  20, 0.10],
+      [0.40, 0.46, 0.52, 0.55, 255, 255, 255, 0.07],
+      [0.93, 0.50, 0.38, 0.72,   0,   0,  20, 0.08],
+      [0.54, 0.96, 0.66, 0.32, 255, 255, 255, 0.06],
+    ].forEach(([fx, fy, frx, fry, r, g, b, a]) => {
+      ctx.save();
+      ctx.translate(fx * W, fy * H);
+      ctx.scale(frx * W, fry * H);
+      const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+      grd.addColorStop(0,   `rgba(${r},${g},${b},${a})`);
+      grd.addColorStop(0.6, `rgba(${r},${g},${b},${+(a * 0.3).toFixed(3)})`);
+      grd.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(0, 0, 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // Grain: generate at half resolution, drawImage scales it up smoothly
+    const gW = Math.ceil(W / 2), gH = Math.ceil(H / 2);
+    const scratch = document.createElement('canvas');
+    scratch.width = gW; scratch.height = gH;
+    const gctx = scratch.getContext('2d');
+    const img  = gctx.createImageData(gW, gH);
+    const px   = img.data;
+    for (let i = 0; i < px.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      px[i] = px[i + 1] = px[i + 2] = v;
+      px[i + 3] = 255;
+    }
+    gctx.putImageData(img, 0, 0);
+    ctx.globalAlpha = 0.06;
+    ctx.drawImage(scratch, 0, 0, W, H);
+    ctx.globalAlpha = 1;
+  })();
+
+  let readingTimers = [];
+
+  function generateReading() {
+    // Small pause so the last card can settle before the reading appears
+    readingTimers.push(setTimeout(startReadingSequence, 600));
+  }
+
+  function startReadingSequence() {
+    populateReading();
+
+    const section = document.getElementById('reading-section');
+    section.style.opacity    = '0';
+    section.style.display    = 'block';
+    section.offsetHeight; // force reflow so transition registers
+    section.style.transition = 'opacity 1.8s ease-in';
+    section.style.opacity    = '1';
+  }
+
+  function populateReading() {
+    const LOREM = [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+      "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
+      "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi.",
+      "Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur. Nam libero tempore cum soluta nobis eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus.",
+    ];
+
+    const section = document.getElementById('reading-section');
+    section.innerHTML = '';
+    drawnCards.forEach((card, i) => {
+      const slot  = SLOTS[i];
+      const label = slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
+      const name  = card.name.charAt(0).toUpperCase() + card.name.slice(1);
+      const rev   = card.reversed ? ' <em style="font-weight:normal;font-size:11px;letter-spacing:0.06em;">(reversed)</em>' : '';
+      const block = document.createElement('div');
+      block.className = 'reading-card-block';
+      block.innerHTML =
+        `<div class="card-reading-label">${label}</div>` +
+        `<div class="card-reading-name">${name}${rev}</div>` +
+        `<p class="card-reading-body">${LOREM[i]}</p>`;
+      section.appendChild(block);
+    });
+  }
+
+  function resetSpread() {
+    drawn = 0; animating = false; drawnCards = [];
+    readingTimers.forEach(t => clearTimeout(t));
+    readingTimers = [];
+
+    document.querySelectorAll('.placed-card').forEach(c => c.remove());
+
+    // Reset reading section
+    const section = document.getElementById('reading-section');
+    section.innerHTML     = '';
+    section.style.display = 'none';
+    section.style.opacity = '0';
+    section.style.transition = '';
+
+    const empty = document.getElementById('readingEmpty');
+    empty.style.display    = '';
+    empty.style.opacity    = '1';
+    empty.style.transition = '';
+
+    // Snap deck back to bottom-center without animation
+    const deckSection = document.getElementById('deckSection');
+    const deckImg     = document.getElementById('deckImg');
+    const deckArea    = document.getElementById('deckArea');
+    const status      = document.getElementById('status');
+    const resetBtn    = document.getElementById('resetBtn');
+
+    deckSection.style.transition = 'none';
+    deckSection.style.position   = '';
+    deckSection.style.top        = '';
+    deckSection.style.left       = '';
+
+    deckImg.style.transition = 'none';
+    deckImg.style.width      = '';
+
+    deckArea.style.transition = 'none';
+    deckArea.style.width      = '';
+
+    status.style.transition = '';
+    status.style.opacity    = '';
+    status.textContent      = '';
+
+    resetBtn.style.transition    = '';
+    resetBtn.style.display       = 'none';
+    resetBtn.style.opacity       = '0';
+    resetBtn.style.pointerEvents = 'none';
+
+    // Restore CSS transitions on next frame so snap doesn't fight them
+    requestAnimationFrame(() => {
+      deckSection.style.transition = '';
+      deckImg.style.transition     = '';
+      deckArea.style.transition    = '';
+    });
+
+    deckArea.style.pointerEvents = 'auto';
+    deckArea.classList.remove('done');
+
+    document.getElementById('screen-draw').classList.remove('active');
+    document.getElementById('screen-input').classList.add('active');
+  }
+
+</script>
+</body>
+</html>
