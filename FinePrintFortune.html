@@ -229,8 +229,9 @@
       flex-direction: row;
       gap: 28px;
       align-items: flex-start;
+      justify-content: center;
       flex-shrink: 0;
-      margin-bottom: 20px;
+      margin-bottom: 4px;
     }
 
     #reading-area {
@@ -238,7 +239,7 @@
       min-height: 0;
       overflow-y: scroll;
       width: 100%;
-      max-width: calc(5 * 198px + 4 * 28px);
+      max-width: calc(3 * 198px + 2 * 28px);
       padding-bottom: 20px;
       display: flex;
       flex-direction: column;
@@ -249,6 +250,8 @@
     }
     #reading-area::-webkit-scrollbar-track {
       background: transparent;
+      margin-top: 40px;
+      margin-bottom: 40px;
     }
     #reading-area::-webkit-scrollbar-thumb {
       background: rgba(49,38,26,0.35);
@@ -264,6 +267,7 @@
       max-width: 100%;
       margin: 0 auto;
       width: 100%;
+      padding-top: 56px;
     }
     .reading-card-block {
       padding: 28px 0;
@@ -345,15 +349,16 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      padding: 12px 0 8px;
+      gap: 4px;
+      padding: 4px 0 4px;
     }
 
     .reading-empty-state {
       flex: 1;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
+      padding-top: 24px;
       text-align: center;
       font-size: 22px;
       font-weight: bold;
@@ -363,8 +368,7 @@
     }
 
     .deck-area {
-      width: 198px;
-      height: 320px;
+      width: 252px;
       position: relative;
       display: flex;
       align-items: flex-end;
@@ -373,10 +377,9 @@
     }
     .deck-img {
       width: 100%;
-      height: 100%;
-      object-fit: contain;
-      transition: transform 0.15s ease, filter 0.15s ease;
+      height: auto;
       display: block;
+      transition: transform 0.15s ease, filter 0.15s ease;
     }
     .deck-area:hover .deck-img {
       transform: translateY(-5px);
@@ -999,12 +1002,6 @@
         <div class="slot-label">Data Retention</div>
         <div class="slot-wrapper"><div class="spread-slot"></div></div>
       </div>
-      <div class="spread-col" id="col-3">
-        <div class="slot-wrapper"><div class="spread-slot"></div></div>
-      </div>
-      <div class="spread-col" id="col-4">
-        <div class="slot-wrapper"><div class="spread-slot"></div></div>
-      </div>
     </div>
 
     <div class="deck-section" id="deckSection">
@@ -1038,7 +1035,7 @@
   <div class="screen" id="screen-explore">
     <div class="explore-container">
       <h1 class="explore-heading">Explore the Deck</h1>
-      <p class="explore-sub">The Privacy Arcana — every card and its meaning in the context of your data</p>
+      <p class="explore-sub">The Fine Print Arcana — every card and its meaning in the context of your data</p>
       <div id="explore-content"></div>
     </div>
   </div>
@@ -1823,55 +1820,21 @@
 
   function moveDeckToSlot() {
     const deckSection = document.getElementById('deckSection');
-    const deckArea    = document.getElementById('deckArea');
-    const status      = document.getElementById('status');
-
-    // Capture positions before touching anything
     const deckSectionRect = deckSection.getBoundingClientRect();
-    const deckAreaRect    = deckArea.getBoundingClientRect();
-    const slot3Rect = document.querySelector('#col-3 .slot-wrapper').getBoundingClientRect();
-    const slot4Rect = document.querySelector('#col-4 .slot-wrapper').getBoundingClientRect();
 
-    // Center the deck over the two-column area (col-3 + col-4), align top with slot top
-    const twoColCenterX = (slot3Rect.left + slot4Rect.right) / 2;
-    const dxCenter   = twoColCenterX - (deckAreaRect.left + deckAreaRect.width / 2);
-    const dyTop      = slot3Rect.top - deckAreaRect.top;
-    const targetTop  = deckSectionRect.top  + dyTop;
-    const targetLeft = deckSectionRect.left + dxCenter;
-
-    // Pull out of flow and freeze at current screen position
+    // Pull out of flow and freeze at current screen position so removal
+    // doesn't shift the reading area abruptly
     deckSection.style.transition = 'none';
     deckSection.style.position   = 'fixed';
     deckSection.style.top        = deckSectionRect.top  + 'px';
     deckSection.style.left       = deckSectionRect.left + 'px';
 
-    // Fade out status label and disable deck clicks
-    status.style.transition      = 'opacity 0.3s';
-    status.style.opacity         = '0';
-    deckArea.style.pointerEvents = 'none';
+    deckSection.offsetHeight; // force reflow
 
-    // Force reflow — deckSection leaves the flow, reading-area expands up
-    deckSection.offsetHeight; // eslint-disable-line no-unused-expressions
-
-    // Push reading-area down enough so the scaled deck doesn't overlap text.
-    // Deck center (after animation) = slot3Rect.top + half card height.
-    // At scale 1.75 from center, visual bottom = center + (320 * 1.75 / 2).
-    const deckCenterY      = slot3Rect.top + deckAreaRect.height / 2;
-    const deckVisualBottom = deckCenterY + (deckAreaRect.height * 1.75) / 2;
-    const readingAreaEl    = document.getElementById('reading-area');
-    const readingTop       = readingAreaEl.getBoundingClientRect().top;
-    const overlap          = Math.max(0, deckVisualBottom - readingTop);
-    if (overlap > 0) readingAreaEl.style.paddingTop = overlap + 'px';
-
-    // Animate to the col-3/4 area, scaling up 75% from the deck's center
-    deckArea.style.transformOrigin = 'center center';
-    const ease = '0.9s cubic-bezier(0.4, 0, 0.2, 1)';
-    deckSection.style.transition = `top ${ease}, left ${ease}`;
-    deckArea.style.transition    = `transform ${ease}`;
-    deckSection.style.top        = targetTop  + 'px';
-    deckSection.style.left       = targetLeft + 'px';
-    deckArea.style.transform     = 'scale(1.75)';
-
+    // Fade out and hide
+    deckSection.style.transition = 'opacity 0.5s ease';
+    deckSection.style.opacity    = '0';
+    setTimeout(() => { deckSection.style.display = 'none'; }, 500);
   }
 
   // ── Background texture ──────────────────────────────────────────────────
@@ -1951,7 +1914,6 @@
 
     getIntro() {
       const intros = [
-        "The cards have been dealt, and your digital aura is clear.",
         "I have peered into the fine print of your destiny.",
         "The spirits of the terms and conditions are speaking. Here is what they reveal."
       ];
@@ -2167,14 +2129,6 @@
 
     // Use V2 logic if cards have pre-computed logic from tarot_logic.py
     if (drawnCards[0].logic !== undefined) {
-      const intro = "The cards have been dealt, and your digital aura is clear.";
-
-      // Add intro
-      const introBlock = document.createElement('div');
-      introBlock.className = 'reading-intro';
-      introBlock.innerHTML = `<p style="font-style:italic;font-size:15px;text-align:center;margin-bottom:32px;color:rgba(49,38,26,0.85);">${intro}</p>`;
-      section.appendChild(introBlock);
-
       // Generate reading for each card using tarot_logic results
       drawnCards.forEach((card, i) => {
         const slot = SLOTS[i];
@@ -2270,7 +2224,7 @@
       section.appendChild(conclusionBlock);
 
       // Save to history
-      saveReadingToHistory(drawnCards, intro, conclusion, userText);
+      saveReadingToHistory(drawnCards, '', conclusion, userText);
     } else {
       // Fallback to old narrator if V2 not available
       const narrator = new TarotNarrator(drawnCards, userText);
@@ -2383,21 +2337,21 @@
     window.currentPlatform = '';
     window.currentType = '';
 
-    // Snap deck back to bottom-center without animation
+    // Restore deck visibility
     const deckSection = document.getElementById('deckSection');
     const deckArea    = document.getElementById('deckArea');
     const status      = document.getElementById('status');
 
-    deckSection.style.transition   = 'none';
-    deckSection.style.position     = '';
-    deckSection.style.top          = '';
-    deckSection.style.left         = '';
+    deckSection.style.transition = 'none';
+    deckSection.style.display    = '';
+    deckSection.style.opacity    = '';
+    deckSection.style.position   = '';
+    deckSection.style.top        = '';
+    deckSection.style.left       = '';
 
     deckArea.style.transition      = 'none';
     deckArea.style.transform       = '';
     deckArea.style.transformOrigin = '';
-
-    document.getElementById('reading-area').style.paddingTop = '';
 
     status.style.transition = '';
     status.style.opacity    = '';
