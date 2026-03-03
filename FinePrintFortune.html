@@ -1548,12 +1548,14 @@
       const cards = ['collection', 'sharing', 'retention'].map(station => {
         const result = spread[station];
         const cardName = result.name;
-        const cardFile = cardName.toLowerCase().replace(/\s+/g, ' ') + '.png';
 
         // Determine if it's major or minor arcana
         // Major arcana have 'card' field, minor arcana have 'rank' and 'suit' fields
         const isMajor = result.card.card !== undefined;
         const folder = isMajor ? 'major_arcana' : 'minor_arcana';
+        const cardFile = isMajor
+          ? getMajorArcanaFilename(cardName)
+          : cardName.toLowerCase().replace(/\s+/g, ' ') + '.png';
 
         return {
           src: `${folder}/${cardFile}`,
