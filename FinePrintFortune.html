@@ -1347,7 +1347,7 @@
 
     try {
       // Use a CORS proxy for cross-origin requests
-      const proxyUrl = 'https://api.allorigins.win/raw?url=';
+      const proxyUrl = 'https://corsproxy.io/?url=';
       const response = await fetch(proxyUrl + encodeURIComponent(url));
 
       if (!response.ok) {
