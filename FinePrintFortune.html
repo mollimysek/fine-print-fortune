@@ -37,6 +37,36 @@
       z-index: 2;
     }
 
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      padding: 0 24px;
+      height: 48px;
+      align-items: center;
+      background: #8CB6D4;
+    }
+    nav a {
+      font-family: Georgia, serif;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      text-decoration: none;
+      padding: 6px 18px;
+      border-radius: 20px;
+      transition: background 0.15s ease;
+      white-space: nowrap;
+    }
+    nav a:hover {
+      background: rgba(49,38,26,0.08);
+    }
+
     .screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 3; }
     .screen.active { display: flex; }
 
@@ -44,7 +74,7 @@
     #screen-input {
       width: 100%;
       min-height: 100vh;
-      padding: 60px 24px;
+      padding: 128px 24px 60px;
       gap: 24px;
     }
     .input-heading {
@@ -83,7 +113,7 @@
       width: 100%;
       height: 100vh;
       overflow: hidden;
-      padding: 40px 24px 24px;
+      padding: 88px 24px 24px;
       gap: 0;
       justify-content: flex-start;
     }
@@ -102,6 +132,7 @@
       min-height: 0;
       overflow-y: scroll;
       width: 100%;
+      max-width: calc(5 * 198px + 4 * 28px);
       padding-bottom: 20px;
       display: flex;
       flex-direction: column;
@@ -124,7 +155,7 @@
     #reading-section {
       display: none;
       opacity: 0;
-      max-width: min(876px, 90vw);
+      max-width: 100%;
       margin: 0 auto;
       width: 100%;
     }
@@ -216,7 +247,8 @@
     }
 
     .deck-area {
-      width: 260px;
+      width: 198px;
+      height: 320px;
       position: relative;
       display: flex;
       align-items: flex-end;
@@ -224,7 +256,9 @@
       cursor: pointer;
     }
     .deck-img {
-      width: 240px;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       transition: transform 0.15s ease, filter 0.15s ease;
       display: block;
     }
@@ -259,23 +293,6 @@
     .btn:hover  { transform: translateY(-4px); filter: drop-shadow(0 5px 14px rgba(49,38,26,0.22)); }
     .btn:active { transform: scale(0.97); filter: none; }
 
-    .reset-btn {
-      display: none;
-      white-space: nowrap;
-      background: #6E9FC4;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-      opacity: 0;
-      pointer-events: none;
-    }
-    .reset-btn:hover {
-      transform: translateY(-4px);
-      filter: drop-shadow(0 5px 14px rgba(49,38,26,0.22));
-      box-shadow: 0 6px 24px rgba(0,0,0,0.18);
-    }
-    .reset-btn:active {
-      transform: scale(0.97);
-      filter: none;
-    }
 
     /* ── Stages 1–3: Lift & reorient (800ms total) ──
        Perspective is provided by a full-viewport wrapper (not inline here).
@@ -310,6 +327,13 @@
 
   <canvas id="texture-canvas" aria-hidden="true"></canvas>
 
+  <nav>
+    <a href="#">New reading</a>
+    <a href="#">Explore deck</a>
+    <a href="#">Your history</a>
+    <a href="#">Legal</a>
+  </nav>
+
   <!-- SCREEN 1 -->
   <div class="screen active" id="screen-input">
     <h1 class="input-heading">What's on your mind?</h1>
@@ -332,6 +356,9 @@
       <div class="spread-col" id="col-3">
         <div class="slot-wrapper"><div class="spread-slot"></div></div>
       </div>
+      <div class="spread-col" id="col-4">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
     </div>
 
     <div class="deck-section" id="deckSection">
@@ -339,11 +366,10 @@
       <div class="deck-area" id="deckArea" onclick="drawCard()">
         <img class="deck-img" id="deckImg" src="card_backs/Stack.png" alt="Deck">
       </div>
-      <button class="btn reset-btn" id="resetBtn" onclick="resetSpread()">Start over</button>
     </div>
 
     <div id="reading-area">
-      <div class="reading-empty-state" id="readingEmpty">Draw 4 cards to reveal your fine print fortune.</div>
+      <div class="reading-empty-state" id="readingEmpty">Draw 3 cards to reveal your fine print fortune.</div>
       <div id="reading-section"></div>
     </div>
   </div>
@@ -374,12 +400,11 @@
     'ten of wands.png','page of pentacles.png','page of swords.png','page of cups.png',
   ];
 
-  // Draw order: Past → Present → Future → Advice
+  // Draw order: Past → Present → Future
   const SLOTS = [
     { col: 0, category: 'past'    },
     { col: 1, category: 'present' },
     { col: 2, category: 'future'  },
-    { col: 3, category: 'advice'  },
   ];
 
   const CARD_RATIO = 320 / 198; // height / width, matches slot
@@ -400,7 +425,7 @@
 
   function selectCards() {
     const numMajor = Math.random() < 0.5 ? 1 : 2;
-    const numMinor = 4 - numMajor;
+    const numMinor = 3 - numMajor;
     const majors = shuffle(MAJOR_ARCANA).slice(0, numMajor).map(f => ({
       src: `major_arcana/${f}`, name: f.replace('.png', ''), reversed: Math.random() < 0.35,
     }));
@@ -566,7 +591,7 @@
           deckArea.classList.toggle('done', drawn >= SLOTS.length);
           if (drawn >= SLOTS.length) {
             statusEl.textContent = '';
-            moveDeckToCorner();
+            moveDeckToSlot();
             generateReading();
           } else {
             statusEl.textContent = '';
@@ -588,54 +613,57 @@
     wrapper.appendChild(card);
   }
 
-  function moveDeckToCorner() {
+  function moveDeckToSlot() {
     const deckSection = document.getElementById('deckSection');
-    const deckImg     = document.getElementById('deckImg');
     const deckArea    = document.getElementById('deckArea');
     const status      = document.getElementById('status');
 
-    // Capture current rendered position before changing anything
-    const rect = deckSection.getBoundingClientRect();
+    // Capture positions before touching anything
+    const deckSectionRect = deckSection.getBoundingClientRect();
+    const deckAreaRect    = deckArea.getBoundingClientRect();
+    const slot3Rect = document.querySelector('#col-3 .slot-wrapper').getBoundingClientRect();
+    const slot4Rect = document.querySelector('#col-4 .slot-wrapper').getBoundingClientRect();
 
-    // Pull out of flow and freeze at the exact current screen position
+    // Center the deck over the two-column area (col-3 + col-4), align top with slot top
+    const twoColCenterX = (slot3Rect.left + slot4Rect.right) / 2;
+    const dxCenter   = twoColCenterX - (deckAreaRect.left + deckAreaRect.width / 2);
+    const dyTop      = slot3Rect.top - deckAreaRect.top;
+    const targetTop  = deckSectionRect.top  + dyTop;
+    const targetLeft = deckSectionRect.left + dxCenter;
+
+    // Pull out of flow and freeze at current screen position
     deckSection.style.transition = 'none';
     deckSection.style.position   = 'fixed';
-    deckSection.style.top        = rect.top  + 'px';
-    deckSection.style.left       = rect.left + 'px';
+    deckSection.style.top        = deckSectionRect.top  + 'px';
+    deckSection.style.left       = deckSectionRect.left + 'px';
 
-    // Freeze current sizes as inline values so transitions have a defined start point
-    deckImg.style.transition  = 'none';
-    deckImg.style.width       = deckImg.offsetWidth + 'px';
-    deckArea.style.transition = 'none';
-    deckArea.style.width      = deckArea.offsetWidth + 'px';
+    // Fade out status label and disable deck clicks
+    status.style.transition      = 'opacity 0.3s';
+    status.style.opacity         = '0';
+    deckArea.style.pointerEvents = 'none';
 
-    // Fade out status label
-    status.style.transition = 'opacity 0.3s';
-    status.style.opacity    = '0';
-
-    // Force reflow so the browser registers the frozen values as the "before" state
+    // Force reflow — deckSection leaves the flow, reading-area expands up
     deckSection.offsetHeight; // eslint-disable-line no-unused-expressions
 
-    // Animate everything to the top-left corner simultaneously
+    // Push reading-area down enough so the scaled deck doesn't overlap text.
+    // Deck center (after animation) = slot3Rect.top + half card height.
+    // At scale 1.75 from center, visual bottom = center + (320 * 1.75 / 2).
+    const deckCenterY      = slot3Rect.top + deckAreaRect.height / 2;
+    const deckVisualBottom = deckCenterY + (deckAreaRect.height * 1.75) / 2;
+    const readingAreaEl    = document.getElementById('reading-area');
+    const readingTop       = readingAreaEl.getBoundingClientRect().top;
+    const overlap          = Math.max(0, deckVisualBottom - readingTop);
+    if (overlap > 0) readingAreaEl.style.paddingTop = overlap + 'px';
+
+    // Animate to the col-3/4 area, scaling up 75% from the deck's center
+    deckArea.style.transformOrigin = 'center center';
     const ease = '0.9s cubic-bezier(0.4, 0, 0.2, 1)';
     deckSection.style.transition = `top ${ease}, left ${ease}`;
-    deckImg.style.transition     = `width ${ease}`;
-    deckArea.style.transition    = `width ${ease}`;
+    deckArea.style.transition    = `transform ${ease}`;
+    deckSection.style.top        = targetTop  + 'px';
+    deckSection.style.left       = targetLeft + 'px';
+    deckArea.style.transform     = 'scale(1.75)';
 
-    deckSection.style.top  = '16px';
-    deckSection.style.left = '16px';
-    deckImg.style.width    = '110px';
-    deckArea.style.width   = '120px';
-
-    // Reveal reset button once deck has settled in its corner
-    readingTimers.push(setTimeout(() => {
-      const resetBtn = document.getElementById('resetBtn');
-      resetBtn.style.display = 'block';
-      resetBtn.offsetHeight; // force reflow so opacity transition fires
-      resetBtn.style.transition    = 'opacity 0.5s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, box-shadow 0.2s';
-      resetBtn.style.opacity       = '1';
-      resetBtn.style.pointerEvents = 'auto';
-    }, 950));
   }
 
   // ── Background texture ──────────────────────────────────────────────────
@@ -752,36 +780,27 @@
 
     // Snap deck back to bottom-center without animation
     const deckSection = document.getElementById('deckSection');
-    const deckImg     = document.getElementById('deckImg');
     const deckArea    = document.getElementById('deckArea');
     const status      = document.getElementById('status');
-    const resetBtn    = document.getElementById('resetBtn');
 
-    deckSection.style.transition = 'none';
-    deckSection.style.position   = '';
-    deckSection.style.top        = '';
-    deckSection.style.left       = '';
+    deckSection.style.transition   = 'none';
+    deckSection.style.position     = '';
+    deckSection.style.top          = '';
+    deckSection.style.left         = '';
 
-    deckImg.style.transition = 'none';
-    deckImg.style.width      = '';
+    deckArea.style.transition      = 'none';
+    deckArea.style.transform       = '';
+    deckArea.style.transformOrigin = '';
 
-    deckArea.style.transition = 'none';
-    deckArea.style.width      = '';
+    document.getElementById('reading-area').style.paddingTop = '';
 
     status.style.transition = '';
     status.style.opacity    = '';
     status.textContent      = '';
 
-    resetBtn.style.transition    = '';
-    resetBtn.style.display       = 'none';
-    resetBtn.style.opacity       = '0';
-    resetBtn.style.pointerEvents = 'none';
-
     // Restore CSS transitions on next frame so snap doesn't fight them
     requestAnimationFrame(() => {
       deckSection.style.transition = '';
-      deckImg.style.transition     = '';
-      deckArea.style.transition    = '';
     });
 
     deckArea.style.pointerEvents = 'auto';
