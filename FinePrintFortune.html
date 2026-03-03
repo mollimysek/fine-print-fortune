@@ -877,6 +877,59 @@
         filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
       }
     }
+
+    /* ── Learn More / Citations panel ── */
+    .learn-more-btn {
+      display: block;
+      margin: 24px auto 0;
+    }
+
+    .citations-panel {
+      margin-top: 28px;
+      padding: 24px;
+      background: rgba(49,38,26,0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(49,38,26,0.12);
+    }
+
+    .citations-panel-heading {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.5);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .citation-quote {
+      margin: 0 0 10px 0;
+      padding: 12px 16px;
+      border-left: 3px solid rgba(49,38,26,0.25);
+      background: rgba(140,182,212,0.18);
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(49,38,26,0.82);
+      font-style: italic;
+    }
+    .citation-quote:last-child {
+      margin-bottom: 0;
+    }
+
+    .citation-section {
+      display: inline-block;
+      font-style: normal;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.5);
+      background: rgba(49,38,26,0.07);
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-bottom: 6px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
   </style>
 </head>
 <body>
@@ -2123,6 +2176,7 @@
 
         // Use TarotSynthesizer from narrative_engine to generate the summary
         let reading = card.logic; // fallback if synthesizer unavailable
+        let citations = [];
 
         if (window.TarotSynthesizer && card.cardData) {
           const cardResult = {
@@ -2147,14 +2201,7 @@
             .replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
           reading = rawSummary;
-
-          // Append cited key phrases from the source text
-          const citations = synthesizer.findCitations();
-          if (citations.length > 0) {
-            reading += '\n\n<small style="color:rgba(49,38,26,0.6);"><em>Key phrases: ' +
-              citations.slice(0, 1).map(c => `"${c.substring(0, 80)}..."`).join('; ') +
-              '</em></small>';
-          }
+          citations = synthesizer.findCitations();
         }
 
         const block = document.createElement('div');
@@ -2163,6 +2210,34 @@
           `<div class="card-reading-label">${label}</div>` +
           `<div class="card-reading-name">${name}${rev}</div>` +
           `<p class="card-reading-body" style="white-space:pre-line;">${reading}</p>`;
+
+        // Per-card "Learn More" toggle
+        if (citations.length > 0) {
+          const btn = document.createElement('button');
+          btn.className = 'btn-secondary learn-more-btn';
+          btn.textContent = 'Learn More';
+          block.appendChild(btn);
+
+          const panel = document.createElement('div');
+          panel.className = 'citations-panel';
+          panel.style.display = 'none';
+          panel.innerHTML =
+            `<div class="citations-panel-heading">From your policy</div>` +
+            citations.map(c => {
+              const sectionTag = c.section
+                ? `<span class="citation-section">${c.section}</span>`
+                : '';
+              return `<blockquote class="citation-quote">${sectionTag}${c.sentence}</blockquote>`;
+            }).join('');
+          block.appendChild(panel);
+
+          btn.addEventListener('click', () => {
+            const isOpen = panel.style.display !== 'none';
+            panel.style.display = isOpen ? 'none' : 'block';
+            btn.textContent = isOpen ? 'Learn More' : 'Show Less';
+          });
+        }
+
         section.appendChild(block);
       });
 

@@ -135,24 +135,62 @@ class TarotSynthesizer {
   }
 
   findCitations() {
-    // Find exact sentences that triggered the card
-    const foundSentences = [];
-    const sentences = this.text.split(/(?<=[.!?])\s+/);
+    // Find exact sentences that triggered the card, with nearest section label
+    const found = [];
+    const text = this.text;
     const keywords = this.card.keywords || [];
+    const sentences = text.split(/(?<=[.!?])\s+/);
 
+    let searchFrom = 0;
     sentences.forEach(sentence => {
+      const trimmed = sentence.trim();
+      if (!trimmed) return;
+
+      const pos = text.indexOf(trimmed, searchFrom);
+      if (pos !== -1) searchFrom = pos + trimmed.length;
+
       keywords.forEach(keyword => {
         const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        if (regex.test(sentence)) {
-          const trimmed = sentence.trim();
-          if (!foundSentences.includes(trimmed)) {
-            foundSentences.push(trimmed);
-          }
+        if (regex.test(trimmed) && !found.some(f => f.sentence === trimmed)) {
+          found.push({
+            sentence: trimmed,
+            section: pos !== -1 ? this._findNearestSection(text, pos) : null
+          });
         }
       });
     });
 
-    return foundSentences.slice(0, 3); // Top 3 for "Learn More"
+    return found.slice(0, 3);
+  }
+
+  _findNearestSection(text, pos) {
+    // Scan the text before `pos` for the nearest section label
+    const before = text.substring(0, pos);
+
+    let lastSection = null;
+    let lastPos = -1;
+
+    // Match "Section 3" / "Section 3.2.1" (case-insensitive)
+    const secPattern = /\bsection\s+(\d+(?:\.\d+)*)/gi;
+    let m;
+    while ((m = secPattern.exec(before)) !== null) {
+      if (m.index > lastPos) {
+        lastPos = m.index;
+        lastSection = 'Section ' + m[1];
+      }
+    }
+
+    // Match standalone numeric headers like "3." or "3.1" / "3.1.2"
+    // at the start of a line or after a blank line, followed by non-whitespace
+    const numPattern = /(?:^|\n)\s*(\d+(?:\.\d+)+)\.?\s+\S/gm;
+    while ((m = numPattern.exec(before)) !== null) {
+      if (m.index > lastPos) {
+        lastPos = m.index;
+        lastSection = 'Section ' + m[1];
+      }
+    }
+
+    return lastSection;
   }
 
   createSummary() {
