@@ -1324,6 +1324,7 @@
 
     // Fallback to random selection if deck not loaded
     console.warn('Deck not loaded, using random selection');
+    const { majorScores, suitScores } = analyzeText(text);
     const numMajor = Math.random() < 0.5 ? 1 : 2;
     const numMinor = 3 - numMajor;
 
@@ -1924,18 +1925,34 @@
         const name = card.name.charAt(0).toUpperCase() + card.name.slice(1);
         const rev = card.reversed ? ' <em style="font-weight:normal;font-size:11px;letter-spacing:0.06em;">(reversed)</em>' : '';
 
-        // Use the logic from tarot_logic engine
-        let reading = card.logic;
+        // Use TarotSynthesizer from narrative_engine to generate the summary
+        let reading = card.logic; // fallback if synthesizer unavailable
 
-        // Optionally enhance with Synthesizer if available
         if (window.TarotSynthesizer && card.cardData) {
+          const cardResult = {
+            card: card.cardData,
+            name: card.name,
+            isReversed: card.reversed,
+            score: card.score,
+            logic: card.logic
+          };
           const synthesizer = new window.TarotSynthesizer(
-            { card: card.cardData, name: card.name, isReversed: card.reversed },
+            cardResult,
             card.segmentText || userText,
             slot.category
           );
 
-          // Get citations for "Learn More" functionality
+          // Generate narrative summary from narrative_engine logic
+          let rawSummary = synthesizer.createSummary();
+
+          // Convert markdown bold/italic to HTML
+          rawSummary = rawSummary
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+          reading = rawSummary;
+
+          // Append cited key phrases from the source text
           const citations = synthesizer.findCitations();
           if (citations.length > 0) {
             reading += '\n\n<small style="color:rgba(49,38,26,0.6);"><em>Key phrases: ' +
