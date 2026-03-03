@@ -6,38 +6,26 @@
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="narrative_v2_implementation.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Jacquard+24&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #6E9FC4;
+      background: #B5D3EB;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       color: #31261A;
     }
 
-    /* ── Top-to-bottom gradient ── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 1;
-      background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.10) 100%);
-    }
-
-    /* ── Texture canvas sits above the gradient but below screen content,
-       so it shows through transparent areas (card slots, page bg) but not
-       through solid-background elements like buttons or the textarea ── */
+    /* ── Texture canvas (hidden) ── */
     #texture-canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
+      display: none;
     }
 
     /* ── Nav ── */
@@ -53,21 +41,22 @@
       padding: 0 24px;
       height: 48px;
       align-items: center;
-      background: #8CB6D4;
     }
     nav a {
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 13px;
       letter-spacing: 0.08em;
       color: #31261A;
       text-decoration: none;
       padding: 6px 18px;
-      border-radius: 20px;
-      transition: background 0.15s ease;
       white-space: nowrap;
     }
     nav a:hover {
-      background: rgba(49,38,26,0.08);
+      text-decoration: underline;
+    }
+    nav a.active {
+      font-weight: bold;
+      text-decoration: underline;
     }
 
     .screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 3; }
@@ -81,6 +70,7 @@
       gap: 24px;
     }
     .input-heading {
+      font-family: 'Jacquard 24', serif;
       font-size: 22px;
       font-weight: normal;
       letter-spacing: 0.08em;
@@ -99,11 +89,11 @@
       margin-bottom: 24px;
     }
     .tab-btn {
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 13px;
       letter-spacing: 0.08em;
       color: #31261A;
-      background: transparent;
+      background: #F6C56C;
       border: 1px solid #31261A;
       padding: 10px 24px;
       border-radius: 20px;
@@ -143,12 +133,12 @@
 
     #userText, #urlInput {
       width: 100%;
-      background: #8CB6D4;
+      background: #ffffff;
       border: 1px solid #31261A;
       border-radius: 12px;
       padding: 18px;
       color: #31261A;
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 14px;
       line-height: 1.7;
       outline: none;
@@ -170,7 +160,7 @@
       justify-content: center;
       width: 100%;
       height: 200px;
-      background: #8CB6D4;
+      background: #ffffff;
       border: 2px dashed #31261A;
       border-radius: 12px;
       cursor: pointer;
@@ -181,7 +171,7 @@
       border-color: rgba(49,38,26,0.7);
     }
     .file-upload-label span {
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 16px;
       letter-spacing: 0.08em;
       color: #31261A;
@@ -199,11 +189,11 @@
     }
 
     .btn-secondary {
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 13px;
       letter-spacing: 0.08em;
       color: #31261A;
-      background: #8CB6D4;
+      background: #F6C56C;
       border: 1px solid #31261A;
       padding: 12px 28px;
       border-radius: 20px;
@@ -399,12 +389,12 @@
 
     .btn {
       padding: 11px 34px;
-      background: #6E9FC4;
+      background: #F6C56C;
       color: #31261A;
       border: 1px solid #31261A;
       border-radius: 30px;
       font-size: 14px;
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       cursor: pointer;
       letter-spacing: 0.08em;
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
@@ -428,6 +418,7 @@
     }
 
     .history-heading {
+      font-family: 'Jacquard 24', serif;
       font-size: 28px;
       font-weight: normal;
       letter-spacing: 0.08em;
@@ -469,7 +460,7 @@
     }
 
     .history-table th {
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 12px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -481,7 +472,7 @@
     }
 
     .history-table td {
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 13px;
       color: rgba(49,38,26,0.85);
       padding: 16px 12px;
@@ -541,11 +532,11 @@
     }
 
     .history-btn {
-      font-family: Georgia, serif;
+      font-family: 'Courier Prime', monospace;
       font-size: 11px;
       letter-spacing: 0.08em;
       color: #31261A;
-      background: transparent;
+      background: #F6C56C;
       border: 1px solid rgba(49,38,26,0.3);
       padding: 6px 14px;
       border-radius: 16px;
@@ -607,6 +598,7 @@
     }
 
     .legal-page-title {
+      font-family: 'Jacquard 24', serif;
       font-size: 28px;
       font-weight: normal;
       letter-spacing: 0.12em;
@@ -695,6 +687,7 @@
     }
 
     .explore-heading {
+      font-family: 'Jacquard 24', serif;
       font-size: 28px;
       font-weight: normal;
       letter-spacing: 0.12em;
@@ -1034,16 +1027,16 @@
   <!-- SCREEN: EXPLORE DECK -->
   <div class="screen" id="screen-explore">
     <div class="explore-container">
-      <h1 class="explore-heading">Explore the Deck</h1>
-      <p class="explore-sub">The Fine Print Arcana — every card and its meaning in the context of your data</p>
+      <h1 class="explore-heading">The Fine Print Arcana</h1>
+      <p class="explore-sub">Explore every card and its meaning in the context of your data.</p>
       <div id="explore-content"></div>
     </div>
   </div>
 
   <!-- SCREEN 4 (Legal) -->
   <div class="screen" id="screen-legal">
-    <h1 class="legal-page-title">Fine Print Fortune</h1>
-    <p class="legal-page-sub">Legal Disclaimers &amp; Cosmic Terms of Service</p>
+    <h1 class="legal-page-title">Legal Disclaimers and Cosmic Conditions</h1>
+    <p class="legal-page-sub">Read the fine print about Fine Print Fortunes.</p>
 
     <div class="legal-spread" id="legal-spread">
       <div class="spread-col" id="legal-col-0">
@@ -2414,6 +2407,10 @@
     // Hide all screens
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
 
+    // Update active nav link
+    const navMap = { 'input': 0, 'explore': 1, 'history': 2, 'legal': 3 };
+    document.querySelectorAll('nav a').forEach((a, i) => a.classList.toggle('active', i === navMap[screenName]));
+
     // Show the requested screen
     const screenMap = {
       'input': 'screen-input',
@@ -2681,6 +2678,8 @@
       navigateTo('legal');
     } else if (window.location.hash === '#explore') {
       navigateTo('explore');
+    } else {
+      navigateTo('input');
     }
 
     // Add listener to text input for automatic detection
