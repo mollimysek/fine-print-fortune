@@ -579,6 +579,65 @@
       display: block;
     }
 
+    /* ── HISTORY ANALYTICS ── */
+    .history-analytics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 80%;
+      margin: 0 auto 8px;
+    }
+
+    .analytics-card {
+      background: url('card_backs/blank.png') center / 160% 160% no-repeat;
+      border-radius: 12px;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .analytics-label {
+      font-family: 'Courier Prime', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.55);
+    }
+
+    .analytics-value {
+      font-family: 'Courier Prime', monospace;
+      font-size: 22px;
+      font-weight: bold;
+      color: rgba(49,38,26,0.9);
+      line-height: 1.2;
+    }
+
+    .analytics-note {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      color: rgba(49,38,26,0.5);
+      margin-top: 2px;
+    }
+
+    .analytics-insight {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11.5px;
+      font-style: italic;
+      color: rgba(49,38,26,0.65);
+      line-height: 1.5;
+      margin-top: 8px;
+      border-top: 1px solid rgba(49,38,26,0.08);
+      padding-top: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .history-analytics {
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+      }
+    }
+
     /* Responsive table */
     @media (max-width: 1200px) {
       .history-table .col-summary {
@@ -1181,6 +1240,8 @@
     <div class="history-container">
       <h1 class="history-heading">Your Reading History</h1>
       <p class="history-sub">Review your past Fine Print Fortunes.</p>
+
+      <div id="history-analytics" class="history-analytics"></div>
 
       <div id="history-list" class="history-list">
         <div class="history-empty">
@@ -2884,9 +2945,106 @@
     localStorage.setItem('tarotHistory', JSON.stringify(history));
   }
 
+  function getDeckCardData(cardName) {
+    if (!tarotDeck) return null;
+    const lower = cardName.toLowerCase();
+    const major = tarotDeck.major_arcana.find(c => c.card.toLowerCase() === lower);
+    if (major) return major;
+    for (const suit of Object.values(tarotDeck.minor_arcana)) {
+      const minor = suit.find(c => `${c.rank} of ${c.suit}`.toLowerCase() === lower);
+      if (minor) return minor;
+    }
+    return null;
+  }
+
+  function renderAnalytics(history) {
+    const el = document.getElementById('history-analytics');
+    if (!el) return;
+
+    if (history.length === 0) {
+      el.innerHTML = '';
+      return;
+    }
+
+    // Total readings
+    const total = history.length;
+
+    // Total readings insight
+    let totalInsight = '';
+    if      (total === 1)   totalInsight = 'Your journey through the fine print has just begun — one agreement decoded.';
+    else if (total <= 5)    totalInsight = 'You\'re starting to see the patterns — a handful of agreements now laid bare.';
+    else if (total <= 15)   totalInsight = 'A seasoned reader of the fine print — your data story is coming into focus.';
+    else if (total <= 30)   totalInsight = 'You\'ve built a rich map of your digital footprint across many agreements.';
+    else                    totalInsight = 'A true archivist of the arcane — few have read this deep into the fine print.';
+
+    // Most drawn card
+    const cardCounts = {};
+    let totalCards = 0, reversedCards = 0;
+    history.forEach(r => {
+      r.cards.forEach(c => {
+        cardCounts[c.name] = (cardCounts[c.name] || 0) + 1;
+        totalCards++;
+        if (c.reversed) reversedCards++;
+      });
+    });
+    const topCard = Object.entries(cardCounts).sort((a, b) => b[1] - a[1])[0];
+    const topCardName = topCard ? topCard[0] : '—';
+    const topCardCount = topCard ? topCard[1] : 0;
+
+    // Reversal rate
+    const reversalPct = totalCards > 0 ? Math.round((reversedCards / totalCards) * 100) : 0;
+
+    // Most drawn card insight
+    let topCardInsight = '';
+    if (topCard) {
+      const deckCard = getDeckCardData(topCardName);
+      if (deckCard) {
+        const kw = deckCard.keywords.slice(0, 3).join(', ');
+        const logic = deckCard.station_logic.collection;
+        const logicLower = logic.charAt(0).toLowerCase() + logic.slice(1);
+        topCardInsight = `${topCardName}'s themes of <em>${kw}</em> keep recurring — ${logicLower}`;
+      } else {
+        topCardInsight = `${topCardName} keeps surfacing in your readings — its themes may be a recurring pattern in the agreements you encounter.`;
+      }
+    }
+
+    // Reversal rate insight
+    let reversalInsight = '';
+    if (totalCards > 0) {
+      if (reversalPct === 0)       reversalInsight = 'All cards upright — the policies you\'ve read have been relatively straightforward.';
+      else if (reversalPct <= 25)  reversalInsight = 'Few reversals — most fine print you\'ve encountered has been fairly above board.';
+      else if (reversalPct <= 50)  reversalInsight = 'A mix of upright and reversed — some of the policies you\'ve read hide more than they show.';
+      else if (reversalPct <= 75)  reversalInsight = 'More reversed than not — buried clauses and obfuscation appear frequently in your fine print.';
+      else                         reversalInsight = 'Heavy reversals — the agreements you sign tend to obscure more than they reveal.';
+    }
+
+    el.innerHTML = `
+      <div class="analytics-card">
+        <div class="analytics-label">Total Readings</div>
+        <div class="analytics-value">${total}</div>
+        <div class="analytics-note">${total === 1 ? '1 fortune told' : `${total} fortunes told`}</div>
+        <div class="analytics-insight">${totalInsight}</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-label">Most Drawn Card</div>
+        <div class="analytics-value">${topCardName}</div>
+        <div class="analytics-note">appeared ${topCardCount} ${topCardCount === 1 ? 'time' : 'times'}</div>
+        ${topCardInsight ? `<div class="analytics-insight">${topCardInsight}</div>` : ''}
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-label">Reversal Rate</div>
+        <div class="analytics-value">${reversalPct}%</div>
+        <div class="analytics-note">${reversedCards} of ${totalCards} cards reversed</div>
+        ${reversalInsight ? `<div class="analytics-insight">${reversalInsight}</div>` : ''}
+      </div>
+    `;
+  }
+
   function loadHistory() {
     const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
     const historyList = document.getElementById('history-list');
+
+    renderAnalytics(history);
 
     if (history.length === 0) {
       historyList.innerHTML = '<div class="history-empty"><p>No readings yet. Start a new reading to begin your journey.</p></div>';
