@@ -3168,11 +3168,33 @@
 
     // Total readings insight
     let totalInsight = '';
-    if      (total === 1)   totalInsight = 'Your journey through the fine print has just begun — one agreement decoded.';
-    else if (total <= 5)    totalInsight = 'You\'re starting to see the patterns — a handful of agreements now laid bare.';
-    else if (total <= 15)   totalInsight = 'A seasoned reader of the fine print — your data story is coming into focus.';
-    else if (total <= 30)   totalInsight = 'You\'ve built a rich map of your digital footprint across many agreements.';
-    else                    totalInsight = 'A true archivist of the arcane — few have read this deep into the fine print.';
+    // Tier-based saying
+    let tierSaying;
+    if      (total === 1)   tierSaying = 'Your journey through the fine print has just begun — one agreement decoded.';
+    else if (total <= 3)    tierSaying = 'The first steps into the archive — a few agreements now laid bare.';
+    else if (total <= 7)    tierSaying = 'You\'re starting to see the patterns; the fine print is losing its disguise.';
+    else if (total <= 12)   tierSaying = 'A growing collection of truths — your eye for hidden language is sharpening.';
+    else if (total <= 20)   tierSaying = 'A seasoned reader of the fine print — your data story is coming into focus.';
+    else if (total <= 35)   tierSaying = 'You\'ve built a rich map of your digital footprint across many agreements.';
+    else if (total <= 50)   tierSaying = 'Half a century of readings — the oracle has seen much on your behalf.';
+    else if (total <= 75)   tierSaying = 'A deep archive. The agreements you\'ve decoded outnumber most who dare to look.';
+    else                    tierSaying = 'A true archivist of the arcane — few have ventured this far into the fine print.';
+
+    // Count-based milestones
+    const readingMilestones = [
+      [100, 'The cards have spoken across a vast expanse of policies — you have seen what most never bother to read.'],
+      [75,  'Your archive grows vast; the fine print holds fewer secrets from you than it once did.'],
+      [50,  'The oracle marks this moment — you have peered behind the veil of many agreements.'],
+      [25,  'A quarter of the way through the arcane — the hidden language of data is becoming second nature.'],
+      [10,  'A meaningful threshold — the patterns in your digital agreements are beginning to reveal themselves.'],
+      [5,   'The archive is taking shape, and the fine print no longer catches you entirely off guard.'],
+      [1,   'A thread pulled from the fine print — the archive has begun.'],
+    ];
+    const readingMilestone = readingMilestones.find(([threshold]) => total >= threshold);
+
+    totalInsight = readingMilestone
+      ? `${tierSaying}<br><span style="display:block;margin-top:6px;opacity:0.8;">✦ ${readingMilestone[1]}</span>`
+      : tierSaying;
 
     // Most drawn card
     const cardCounts = {};
@@ -3208,11 +3230,33 @@
     // Reversal rate insight
     let reversalInsight = '';
     if (totalCards > 0) {
-      if (reversalPct === 0)       reversalInsight = 'All cards upright — the policies you\'ve read have been relatively straightforward.';
-      else if (reversalPct <= 25)  reversalInsight = 'Few reversals — most fine print you\'ve encountered has been fairly above board.';
-      else if (reversalPct <= 50)  reversalInsight = 'A mix of upright and reversed — some of the policies you\'ve read hide more than they show.';
-      else if (reversalPct <= 75)  reversalInsight = 'More reversed than not — buried clauses and obfuscation appear frequently in your fine print.';
-      else                         reversalInsight = 'Heavy reversals — the agreements you sign tend to obscure more than they reveal.';
+      // Percentage-based tier (9 tiers)
+      let pctSaying;
+      if (reversalPct === 0)       pctSaying = 'All cards upright — the policies you\'ve read have been relatively straightforward.';
+      else if (reversalPct <= 10)  pctSaying = 'A rare reversal or two — the fine print shows only faint shadows so far.';
+      else if (reversalPct <= 25)  pctSaying = 'Few reversals — most fine print you\'ve encountered has been fairly above board.';
+      else if (reversalPct <= 40)  pctSaying = 'Reversals are creeping in — some of the policies you sign hide more than they admit.';
+      else if (reversalPct <= 50)  pctSaying = 'Nearly half reversed — hidden clauses are becoming a pattern in the agreements you\'ve read.';
+      else if (reversalPct <= 65)  pctSaying = 'More reversed than upright — the agreements you encounter tend to obscure as much as they reveal.';
+      else if (reversalPct <= 80)  pctSaying = 'Heavily reversed — buried clauses and obfuscation appear frequently in your fine print.';
+      else if (reversalPct < 100)  pctSaying = 'Nearly every card reversed — the agreements you sign are steeped in misdirection.';
+      else                         pctSaying = 'All cards reversed — every policy you\'ve encountered has concealed more than it disclosed.';
+
+      // Count-based milestones — show the highest one crossed
+      const countMilestones = [
+        [100, 'You have become a seasoned reader of shadows — few tricks of the fine print remain unseen.'],
+        [75,  'The cards have turned against your agreements far more often than not. The pattern is undeniable.'],
+        [50,  'A deep accumulation of hidden clauses — the fine print no longer surprises you, only confirms what you already suspect.'],
+        [25,  'A significant accumulation — the oracle has witnessed much misdirection across your policies.'],
+        [10,  'You are learning to read between the lines; the hidden language of agreements grows familiar.'],
+        [5,   'The shadows in your agreements are beginning to take recognizable shape.'],
+        [1,   'The fine print has begun to show its true face.'],
+      ];
+      const milestone = countMilestones.find(([threshold]) => reversedCards >= threshold);
+
+      reversalInsight = milestone
+        ? `${pctSaying}<br><span style="display:block;margin-top:6px;opacity:0.8;">✦ ${milestone[1]}</span>`
+        : pctSaying;
     }
 
     el.innerHTML = `
@@ -3416,7 +3460,7 @@
       <th class="col-date">Date</th>
       <th class="col-platform">Platform</th>
       <th class="col-cards">Cards</th>
-      <th class="col-summary">Summary</th>
+      <th class="col-summary">Fortune Preview</th>
       <th class="col-actions">Delete</th>
     </tr>`;
 

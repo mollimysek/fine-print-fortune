@@ -279,7 +279,7 @@ class TarotSynthesizer {
       summary += "\n\n" + uprightClosings[Math.floor(Math.random() * uprightClosings.length)];
     }
 
-    return summary;
+    return `${sting}\n\n${summary}`;
   }
 }
 
