@@ -79,20 +79,29 @@ function renderReading(spread, pageInfo, sections, isHistoryView = false, readin
   if (isHistoryView) {
     html += `
       <div class="history-detail-header">
-        <button class="btn-back" id="backToHistoryBtn">← Back to History</button>
+        <button class="btn-back" id="backToHistoryBtn">← Back to history</button>
       </div>
     `;
   }
 
+  const allResults = [spread.collection, spread.sharing, spread.retention];
+  const reversals = allResults.filter(r => r.isReversed).length;
+  const lowerCardNames = allResults.map(r => r.name.toLowerCase());
+
+  let readingIntro;
+  if (reversals >= 2) {
+    readingIntro = "⚠️ Warning: This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is murky.";
+  } else if (lowerCardNames.includes('the devil')) {
+    readingIntro = "🔗 The Contract is Signed: Your data is bound to a material master. Proceed with extreme caution.";
+  } else if (lowerCardNames.includes('justice') || lowerCardNames.includes('the star')) {
+    readingIntro = "✨ A Clear Path: This policy shines with transparency. Your rights are balanced and respected.";
+  } else {
+    readingIntro = "🔮 A Steady Course: The terms are straightforward and unremarkable. The path appears open — walk it with awareness.";
+  }
+
   html += `
-    <div class="result-box">
-      <div class="status-text">
-        <strong>${isHistoryView ? 'Saved Reading' : 'Page Analyzed'}</strong>
-        ${pageInfo.title}
-      </div>
-      <div id="detectedPage">${pageInfo.url}</div>
-    </div>
-    <button class="btn btn-history" id="historyBtn">📜 View Reading History</button>
+    <div id="detectedPage">${pageInfo.url}</div>
+    <p class="reading-summary">${readingIntro}</p>
     <div class="spread">
   `;
 
@@ -106,9 +115,13 @@ function renderReading(spread, pageInfo, sections, isHistoryView = false, readin
     // Generate citations and summary using TarotSynthesizer
     const synthesizer = new TarotSynthesizer(result, station.sectionText, station.key);
     const citations = synthesizer.findCitations();
-    const summary = synthesizer.createSummary();
+    const summary = synthesizer.createSummary()
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/\n\n/g, ' ')
+      .trim();
 
-    const reversedBadge = result.isReversed ? '<span class="reversed-badge">REVERSED</span>' : '';
+    const displayName = result.isReversed ? `${cardName} - Reversed` : cardName;
     const reversedClass = result.isReversed ? 'reversed' : '';
 
     // Build citations HTML
@@ -116,7 +129,7 @@ function renderReading(spread, pageInfo, sections, isHistoryView = false, readin
     if (citations.length > 0) {
       citationsHtml = `
         <details class="receipt-details">
-          <summary class="receipt-link">🧾 Receipt</summary>
+          <summary class="receipt-link">Show the receipt</summary>
           <div class="receipt-content">
             ${citations.map(citation => `
               <div class="citation-item">
@@ -131,28 +144,27 @@ function renderReading(spread, pageInfo, sections, isHistoryView = false, readin
 
     html += `
       <div class="card-slot">
-        <div class="card-label">${station.label}</div>
+        <div class="card-label ${station.key}">${station.label}</div>
         <div class="card-image-container">
           <img src="${imageUrl}" alt="${cardName}" class="card-image ${reversedClass}">
         </div>
         <div class="card-name">
-          ${cardName}${reversedBadge}
+          ${displayName}
         </div>
         <div class="card-reading">
-          ${result.logic || 'The cards reveal insights about this section.'}
+          ${summary}
         </div>
-        <details class="card-summary">
-          <summary class="summary-label">📖 Full Reading</summary>
-          <div class="summary-content">
-            ${summary}
-          </div>
-        </details>
         ${citationsHtml}
       </div>
     `;
   });
 
-  html += '</div>';
+  html += `</div>
+    <div class="reading-actions">
+      <button class="btn" id="openWebBtn">Open in web</button>
+      <button class="btn-history-link" id="historyBtn">View reading history</button>
+    </div>
+  `;
 
   app.innerHTML = html;
 
@@ -162,6 +174,10 @@ function renderReading(spread, pageInfo, sections, isHistoryView = false, readin
       showHistory();
     });
   }
+
+  document.getElementById('openWebBtn').addEventListener('click', () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL('FinePrintFortune.html') + '#your-history' });
+  });
 
   document.getElementById('historyBtn').addEventListener('click', () => {
     showHistory();
@@ -184,7 +200,7 @@ async function showHistory() {
       <div class="history-empty">
         <p>No readings yet. Start a new reading to begin your journey.</p>
       </div>
-      <button class="btn" id="newReadingBtn">🔮 New Reading</button>
+      <button class="btn" id="newReadingBtn">New reading</button>
     `;
 
     document.getElementById('backBtn').addEventListener('click', () => {
@@ -239,7 +255,7 @@ async function showHistory() {
 
   historyHtml += `
     </div>
-    <button class="btn btn-clear-history" id="clearHistoryBtn">🗑️ Clear All History</button>
+    <button class="btn btn-clear-history" id="clearHistoryBtn">🗑 Clear all history</button>
   `;
 
   app.innerHTML = historyHtml;
@@ -435,7 +451,7 @@ function showError(message, showPasteOption = false) {
 
   let pasteButtonHtml = '';
   if (showPasteOption) {
-    pasteButtonHtml = '<button class="btn btn-paste" id="pasteBtn" style="margin-top: 12px;">📋 Paste Text Instead</button>';
+    pasteButtonHtml = '<button class="btn btn-paste" id="pasteBtn" style="margin-top: 12px;">Paste text instead</button>';
   }
 
   app.innerHTML = `
@@ -443,9 +459,9 @@ function showError(message, showPasteOption = false) {
       <strong>Error:</strong><br>
       ${message}
     </div>
-    <button class="btn" id="retryBtn">🔄 Try Again</button>
+    <button class="btn" id="retryBtn">Try again</button>
     ${pasteButtonHtml}
-    <button class="btn btn-history" id="historyBtn" style="margin-top: 12px;">📜 View Reading History</button>
+    <button class="btn-history-link" id="historyBtn">View reading history</button>
   `;
 
   document.getElementById('retryBtn').addEventListener('click', () => {
@@ -464,24 +480,36 @@ function showError(message, showPasteOption = false) {
 }
 
 // Show manual text input form
-function showManualInput() {
+function showManualInput(message = null) {
   const app = document.getElementById('app');
-  app.innerHTML = `
-    <div class="manual-input-container">
-      <h3 class="manual-input-title">Paste Your Terms of Service</h3>
-      <p class="manual-input-instructions">Copy and paste the text from the Terms of Service or Privacy Policy page below:</p>
-      <textarea
-        id="manualTextInput"
-        class="manual-text-input"
-        placeholder="Paste your Terms of Service or Privacy Policy text here..."
-        rows="10"
-      ></textarea>
-      <div class="manual-input-buttons">
-        <button class="btn" id="analyzeManualBtn">🔮 Analyze Text</button>
-        <button class="btn btn-secondary" id="cancelManualBtn">Cancel</button>
-      </div>
+
+  const inputHtml = `
+    <textarea
+      id="manualTextInput"
+      class="manual-text-input"
+      placeholder="Paste your Terms of Service or Privacy Policy text here..."
+      rows="10"
+    ></textarea>
+    <div class="manual-input-buttons">
+      <button class="btn" id="analyzeManualBtn">Analyze text</button>
+      <button class="btn btn-secondary" id="cancelManualBtn">Cancel</button>
     </div>
   `;
+
+  if (message) {
+    app.innerHTML = `
+      <p class="reading-summary" style="margin-bottom: 16px;">${message}</p>
+      ${inputHtml}
+    `;
+  } else {
+    app.innerHTML = `
+      <div class="manual-input-container">
+        <h3 class="manual-input-title">Paste your terms of service</h3>
+        <p class="manual-input-instructions">Copy and paste the text from the Terms of Service or Privacy Policy page below:</p>
+        ${inputHtml}
+      </div>
+    `;
+  }
 
   document.getElementById('analyzeManualBtn').addEventListener('click', () => {
     const text = document.getElementById('manualTextInput').value.trim();
@@ -541,8 +569,8 @@ function showReady() {
     <div class="welcome-message">
       <p>Navigate to a Terms of Service or Privacy Policy page to receive your reading.</p>
     </div>
-    <button class="btn" id="analyzeBtn">🔮 Analyze Current Page</button>
-    <button class="btn btn-history" id="historyBtn" style="margin-top: 12px;">📜 View Reading History</button>
+    <button class="btn" id="analyzeBtn">Analyze current page</button>
+    <button class="btn-history-link" id="historyBtn">View reading history</button>
   `;
 
   document.getElementById('analyzeBtn').addEventListener('click', async () => {
@@ -563,13 +591,8 @@ async function performAnalysis() {
     const tab = await getCurrentTab();
     const extracted = await extractPageText(tab.id);
 
-    if (!extracted || !extracted.success) {
-      showError('Could not extract text from this page. Please try a different page.', true);
-      return;
-    }
-
-    if (extracted.text.length < 100) {
-      showError('Not enough text found on this page. Please navigate to a Terms of Service or Privacy Policy page.', true);
+    if (!extracted || !extracted.success || extracted.text.length < 100) {
+      showManualInput("We couldn't extract the text from this page, but you can paste the text here instead.");
       return;
     }
 
