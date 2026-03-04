@@ -3,6 +3,8 @@
   "major_arcana": [
     {
       "card": "The Fool",
+      "upright_valence": -1,
+      "reversed_valence": -2,
       "keywords": ["unspecified", "experimental", "as-is", "variable", "random"],
       "station_logic": {
         "collection": "Data is collected erratically or via experimental features with no clear boundary.",
@@ -13,7 +15,9 @@
     },
     {
       "card": "The Magician",
-      "keywords": ["input", "active", "form", "creation", "service-providers"],
+      "upright_valence": 1,
+      "reversed_valence": -2,
+      "keywords": ["input", "active", "form", "creation", "service-providers", "provide", "voluntarily"],
       "station_logic": {
         "collection": "You are the source of power; data is only gathered when you actively provide it.",
         "sharing": "Sharing is limited to essential tools needed to make the service work.",
@@ -23,6 +27,8 @@
     },
     {
       "card": "The High Priestess",
+      "upright_valence": -1,
+      "reversed_valence": -2,
       "keywords": ["metadata", "logs", "pixel", "internal", "encrypted"],
       "station_logic": {
         "collection": "Collection happens in the shadows; logs and metadata track you silently.",
@@ -33,6 +39,8 @@
     },
     {
       "card": "The Empress",
+      "upright_valence": -1,
+      "reversed_valence": -2,
       "keywords": ["biometric", "face-print", "voice", "ecosystem", "ai training"],
       "station_logic": {
         "collection": "Fertile harvesting of rich, sensory data (voice, face, and behavior).",
@@ -43,6 +51,8 @@
     },
     {
       "card": "The Emperor",
+      "upright_valence": 1,
+      "reversed_valence": -2,
       "keywords": ["mandatory", "kyc", "government", "legal hold", "statute"],
       "station_logic": {
         "collection": "Strict, mandatory collection of legal identity and official documents.",
@@ -53,6 +63,8 @@
     },
     {
       "card": "The Hierophant",
+      "upright_valence": 0,
+      "reversed_valence": -1,
       "keywords": ["standardized", "iso", "framework", "compliance", "auditor"],
       "station_logic": {
         "collection": "Collection follows rigid, traditional industry standards and protocols.",
@@ -63,6 +75,8 @@
     },
     {
       "card": "The Lovers",
+      "upright_valence": -1,
+      "reversed_valence": -2,
       "keywords": ["sso", "sync", "social login", "joint-marketing", "partnership"],
       "station_logic": {
         "collection": "Collection is a union; data is synced across multiple social accounts.",
@@ -73,6 +87,8 @@
     },
     {
       "card": "The Chariot",
+      "upright_valence": -1,
+      "reversed_valence": -2,
       "keywords": ["gps", "precise location", "cross-border", "international", "real-time"],
       "station_logic": {
         "collection": "Active and relentless tracking of your physical movements and momentum.",
@@ -83,6 +99,8 @@
     },
     {
       "card": "Justice",
+      "upright_valence": 2,
+      "reversed_valence": -2,
       "keywords": ["gdpr", "ccpa", "opt-in", "rights", "audit"],
       "station_logic": {
         "collection": "Collection is balanced and fair, requiring explicit consent for every action.",
@@ -93,6 +111,8 @@
     },
     {
       "card": "The Hermit",
+      "upright_valence": 2,
+      "reversed_valence": 0,
       "keywords": ["local-only", "on-device", "isolated", "no-third-party"],
       "station_logic": {
         "collection": "Data is collected in solitude; it stays on your device and never hits the cloud.",
@@ -103,6 +123,8 @@
     },
     {
       "card": "Wheel of Fortune",
+      "upright_valence": 0,
+      "reversed_valence": -2,
       "keywords": ["cookies", "rtb", "auction", "session", "browsing-history"],
       "station_logic": {
         "collection": "Collection is a game of chance based on the 'Wheel' of your history.",
@@ -113,6 +135,8 @@
     },
     {
       "card": "Strength",
+      "upright_valence": 1,
+      "reversed_valence": -1,
       "keywords": ["fraud", "security", "resilience", "threat-detection", "backup"],
       "station_logic": {
         "collection": "Collection is focused on identifying 'beastly' behavior and security threats.",
@@ -123,6 +147,8 @@
     },
     {
       "card": "The Hanged Man",
+      "upright_valence": 0,
+      "reversed_valence": -1,
       "keywords": ["suspension", "pause", "restriction", "dispute", "frozen"],
       "station_logic": {
         "collection": "Collection is restricted or paused while your status is under review.",
@@ -133,7 +159,9 @@
     },
     {
       "card": "Death",
-      "keywords": ["scrubbed", "purge", "erasure", "hard-delete", "merger"],
+      "upright_valence": 1,
+      "reversed_valence": -1,
+      "keywords": ["scrubbed", "purge", "erasure", "hard-delete", "merger", "delete", "gone"],
       "station_logic": {
         "collection": "Collection triggers the end of anonymity; identity is captured for transition.",
         "sharing": "Data is shared as part of a total transition, such as a company merger.",
@@ -143,6 +171,8 @@
     },
     {
       "card": "Temperance",
+      "upright_valence": 1,
+      "reversed_valence": -1,
       "keywords": ["anonymized", "aggregated", "compatible", "blended", "de-identified"],
       "station_logic": {
         "collection": "Data is diluted upon collection, blended into anonymized pools.",
@@ -153,6 +183,8 @@
     },
     {
       "card": "The Devil",
+      "upright_valence": -2,
+      "reversed_valence": 0,
       "keywords": ["sell", "monetize", "broker", "dark pattern", "shadow-profile"],
       "station_logic": {
         "collection": "Collection is a trap; 'dark patterns' force you to give up too much.",
@@ -163,6 +195,8 @@
     },
     {
       "card": "The Tower",
+      "upright_valence": -2,
+      "reversed_valence": 0,
       "keywords": ["breach", "bankruptcy", "incident", "forced-disclosure", "wipe"],
       "station_logic": {
         "collection": "Collection via emergency bypass; privacy structures are falling.",
@@ -173,6 +207,8 @@
     },
     {
       "card": "The Star",
+      "upright_valence": 2,
+      "reversed_valence": -1,
       "keywords": ["public", "transparency-report", "open-source", "visibility"],
       "station_logic": {
         "collection": "Transparent collection; the process is clear, bright, and easy to see.",
@@ -183,6 +219,8 @@
     },
     {
       "card": "The Moon",
+      "upright_valence": -1,
+      "reversed_valence": -2,
       "keywords": ["inferred", "likely", "estimated", "probabilistic", "vague"],
       "station_logic": {
         "collection": "Collection of shadows; they collect what they 'think' they know about you.",
@@ -193,6 +231,8 @@
     },
     {
       "card": "The Sun",
+      "upright_valence": 2,
+      "reversed_valence": -1,
       "keywords": ["plain-english", "benefit", "joy", "success", "clear-purposes"],
       "station_logic": {
         "collection": "Radiant clarity; you know exactly why data is taken.",
@@ -203,6 +243,8 @@
     },
     {
       "card": "Judgement",
+      "upright_valence": 2,
+      "reversed_valence": -1,
       "keywords": ["sar", "access-request", "rectification", "audit-logs"],
       "station_logic": {
         "collection": "Collection for accountability; every action is logged for review.",
@@ -213,6 +255,8 @@
     },
     {
       "card": "The World",
+      "upright_valence": -1,
+      "reversed_valence": 0,
       "keywords": ["cross-border", "universal", "all-encompassing", "holistic"],
       "station_logic": {
         "collection": "A global net; a holistic picture of your life across all borders.",
@@ -225,7 +269,9 @@
   "minor_arcana": {
     "pentacles": [
       {
-        "rank": "Ace", "suit": "pentacles", "keywords": ["payment", "billing", "credit", "debit"],
+        "rank": "Ace", "suit": "pentacles",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["payment", "billing", "credit", "debit"],
         "station_logic": {
           "collection": "New financial beginnings; collection of primary payment methods.",
           "sharing": "Sharing with banks and processors to plant the seed of trade.",
@@ -234,7 +280,9 @@
         "reversed_logic": "Financial loss. Payment data is vulnerable or improperly handled."
       },
       {
-        "rank": "Two", "suit": "pentacles", "keywords": ["freemium", "tier", "subscription", "balance"],
+        "rank": "Two", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["freemium", "tier", "subscription", "balance"],
         "station_logic": {
           "collection": "Balancing data collection across different service tiers.",
           "sharing": "Trading your data in exchange for 'free' features.",
@@ -243,7 +291,9 @@
         "reversed_logic": "Instability. The balance of trade is unfair; you give more than you get."
       },
       {
-        "rank": "Three", "suit": "pentacles", "keywords": ["employment", "professional", "linkedin", "hr"],
+        "rank": "Three", "suit": "pentacles",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["employment", "professional", "linkedin", "hr"],
         "station_logic": {
           "collection": "Collection of your professional 'craft' and work history.",
           "sharing": "Shared with workplace partners to manage your employment.",
@@ -252,7 +302,9 @@
         "reversed_logic": "Poor craftsmanship. Data is used to sabotage professional reputation."
       },
       {
-        "rank": "Four", "suit": "pentacles", "keywords": ["imei", "mac address", "hardware id", "serial"],
+        "rank": "Four", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["imei", "mac address", "hardware id", "serial"],
         "station_logic": {
           "collection": "Hoarding physical device IDs to lock your digital identity.",
           "sharing": "Internal use only; the company guards this data like a treasure.",
@@ -261,7 +313,9 @@
         "reversed_logic": "Greed. Data hoarding prevents you from using your own devices freely."
       },
       {
-        "rank": "Five", "suit": "pentacles", "keywords": ["unpaid", "arrears", "debt", "hardship"],
+        "rank": "Five", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["unpaid", "arrears", "debt", "hardship"],
         "station_logic": {
           "collection": "Collection of data regarding your financial struggles.",
           "sharing": "Shared with debt collectors or 'outside the wall' agencies.",
@@ -270,7 +324,9 @@
         "reversed_logic": "Poverty of privacy. Data is used to exploit your financial vulnerability."
       },
       {
-        "rank": "Six", "suit": "pentacles", "keywords": ["charity", "philanthropy", "gift", "donation"],
+        "rank": "Six", "suit": "pentacles",
+        "upright_valence": 0, "reversed_valence": -2,
+        "keywords": ["charity", "philanthropy", "gift", "donation"],
         "station_logic": {
           "collection": "Voluntary collection for social or charitable programs.",
           "sharing": "Data is 'gifted' to non-profits or research partners.",
@@ -279,7 +335,9 @@
         "reversed_logic": "Selfishness. The 'charitable' sharing is actually a hidden data sale."
       },
       {
-        "rank": "Seven", "suit": "pentacles", "keywords": ["investment", "portfolio", "growth", "yield"],
+        "rank": "Seven", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["investment", "portfolio", "growth", "yield"],
         "station_logic": {
           "collection": "Tracking your assets to see how your value grows.",
           "sharing": "Shared with market analysts to evaluate your potential.",
@@ -288,7 +346,9 @@
         "reversed_logic": "Failed investment. Data is kept long-term but provides no value to you."
       },
       {
-        "rank": "Eight", "suit": "pentacles", "keywords": ["ux", "heatmap", "optimize", "quality"],
+        "rank": "Eight", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["ux", "heatmap", "optimize", "quality"],
         "station_logic": {
           "collection": "Meticulous tracking of movements to refine the app.",
           "sharing": "Shared with UX tools to study your behavior.",
@@ -297,7 +357,9 @@
         "reversed_logic": "Wasted labor. Extensive tracking that fails to improve the user experience."
       },
       {
-        "rank": "Nine", "suit": "pentacles", "keywords": ["luxury", "vip", "high-net-worth", "affluence"],
+        "rank": "Nine", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["luxury", "vip", "high-net-worth", "affluence"],
         "station_logic": {
           "collection": "Profiling your refined tastes and financial independence.",
           "sharing": "Shared with high-end, exclusive marketing partners.",
@@ -306,7 +368,9 @@
         "reversed_logic": "Isolation. Your wealth profile causes you to be excluded or upcharged."
       },
       {
-        "rank": "Ten", "suit": "pentacles", "keywords": ["family plan", "household", "smart home", "iot"],
+        "rank": "Ten", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["family plan", "household", "smart home", "iot"],
         "station_logic": {
           "collection": "Collection that encompasses your entire home and household.",
           "sharing": "Shared with 'Parent Companies' and across the corporate family.",
@@ -315,7 +379,9 @@
         "reversed_logic": "Family burden. Household data is used to control or surveil the family."
       },
       {
-        "rank": "Page", "suit": "pentacles", "keywords": ["startup", "beta", "prototype", "test"],
+        "rank": "Page", "suit": "pentacles",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["startup", "beta", "prototype", "test"],
         "station_logic": {
           "collection": "A new, small stream of financial or physical data.",
           "sharing": "Shared with early-stage testers and startup partners.",
@@ -324,7 +390,9 @@
         "reversed_logic": "Lack of focus. Experimental data is leaked due to poor testing."
       },
       {
-        "rank": "Knight", "suit": "pentacles", "keywords": ["shipping", "logistics", "courier", "package"],
+        "rank": "Knight", "suit": "pentacles",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["shipping", "logistics", "courier", "package"],
         "station_logic": {
           "collection": "Methodical tracking of location for physical delivery.",
           "sharing": "Shared with carriers who move goods in the real world.",
@@ -333,7 +401,9 @@
         "reversed_logic": "Stagnation. Logistic data is stuck; delivery of privacy is delayed."
       },
       {
-        "rank": "Queen", "suit": "pentacles", "keywords": ["health", "fitness", "wellness", "biometric"],
+        "rank": "Queen", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["health", "fitness", "wellness", "biometric"],
         "station_logic": {
           "collection": "Nurturing your body through health and wellness data.",
           "sharing": "Shared with health practitioners and fitness ecosystems.",
@@ -342,7 +412,9 @@
         "reversed_logic": "Neglect. Health data is mishandled, causing worry or insecurity."
       },
       {
-        "rank": "King", "suit": "pentacles", "keywords": ["enterprise", "b2b", "assets", "commercial"],
+        "rank": "King", "suit": "pentacles",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["enterprise", "b2b", "assets", "commercial"],
         "station_logic": {
           "collection": "Collection of data that defines you as a business asset.",
           "sharing": "Shared with commercial giants to manage the marketplace.",
@@ -353,7 +425,9 @@
     ],
     "swords": [
       {
-        "rank": "Ace", "suit": "swords", "keywords": ["arbitration", "class action", "waive", "jurisdiction"],
+        "rank": "Ace", "suit": "swords",
+        "upright_valence": -2, "reversed_valence": -1,
+        "keywords": ["arbitration", "class action", "waive", "jurisdiction"],
         "station_logic": {
           "collection": "Collection requires signing away your right to a day in court.",
           "sharing": "Shared with legal counsel to defend against future claims.",
@@ -362,7 +436,9 @@
         "reversed_logic": "Legal chaos. Unenforceable or confusingly written arbitration."
       },
       {
-        "rank": "Two", "suit": "swords", "keywords": ["conflict", "choice of law", "deadlock", "neutral"],
+        "rank": "Two", "suit": "swords",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["conflict", "choice of law", "deadlock", "neutral"],
         "station_logic": {
           "collection": "Data collected under two conflicting sets of rules.",
           "sharing": "Sharing is stuck in a stalemate between 'yes' and 'no'.",
@@ -371,7 +447,9 @@
         "reversed_logic": "Indecision. Conflicting terms lead to accidental data exposure."
       },
       {
-        "rank": "Three", "suit": "swords", "keywords": ["breach", "leak", "unauthorized", "separation"],
+        "rank": "Three", "suit": "swords",
+        "upright_valence": -2, "reversed_valence": 0,
+        "keywords": ["breach", "leak", "unauthorized", "separation"],
         "station_logic": {
           "collection": "Heartbreak: collection methods have been compromised.",
           "sharing": "Shared during a 'separation' or painful security leak.",
@@ -380,7 +458,9 @@
         "reversed_logic": "Healing. Recovering from a breach; data is being secured."
       },
       {
-        "rank": "Four", "suit": "swords", "keywords": ["dnt", "do not track", "hibernate", "quarantine"],
+        "rank": "Four", "suit": "swords",
+        "upright_valence": 1, "reversed_valence": -1,
+        "keywords": ["dnt", "do not track", "hibernate", "quarantine"],
         "station_logic": {
           "collection": "Collection is resting; 'Do Not Track' signals are honored.",
           "sharing": "Sharing is in a meditative state; nothing is moving.",
@@ -389,7 +469,9 @@
         "reversed_logic": "Restlessness. Data is supposedly 'at rest' but is being used."
       },
       {
-        "rank": "Five", "suit": "swords", "keywords": ["aggressive", "scrape", "hostile", "advantage"],
+        "rank": "Five", "suit": "swords",
+        "upright_valence": -2, "reversed_valence": 0,
+        "keywords": ["aggressive", "scrape", "hostile", "advantage"],
         "station_logic": {
           "collection": "Collection is aggressive and forceful, often without realizing.",
           "sharing": "Shared to 'gain an advantage' or win a battle.",
@@ -398,7 +480,9 @@
         "reversed_logic": "Defeat. The company has lost the legal battle over your data."
       },
       {
-        "rank": "Six", "suit": "swords", "keywords": ["portability", "export", "transfer", "migration"],
+        "rank": "Six", "suit": "swords",
+        "upright_valence": 1, "reversed_valence": -1,
+        "keywords": ["portability", "export", "transfer", "migration"],
         "station_logic": {
           "collection": "Collection happens as you transition from a troubled past.",
           "sharing": "Shared with a new platform as you move your digital life.",
@@ -407,7 +491,9 @@
         "reversed_logic": "Baggage. You cannot leave; your data is 'anchored' to the platform."
       },
       {
-        "rank": "Seven", "suit": "swords", "keywords": ["stealth", "background", "unauthorized", "spy"],
+        "rank": "Seven", "suit": "swords",
+        "upright_valence": -2, "reversed_valence": 1,
+        "keywords": ["stealth", "background", "unauthorized", "spy"],
         "station_logic": {
           "collection": "Collection by stealth; done in the background while you sleep.",
           "sharing": "Shared with 'secret' partners through a backdoor API.",
@@ -416,7 +502,9 @@
         "reversed_logic": "Confession. The company admits to stealth tracking and stops."
       },
       {
-        "rank": "Eight", "suit": "swords", "keywords": ["locked", "cannot delete", "trapped", "restrict"],
+        "rank": "Eight", "suit": "swords",
+        "upright_valence": -2, "reversed_valence": 1,
+        "keywords": ["locked", "cannot delete", "trapped", "restrict"],
         "station_logic": {
           "collection": "You are blind to collection; trapped by the interface.",
           "sharing": "Shared with entities that keep you 'locked' in.",
@@ -425,7 +513,9 @@
         "reversed_logic": "Release. You have found the loophole to delete your data."
       },
       {
-        "rank": "Nine", "suit": "swords", "keywords": ["threat", "vulnerability", "anxiety", "risk"],
+        "rank": "Nine", "suit": "swords",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["threat", "vulnerability", "anxiety", "risk"],
         "station_logic": {
           "collection": "Collection based on fear; tracking every 'threat'.",
           "sharing": "Shared with threat-intel firms to manage anxiety.",
@@ -434,7 +524,9 @@
         "reversed_logic": "Reality check. The 'threats' were exaggerated to justify tracking."
       },
       {
-        "rank": "Ten", "suit": "swords", "keywords": ["terminate", "cease", "scrub", "betrayal"],
+        "rank": "Ten", "suit": "swords",
+        "upright_valence": -1, "reversed_valence": 0,
+        "keywords": ["terminate", "cease", "scrub", "betrayal"],
         "station_logic": {
           "collection": "The final collection. They take everything one last time.",
           "sharing": "Sharing ends in a final settlement of all accounts.",
@@ -443,7 +535,9 @@
         "reversed_logic": "Resurrection. Data thought deleted has suddenly reappeared."
       },
       {
-        "rank": "Page", "suit": "swords", "keywords": ["copyright", "dmca", "ip", "intellectual"],
+        "rank": "Page", "suit": "swords",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["copyright", "dmca", "ip", "intellectual"],
         "station_logic": {
           "collection": "Collection of 'intellectual' data to monitor for theft.",
           "sharing": "Shared with copyright agents to protect property.",
@@ -452,7 +546,9 @@
         "reversed_logic": "All talk. Legal threats with no actual policy substance."
       },
       {
-        "rank": "Knight", "suit": "swords", "keywords": ["automated", "rapid", "ai-decision", "fast"],
+        "rank": "Knight", "suit": "swords",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["automated", "rapid", "ai-decision", "fast"],
         "station_logic": {
           "collection": "Swift collection using rapid-fire AI sensors.",
           "sharing": "Shared in milliseconds with automated engines.",
@@ -461,7 +557,9 @@
         "reversed_logic": "Impulsiveness. AI makes a fast, wrong decision about your data."
       },
       {
-        "rank": "Queen", "suit": "swords", "keywords": ["audit", "compliance", "objective", "independent"],
+        "rank": "Queen", "suit": "swords",
+        "upright_valence": 1, "reversed_valence": -1,
+        "keywords": ["audit", "compliance", "objective", "independent"],
         "station_logic": {
           "collection": "Objective and sharp collection, filtered for facts.",
           "sharing": "Shared with independent auditors who judge with a cold eye.",
@@ -470,7 +568,9 @@
         "reversed_logic": "Coldness. Objective data used to make a heartless decision."
       },
       {
-        "rank": "King", "suit": "swords", "keywords": ["court order", "subpoena", "ruling", "law"],
+        "rank": "King", "suit": "swords",
+        "upright_valence": 1, "reversed_valence": -2,
+        "keywords": ["court order", "subpoena", "ruling", "law"],
         "station_logic": {
           "collection": "Collection mandated by the highest legal authority.",
           "sharing": "Shared with governments and courts under legal command.",
@@ -481,7 +581,9 @@
     ],
     "wands": [
       {
-        "rank": "Ace", "suit": "wands", "keywords": ["opt-in", "launch", "campaign", "new initiative"],
+        "rank": "Ace", "suit": "wands",
+        "upright_valence": 1, "reversed_valence": -1,
+        "keywords": ["opt-in", "launch", "campaign", "new initiative"],
         "station_logic": {
           "collection": "A new spark; collection begins for a creative new feature.",
           "sharing": "Shared with promoters launching your data into the world.",
@@ -490,7 +592,9 @@
         "reversed_logic": "Flash in the pan. A new feature that leaks data instantly."
       },
       {
-        "rank": "Two", "suit": "wands", "keywords": ["roadmap", "strategy", "expansion", "future"],
+        "rank": "Two", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["roadmap", "strategy", "expansion", "future"],
         "station_logic": {
           "collection": "Collection for future planning and vision.",
           "sharing": "Shared with global strategists to expand reach.",
@@ -499,7 +603,9 @@
         "reversed_logic": "Lack of vision. Data collected for no clear future purpose."
       },
       {
-        "rank": "Three", "suit": "wands", "keywords": ["reach", "impressions", "clicks", "discovery"],
+        "rank": "Three", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["reach", "impressions", "clicks", "discovery"],
         "station_logic": {
           "collection": "Tracking how far your influence travels.",
           "sharing": "Shared with ad-networks to see who is watching.",
@@ -508,7 +614,9 @@
         "reversed_logic": "Over-extension. Sharing with too many networks at once."
       },
       {
-        "rank": "Four", "suit": "wands", "keywords": ["community", "event", "gathering", "celebration"],
+        "rank": "Four", "suit": "wands",
+        "upright_valence": 0, "reversed_valence": -2,
+        "keywords": ["community", "event", "gathering", "celebration"],
         "station_logic": {
           "collection": "Data collected during community celebrations.",
           "sharing": "Shared within the group to foster connection.",
@@ -517,7 +625,9 @@
         "reversed_logic": "Unstable foundation. The 'community' is selling your data."
       },
       {
-        "rank": "Five", "suit": "wands", "keywords": ["a/b test", "competitor", "battle", "conflict"],
+        "rank": "Five", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["a/b test", "competitor", "battle", "conflict"],
         "station_logic": {
           "collection": "Collection for competition; testing versions of you.",
           "sharing": "Shared with testers to see how you react.",
@@ -526,7 +636,9 @@
         "reversed_logic": "Meaningless conflict. Chaotic A/B testing that confuses users."
       },
       {
-        "rank": "Six", "suit": "wands", "keywords": ["achievement", "points", "badge", "victory"],
+        "rank": "Six", "suit": "wands",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["achievement", "points", "badge", "victory"],
         "station_logic": {
           "collection": "Collection of victories, points, and rewards.",
           "sharing": "Shared publicly to celebrate success.",
@@ -535,7 +647,9 @@
         "reversed_logic": "Fall from grace. Rewards are stripped based on data changes."
       },
       {
-        "rank": "Seven", "suit": "wands", "keywords": ["defense", "bot", "captcha", "firewall"],
+        "rank": "Seven", "suit": "wands",
+        "upright_valence": 1, "reversed_valence": -2,
+        "keywords": ["defense", "bot", "captcha", "firewall"],
         "station_logic": {
           "collection": "Collection to defend the 'wall'; proving you are human.",
           "sharing": "Shared with security partners to keep intruders out.",
@@ -544,7 +658,9 @@
         "reversed_logic": "Giving up. The 'defenses' are down; data is wide open."
       },
       {
-        "rank": "Eight", "suit": "wands", "keywords": ["websocket", "real-time", "live", "instant"],
+        "rank": "Eight", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["websocket", "real-time", "live", "instant"],
         "station_logic": {
           "collection": "Rapid-fire collection happening in a blink.",
           "sharing": "Shared instantly through live data feeds.",
@@ -553,7 +669,9 @@
         "reversed_logic": "Haste makes waste. Real-time data is sent to the wrong place."
       },
       {
-        "rank": "Nine", "suit": "wands", "keywords": ["resilient", "uptime", "backup", "persist"],
+        "rank": "Nine", "suit": "wands",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["resilient", "uptime", "backup", "persist"],
         "station_logic": {
           "collection": "Collection for endurance and system survival.",
           "sharing": "Shared with reliability engineers to keep things running.",
@@ -562,7 +680,9 @@
         "reversed_logic": "Defensive posture. Over-collection to 'prepare' for failure."
       },
       {
-        "rank": "Ten", "suit": "wands", "keywords": ["bandwidth", "large files", "burden", "load"],
+        "rank": "Ten", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["bandwidth", "large files", "burden", "load"],
         "station_logic": {
           "collection": "Collection of heavy data straining the system.",
           "sharing": "Shared with CDNs to manage the load.",
@@ -571,7 +691,9 @@
         "reversed_logic": "Burnout. The 'burden' of your data causes the service to fail."
       },
       {
-        "rank": "Page", "suit": "wands", "keywords": ["discovery", "trend", "algorithm", "interest"],
+        "rank": "Page", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["discovery", "trend", "algorithm", "interest"],
         "station_logic": {
           "collection": "Collection to find the 'next big thing'.",
           "sharing": "Shared with trend-forecasters to predict the future.",
@@ -580,7 +702,9 @@
         "reversed_logic": "False news. Algorithms create a trend you didn't start."
       },
       {
-        "rank": "Knight", "suit": "wands", "keywords": ["lead gen", "direct mail", "sales", "pursuit"],
+        "rank": "Knight", "suit": "wands",
+        "upright_valence": -2, "reversed_valence": -1,
+        "keywords": ["lead gen", "direct mail", "sales", "pursuit"],
         "station_logic": {
           "collection": "Aggressive collection to turn you into a sales lead.",
           "sharing": "Shared with hungry agencies to pursue you.",
@@ -589,7 +713,9 @@
         "reversed_logic": "Scattered energy. Selling your data to too many leads."
       },
       {
-        "rank": "Queen", "suit": "wands", "keywords": ["influencer", "social", "advocacy", "voice"],
+        "rank": "Queen", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["influencer", "social", "advocacy", "voice"],
         "station_logic": {
           "collection": "Collection of your voice to build social presence.",
           "sharing": "Shared with brand advocates to spread influence.",
@@ -598,7 +724,9 @@
         "reversed_logic": "Intimidation. Your 'voice' data is used to silence you."
       },
       {
-        "rank": "King", "suit": "wands", "keywords": ["dominance", "market leader", "vision", "power"],
+        "rank": "King", "suit": "wands",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["dominance", "market leader", "vision", "power"],
         "station_logic": {
           "collection": "Collection that defines market energy.",
           "sharing": "Shared with leaders to maintain total control.",
@@ -609,7 +737,9 @@
     ],
     "cups": [
       {
-        "rank": "Ace", "suit": "cups", "keywords": ["chat", "message", "emotional", "sentiment"],
+        "rank": "Ace", "suit": "cups",
+        "upright_valence": 0, "reversed_valence": -2,
+        "keywords": ["chat", "message", "emotional", "sentiment"],
         "station_logic": {
           "collection": "New flow of personal communication and feelings.",
           "sharing": "Shared with trusted and intimate contacts.",
@@ -618,7 +748,9 @@
         "reversed_logic": "Emotional spill. Private messages leaked or mishandled."
       },
       {
-        "rank": "Two", "suit": "cups", "keywords": ["dating", "match", "partner", "pair"],
+        "rank": "Two", "suit": "cups",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["dating", "match", "partner", "pair"],
         "station_logic": {
           "collection": "Collection to find an intimate 'pair'.",
           "sharing": "Shared with potential matches.",
@@ -627,7 +759,9 @@
         "reversed_logic": "Disharmony. Dating data leads to a toxic connection."
       },
       {
-        "rank": "Three", "suit": "cups", "keywords": ["friends", "contacts", "circles", "group"],
+        "rank": "Three", "suit": "cups",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["friends", "contacts", "circles", "group"],
         "station_logic": {
           "collection": "Collection within your social group.",
           "sharing": "Shared with friends to foster community.",
@@ -636,7 +770,9 @@
         "reversed_logic": "Gossip. Friends' data shared with the wrong people."
       },
       {
-        "rank": "Four", "suit": "cups", "keywords": ["spam", "uninterested", "unsubscribe", "stale"],
+        "rank": "Four", "suit": "cups",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["spam", "uninterested", "unsubscribe", "stale"],
         "station_logic": {
           "collection": "Collection of data you are bored with.",
           "sharing": "Shared with 'junk' filters.",
@@ -645,7 +781,9 @@
         "reversed_logic": "New awareness. Realizing you shared too much out of boredom."
       },
       {
-        "rank": "Five", "suit": "cups", "keywords": ["complaint", "regret", "grievance", "sorrow"],
+        "rank": "Five", "suit": "cups",
+        "upright_valence": -1, "reversed_valence": 0,
+        "keywords": ["complaint", "regret", "grievance", "sorrow"],
         "station_logic": {
           "collection": "Collection of data about disappointment.",
           "sharing": "Shared with support to manage grief.",
@@ -654,7 +792,9 @@
         "reversed_logic": "Acceptance. Moving on from a bad privacy experience."
       },
       {
-        "rank": "Six", "suit": "cups", "keywords": ["nostalgia", "archive", "memories", "history"],
+        "rank": "Six", "suit": "cups",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["nostalgia", "archive", "memories", "history"],
         "station_logic": {
           "collection": "Collection of historical memories.",
           "sharing": "Shared with past self via history features.",
@@ -663,7 +803,9 @@
         "reversed_logic": "Living in the past. Retaining data that should be forgotten."
       },
       {
-        "rank": "Seven", "suit": "cups", "keywords": ["wishlist", "fantasy", "dream", "option"],
+        "rank": "Seven", "suit": "cups",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["wishlist", "fantasy", "dream", "option"],
         "station_logic": {
           "collection": "Collection of dreams and future desires.",
           "sharing": "Shared with engines trying to fulfill fantasies.",
@@ -672,7 +814,9 @@
         "reversed_logic": "Illusion. Marketing data that sells you a fake dream."
       },
       {
-        "rank": "Eight", "suit": "cups", "keywords": ["deactivate", "abandon", "churn", "exit"],
+        "rank": "Eight", "suit": "cups",
+        "upright_valence": 0, "reversed_valence": -2,
+        "keywords": ["deactivate", "abandon", "churn", "exit"],
         "station_logic": {
           "collection": "Collection of the moment you decided to walk away.",
           "sharing": "Shared during the 'exit interview'.",
@@ -681,7 +825,9 @@
         "reversed_logic": "Fear of leaving. Terms that make deactivation impossible."
       },
       {
-        "rank": "Nine", "suit": "cups", "keywords": ["satisfaction", "survey", "happiness", "wish"],
+        "rank": "Nine", "suit": "cups",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["satisfaction", "survey", "happiness", "wish"],
         "station_logic": {
           "collection": "Collection of what makes you happy.",
           "sharing": "Shared with partners to maintain joy.",
@@ -690,7 +836,9 @@
         "reversed_logic": "Greed. Satisfaction data used to manipulate your desires."
       },
       {
-        "rank": "Ten", "suit": "cups", "keywords": ["home", "family", "circle", "harmony"],
+        "rank": "Ten", "suit": "cups",
+        "upright_valence": -1, "reversed_valence": -2,
+        "keywords": ["home", "family", "circle", "harmony"],
         "station_logic": {
           "collection": "Collection representing harmony of your group.",
           "sharing": "Shared across your entire ecosystem.",
@@ -699,7 +847,9 @@
         "reversed_logic": "Broken home. Household data used to divide the family."
       },
       {
-        "rank": "Page", "suit": "cups", "keywords": ["intuition", "empathy", "sensitive", "mood"],
+        "rank": "Page", "suit": "cups",
+        "upright_valence": -1, "reversed_valence": -1,
+        "keywords": ["intuition", "empathy", "sensitive", "mood"],
         "station_logic": {
           "collection": "Collection of 'moods' to predict needs.",
           "sharing": "Shared with 'sensitive' AI to learn how you feel.",
@@ -708,7 +858,9 @@
         "reversed_logic": "Escapism. AI uses your mood data to distract you."
       },
       {
-        "rank": "Knight", "suit": "cups", "keywords": ["passionate", "advocacy", "quest", "offer"],
+        "rank": "Knight", "suit": "cups",
+        "upright_valence": 0, "reversed_valence": -1,
+        "keywords": ["passionate", "advocacy", "quest", "offer"],
         "station_logic": {
           "collection": "Collection to pursue your deepest quests.",
           "sharing": "Shared with those who can help achieve missions.",
@@ -717,7 +869,9 @@
         "reversed_logic": "Unrequited love. You give data, but get no service in return."
       },
       {
-        "rank": "Queen", "suit": "cups", "keywords": ["counseling", "support", "empathy", "care"],
+        "rank": "Queen", "suit": "cups",
+        "upright_valence": 1, "reversed_valence": -1,
+        "keywords": ["counseling", "support", "empathy", "care"],
         "station_logic": {
           "collection": "Sensitive collection, handled with care.",
           "sharing": "Shared only with those providing emotional support.",
@@ -726,7 +880,9 @@
         "reversed_logic": "Insecurity. Care data used to make you feel vulnerable."
       },
       {
-        "rank": "King", "suit": "cups", "keywords": ["stewardship", "ethics", "trust", "wise"],
+        "rank": "King", "suit": "cups",
+        "upright_valence": 2, "reversed_valence": -2,
+        "keywords": ["stewardship", "ethics", "trust", "wise"],
         "station_logic": {
           "collection": "Collection managed with a calm, ethical hand.",
           "sharing": "Shared only for wise and trusted stewardship.",

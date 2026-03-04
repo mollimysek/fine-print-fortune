@@ -1,6 +1,24 @@
 // Privacy Tarot Engine V2 - JavaScript Implementation
 // Based on narrative_enginev2.py and tarot_logic.py
 
+// Returns true if the keyword at matchIndex appears in a negated context
+// (e.g. "we don't sell", "will not share", "never stores")
+function isNegatedMatch(text, matchIndex) {
+  // Walk back to the start of the current sentence/clause
+  let sentenceStart = matchIndex;
+  while (sentenceStart > 0 && !/[.!?\n]/.test(text[sentenceStart - 1])) {
+    sentenceStart--;
+  }
+
+  // Only look at the text in the same sentence, before the keyword
+  const beforeKeyword = text.substring(sentenceStart, matchIndex);
+
+  // Negation words/contractions that flip the meaning of what follows
+  const negationPattern = /\b(not|no|never|don't|do not|doesn't|does not|didn't|did not|won't|will not|wouldn't|would not|can't|cannot|shan't|shall not|we never|we don't|we won't)\b/i;
+
+  return negationPattern.test(beforeKeyword);
+}
+
 class PrivacyTarotEngine {
   constructor(deckData) {
     this.deck = deckData;
@@ -59,28 +77,31 @@ class PrivacyTarotEngine {
     const isReversed = frictionHits >= 3; // Flip card if policy is 'shady' or vague
 
     // Score each card based on keyword matches
+    let totalNegatedHits = 0;
     availablePool.forEach(card => {
       const name = this.getCardName(card);
       let score = 0;
 
-      // Match keywords - each occurrence worth 10 points
+      // Match keywords - each non-negated occurrence worth 10 points
       const keywords = card.keywords || [];
       keywords.forEach(keyword => {
         const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
-        const matches = segmentText.match(regex);
-        if (matches) {
-          const count = matches.length;
-          score += (count * 10);
+        let match;
+        while ((match = regex.exec(segmentText)) !== null) {
+          if (!isNegatedMatch(segmentText, match.index)) {
+            score += 10;
+          } else {
+            totalNegatedHits++;
+          }
         }
       });
 
-      // Contextual station bonus - +2 if card has logic for this station
-      if (card.station_logic && station in card.station_logic) {
-        score += 2;
-      }
-
       // Only add to results if score > 0
       if (score > 0) {
+        // Station logic bonus - tiebreaker for cards that already matched keywords
+        if (card.station_logic && station in card.station_logic) {
+          score += 2;
+        }
         let logicText = card.station_logic[station];
 
         // Format logic based on reversal
@@ -101,17 +122,32 @@ class PrivacyTarotEngine {
     // Final selection
     let winner;
     if (scoredResults.length === 0) {
-      // Fallback: prefer The Fool if available, else use first card
-      const foolCard = availablePool.find(c => this.getCardName(c) === 'The Fool');
-      const fallbackCard = foolCard || availablePool[0];
-      const fallbackName = this.getCardName(fallbackCard);
+      let fallbackCard;
 
+      if (totalNegatedHits > 0) {
+        // The policy is explicitly distancing itself from data practices.
+        // Use a station-appropriate card that reflects minimal/no data activity.
+        // Collection & sharing → The Hermit ("no third parties, stays on-device")
+        // Retention → Death ("absolute deletion")
+        const minimalCardName = station === 'retention' ? 'Death' : 'The Hermit';
+        fallbackCard =
+          availablePool.find(c => this.getCardName(c) === minimalCardName) ||
+          availablePool.find(c => this.getCardName(c) === 'The Fool') ||
+          availablePool[0];
+      } else {
+        // Genuinely vague — no relevant language found at all
+        fallbackCard =
+          availablePool.find(c => this.getCardName(c) === 'The Fool') ||
+          availablePool[0];
+      }
+
+      const fallbackName = this.getCardName(fallbackCard);
       winner = {
         card: fallbackCard,
         name: fallbackName,
         isReversed: isReversed,
         score: 0,
-        logic: `Vague ${station} terms.`
+        logic: fallbackCard.station_logic?.[station] || `Vague ${station} terms.`
       };
     } else {
       // Sort by score descending and pick the winner
@@ -150,12 +186,15 @@ class TarotSynthesizer {
       if (pos !== -1) searchFrom = pos + trimmed.length;
 
       keywords.forEach(keyword => {
-        const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-        if (regex.test(trimmed) && !found.some(f => f.sentence === trimmed)) {
-          found.push({
-            sentence: trimmed,
-            section: pos !== -1 ? this._findNearestSection(text, pos) : null
-          });
+        const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+        let match;
+        while ((match = regex.exec(trimmed)) !== null) {
+          if (!isNegatedMatch(trimmed, match.index) && !found.some(f => f.sentence === trimmed)) {
+            found.push({
+              sentence: trimmed,
+              section: pos !== -1 ? this._findNearestSection(text, pos) : null
+            });
+          }
         }
       });
     });
@@ -212,14 +251,32 @@ class TarotSynthesizer {
       sting = magicStings[Math.floor(Math.random() * magicStings.length)];
     }
 
-    let summary = stationLogic;
-
     // Add reversed logic if applicable
+    const uprightClosings = [
+      "The language used is standard for this industry, suggesting a structured, predictable flow of information.",
+      "The terms here carry a clear intention — what they claim to protect, they appear to mean.",
+      "The path of your data is mapped in plain sight; the terms offer few shadows to hide within.",
+      "A straightforward covenant. The power granted here is measured, not absolute.",
+      "What is written is what is meant — a modest promise, but an honest one.",
+      "The boundaries drawn here are legible — a rare clarity in the fine print."
+    ];
+
+    const reversedClosings = [
+      "The language here is notably vague, using conditional terms to limit your oversight.",
+      "Read the margins carefully — the freedom granted with one hand is quietly reclaimed with another.",
+      "Beneath the reassuring surface, the terms reserve more power than they surrender.",
+      "The fine print speaks in riddles; what it promises in full, it walks back in fragments.",
+      "Consent is invoked but not truly given — the terms hold the door open just enough to slip through.",
+      "The architecture of this language is designed to give ground, then take it back."
+    ];
+
+    let summary;
     if (this.isReversed && this.card.reversed_logic) {
-      summary += `\n\n${this.card.reversed_logic} `;
-      summary += "The language here is notably vague, using conditional terms to limit your oversight.";
-    } else if (!this.isReversed) {
-      summary += "\n\nThe language used is standard for this industry, suggesting a structured, predictable flow of information.";
+      summary = this.card.reversed_logic;
+      summary += "\n\n" + reversedClosings[Math.floor(Math.random() * reversedClosings.length)];
+    } else {
+      summary = stationLogic;
+      summary += "\n\n" + uprightClosings[Math.floor(Math.random() * uprightClosings.length)];
     }
 
     return summary;

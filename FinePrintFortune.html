@@ -2570,17 +2570,21 @@
     }
 
     getConclusion() {
-      const reversals = this.spread.filter(card => card.reversed).length;
-      const cardNames = this.spread.map(c => c.name.toLowerCase());
+      const spreadScore = this.spread.reduce((sum, c) => {
+        const valence = c.reversed
+          ? (c.cardData?.reversed_valence ?? 0)
+          : (c.cardData?.upright_valence ?? 0);
+        return sum + valence;
+      }, 0);
 
-      if (reversals >= 2) {
+      if (spreadScore <= -4) {
         return "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is murky.";
-      } else if (cardNames.includes('the devil')) {
-        return "🔗 <strong>The Contract is Signed:</strong> Your data is bound to a material master. Proceed with extreme caution.";
-      } else if (cardNames.includes('justice') || cardNames.includes('the sun')) {
+      } else if (spreadScore <= -2) {
+        return "🌒 <strong>Proceed with Caution:</strong> The cards reveal concerning patterns. Your data moves through hands that may not have your interests at heart.";
+      } else if (spreadScore >= 3) {
         return "✨ <strong>A Clear Path:</strong> This policy shines with transparency. Your rights are balanced and respected.";
       } else {
-        return "🔮 <strong>The Reading is Complete.</strong> Your digital fate is in your hands.";
+        return "🔮 <strong>A Steady Course:</strong> The terms are straightforward and unremarkable. The path appears open — walk it with awareness.";
       }
     }
 
@@ -2869,16 +2873,20 @@
         section.appendChild(block);
       });
 
-      // Generate conclusion based on reversals and specific cards
-      const reversals = drawnCards.filter(c => c.reversed).length;
-      const cardNames = drawnCards.map(c => c.name.toLowerCase());
+      // Generate conclusion based on spread valence score
+      const spreadScore = drawnCards.reduce((sum, c) => {
+        const valence = c.reversed
+          ? (c.cardData?.reversed_valence ?? 0)
+          : (c.cardData?.upright_valence ?? 0);
+        return sum + valence;
+      }, 0);
 
       let conclusion;
-      if (reversals >= 2) {
+      if (spreadScore <= -4) {
         conclusion = "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is murky.";
-      } else if (cardNames.includes('the devil')) {
-        conclusion = "🔗 <strong>The Contract is Signed:</strong> Your data is bound to a material master. Proceed with extreme caution.";
-      } else if (cardNames.includes('justice') || cardNames.includes('the star')) {
+      } else if (spreadScore <= -2) {
+        conclusion = "🌒 <strong>Proceed with Caution:</strong> The cards reveal concerning patterns. Your data moves through hands that may not have your interests at heart.";
+      } else if (spreadScore >= 3) {
         conclusion = "✨ <strong>A Clear Path:</strong> This policy shines with transparency. Your rights are balanced and respected.";
       } else {
         conclusion = "🔮 <strong>A Steady Course:</strong> The terms are straightforward and unremarkable. The path appears open — walk it with awareness.";
