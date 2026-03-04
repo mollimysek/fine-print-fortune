@@ -27,7 +27,7 @@ class PrivacyTarotEngine {
   }
 
   getCardName(card) {
-    return card.card || `${card.rank} of ${card.suit}`;
+    return card.card || `${card.rank} of ${card.suit.charAt(0).toUpperCase() + card.suit.slice(1)}`;
   }
 
   performSpread(collectionText, sharingText, retentionText) {

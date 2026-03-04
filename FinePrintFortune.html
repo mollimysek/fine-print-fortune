@@ -27,13 +27,13 @@
     /* ── Nav ── */
     nav {
       position: fixed;
-      top: 12px;
+      top: 24px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 10;
       display: flex;
       gap: 0;
-      padding: 4px 8px;
+      padding: 10px 8px;
       align-items: center;
       background: #B5D3EB;
       border-radius: 100px;
@@ -41,7 +41,7 @@
     }
     nav a {
       font-family: 'Courier Prime', monospace;
-      font-size: 14pt;
+      font-size: 16px;
       letter-spacing: 0.08em;
       color: #31261A;
       text-decoration: none;
@@ -76,7 +76,7 @@
       text-align: center;
     }
     .input-sub {
-      font-size: 15pt;
+      font-size: 16px;
       color: rgba(49,38,26,0.9);
       text-align: center;
       letter-spacing: 0.06em;
@@ -315,7 +315,7 @@
     .slot-label.retention  { background: #D9CDFC; }
     .card-reading-name {
       font-family: 'Jacquard 24', serif;
-      font-size: 22px;
+      font-size: 32px;
       font-weight: normal;
       letter-spacing: 0.04em;
       margin-bottom: 10px;
@@ -348,10 +348,10 @@
       padding-top: 24px;
       text-align: center;
       font-family: 'Courier Prime', monospace;
-      font-size: 22px;
-      font-weight: bold;
+      font-size: 16px;
+      font-weight: normal;
       color: rgba(49,38,26,0.9);
-      letter-spacing: 0.14em;
+      letter-spacing: 0.06em;
       font-style: normal;
     }
 
@@ -427,7 +427,7 @@
     }
 
     .history-sub {
-      font-size: 15pt;
+      font-size: 16px;
       color: rgba(49,38,26,0.9);
       text-align: center;
       letter-spacing: 0.06em;
@@ -627,7 +627,7 @@
     }
 
     .legal-page-sub {
-      font-size: 15pt;
+      font-size: 16px;
       color: rgba(49,38,26,0.75);
       text-align: center;
       letter-spacing: 0.08em;
@@ -723,7 +723,7 @@
     }
 
     .explore-sub {
-      font-size: 15pt;
+      font-size: 16px;
       color: rgba(49,38,26,0.75);
       text-align: center;
       letter-spacing: 0.06em;
@@ -828,8 +828,9 @@
     }
 
     .explore-card-name {
-      font-size: 9pt;
-      font-weight: bold;
+      font-family: 'Jacquard 24', serif;
+      font-size: 24px;
+      font-weight: normal;
       letter-spacing: 0.03em;
       line-height: 1.35;
       margin-bottom: 8px;
@@ -3130,7 +3131,7 @@
     grid.className = 'explore-grid';
 
     cards.forEach(card => {
-      const name = card.card || `${card.rank} of ${card.suit}`;
+      const name = card.card || `${card.rank} of ${card.suit.charAt(0).toUpperCase() + card.suit.slice(1)}`;
       const imgSrc = type === 'major'
         ? `major_arcana/${getMajorArcanaFilename(card.card)}`
         : `minor_arcana/${card.rank.toLowerCase()} of ${card.suit.toLowerCase()}.png`;
