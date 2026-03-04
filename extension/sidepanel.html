@@ -291,6 +291,265 @@
       padding-left: 8px;
       border-left: 2px solid rgba(49,38,26,0.3);
     }
+
+    .card-summary {
+      margin-top: 12px;
+      border-top: 1px solid rgba(49,38,26,0.15);
+      padding-top: 12px;
+    }
+
+    .summary-label {
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #31261A;
+      padding: 4px 0;
+      user-select: none;
+      list-style: none;
+    }
+
+    .summary-label::-webkit-details-marker {
+      display: none;
+    }
+
+    .summary-label:hover {
+      text-decoration: underline;
+    }
+
+    .summary-content {
+      margin-top: 8px;
+      padding: 12px;
+      background: rgba(139, 182, 212, 0.15);
+      border-radius: 8px;
+      border: 1px solid rgba(49,38,26,0.1);
+      font-size: 12px;
+      line-height: 1.6;
+      color: rgba(49,38,26,0.9);
+      white-space: pre-wrap;
+    }
+
+    /* History view styles */
+    .history-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn-back {
+      background: transparent;
+      border: 1px solid #31261A;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      color: #31261A;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-back:hover {
+      background: rgba(49,38,26,0.05);
+    }
+
+    .history-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #31261A;
+      margin: 0;
+      flex-grow: 1;
+    }
+
+    .history-empty {
+      background: rgba(246, 197, 108, 0.15);
+      border: 2px dashed rgba(49,38,26,0.3);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .history-empty p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(49,38,26,0.9);
+      margin: 0;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .history-item {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #31261A;
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .history-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(49,38,26,0.15);
+    }
+
+    .history-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .history-date {
+      font-size: 13px;
+      font-weight: bold;
+      color: #31261A;
+    }
+
+    .history-time {
+      font-size: 11px;
+      font-weight: normal;
+      color: rgba(49,38,26,0.6);
+    }
+
+    .history-delete-btn {
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      line-height: 1;
+      color: rgba(49,38,26,0.5);
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .history-delete-btn:hover {
+      background: rgba(255,107,107,0.1);
+      color: #FF6B6B;
+    }
+
+    .history-platform {
+      font-size: 12px;
+      color: rgba(49,38,26,0.7);
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+
+    .history-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .history-card-tag {
+      background: #F6C56C;
+      border: 1px solid #31261A;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #31261A;
+    }
+
+    .btn-clear-history {
+      background: #FF6B6B;
+      color: white;
+    }
+
+    .btn-clear-history:hover {
+      background: #FF5252;
+    }
+
+    .history-detail-header {
+      margin-bottom: 16px;
+    }
+
+    /* Manual input styles */
+    .manual-input-container {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid #31261A;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .manual-input-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #31261A;
+      margin: 0 0 12px 0;
+      text-align: center;
+    }
+
+    .manual-input-instructions {
+      font-size: 13px;
+      line-height: 1.6;
+      color: rgba(49,38,26,0.8);
+      margin: 0 0 16px 0;
+      text-align: center;
+    }
+
+    .manual-text-input {
+      width: 100%;
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      padding: 12px;
+      border: 1px solid #31261A;
+      border-radius: 8px;
+      background: #FFFFFF;
+      color: #31261A;
+      resize: vertical;
+      min-height: 200px;
+      margin-bottom: 16px;
+    }
+
+    .manual-text-input:focus {
+      outline: none;
+      border-color: #F6C56C;
+      box-shadow: 0 0 0 2px rgba(246, 197, 108, 0.2);
+    }
+
+    .manual-text-input::placeholder {
+      color: rgba(49,38,26,0.4);
+      font-style: italic;
+    }
+
+    .manual-input-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .manual-input-buttons .btn {
+      flex: 1;
+      margin: 0;
+    }
+
+    .btn-paste {
+      background: #8CB6D4;
+    }
+
+    .btn-paste:hover {
+      background: #7AA5C3;
+    }
+
+    .btn-secondary {
+      background: rgba(49,38,26,0.1);
+      color: #31261A;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(49,38,26,0.2);
+    }
   </style>
 </head>
 <body>
