@@ -203,8 +203,6 @@
     /* ── SCREEN 2 ── */
     #screen-draw {
       width: 100%;
-      height: 100vh;
-      overflow: hidden;
       padding: 56px 24px 56px;
       gap: 0;
       justify-content: flex-start;
@@ -217,34 +215,15 @@
       align-items: flex-start;
       justify-content: center;
       flex-shrink: 0;
-      margin-bottom: 4px;
     }
 
     #reading-area {
-      flex: 1;
-      min-height: 0;
-      overflow-y: scroll;
       width: 100%;
       max-width: calc(3 * 198px + 2 * 28px);
       padding-bottom: 20px;
       display: flex;
       flex-direction: column;
       position: relative;
-    }
-    #reading-area::-webkit-scrollbar {
-      width: 6px;
-    }
-    #reading-area::-webkit-scrollbar-track {
-      background: transparent;
-      margin-top: 40px;
-      margin-bottom: 40px;
-    }
-    #reading-area::-webkit-scrollbar-thumb {
-      background: rgba(49,38,26,0.35);
-      border-radius: 3px;
-    }
-    #reading-area::-webkit-scrollbar-thumb:hover {
-      background: rgba(49,38,26,0.55);
     }
 
     #reading-section {
@@ -253,13 +232,17 @@
       max-width: 100%;
       margin: 0 auto;
       width: 100%;
-      padding-top: 56px;
+      padding-top: 40px;
     }
     .reading-card-block {
       padding: 28px 0;
       border-top: 1px solid rgba(49,38,26,0.18);
     }
-    .reading-card-block:first-child {
+    .reading-conclusion {
+      margin-bottom: 40px;
+    }
+    .reading-card-block:first-child,
+    .reading-conclusion + .reading-card-block {
       border-top: none;
       padding-top: 4px;
     }
@@ -420,7 +403,8 @@
 
     /* ── SCREEN 3: YOUR HISTORY ── */
     #screen-history {
-      width: 100%;
+      width: calc(100% + 90px);
+      margin-left: -45px;
       min-height: 100vh;
       padding: 56px 24px 56px;
     }
@@ -689,7 +673,8 @@
 
     /* ── SCREEN: EXPLORE DECK ── */
     #screen-explore {
-      width: 100%;
+      width: calc(100% + 90px);
+      margin-left: -45px;
       min-height: 100vh;
       padding: 56px 24px 56px;
       justify-content: flex-start;
@@ -778,6 +763,7 @@
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       background: url('card_backs/blank.png') center / cover no-repeat;
+      cursor: pointer;
       padding: 10px;
       display: flex;
       flex-direction: column;
@@ -791,6 +777,7 @@
     }
 
     .explore-flip-btn {
+      display: none;
       position: absolute;
       top: 7px;
       right: 7px;
@@ -815,7 +802,7 @@
     }
 
     .explore-card-name {
-      font-size: 14px;
+      font-size: calc(14px - 1pt);
       font-weight: bold;
       letter-spacing: 0.03em;
       line-height: 1.35;
@@ -838,7 +825,7 @@
     }
 
     .explore-meaning-label {
-      font-size: 10px;
+      font-size: calc(10px - 1pt);
       letter-spacing: 0.13em;
       text-transform: uppercase;
       color: rgba(49,38,26,0.65);
@@ -846,7 +833,7 @@
     }
 
     .explore-meaning-text {
-      font-size: 12px;
+      font-size: calc(12px - 1pt);
       line-height: 1.45;
       color: #31261A;
     }
@@ -861,7 +848,7 @@
     }
 
     .explore-reversed-label {
-      font-size: 10px;
+      font-size: calc(10px - 1pt);
       letter-spacing: 0.13em;
       text-transform: uppercase;
       color: rgba(49,38,26,0.6);
@@ -870,7 +857,7 @@
     }
 
     .explore-reversed-text {
-      font-size: 12px;
+      font-size: calc(12px - 1pt);
       line-height: 1.45;
       color: rgba(49,38,26,0.85);
       font-style: italic;
@@ -1224,11 +1211,12 @@
   loadTarotDeck();
 
   // Infer platform and document type from text
-  function inferMetadata(text) {
+  function inferMetadata(text, url) {
     const lowerText = text.toLowerCase();
 
     // Platform detection - look for company names, references, and legal entities in the content
     const platforms = {
+      // ── Social / Consumer Tech ──
       'Facebook': [
         'facebook, inc', 'meta platforms', 'meta platforms, inc', 'facebook ireland',
         'we at facebook', 'facebook provides', 'facebook services', 'facebook products',
@@ -1246,10 +1234,6 @@
       'TikTok': [
         'tiktok inc', 'bytedance', 'tiktok pte', 'tiktok technology',
         'we at tiktok', 'tiktok provides', 'tiktok platform'
-      ],
-      'Amazon': [
-        'amazon.com, inc', 'amazon services', 'amazon web services', 'aws',
-        'we at amazon', 'amazon provides', 'amazon marketplace', 'prime'
       ],
       'Apple': [
         'apple inc', 'apple distribution international', 'we at apple',
@@ -1275,6 +1259,14 @@
         'reddit, inc', 'we at reddit', 'reddit provides',
         'reddit services', 'subreddit'
       ],
+      'Tumblr': [
+        'tumblr, inc', 'automattic', 'we at tumblr', 'tumblr services'
+      ],
+      'BeReal': [
+        'bereal sas', 'we at bereal', 'bereal services', 'bereal platform'
+      ],
+
+      // ── Streaming / Entertainment ──
       'Netflix': [
         'netflix, inc', 'netflix international', 'we at netflix',
         'netflix provides', 'netflix service'
@@ -1283,30 +1275,195 @@
         'spotify ab', 'spotify usa', 'we at spotify',
         'spotify provides', 'spotify service', 'spotify premium'
       ],
+      'Disney+': [
+        'disney streaming', 'disney+', 'the walt disney company', 'hulu',
+        'we at disney', 'disney provides', 'disney services'
+      ],
+      'HBO Max': [
+        'hbo max', 'warner bros', 'warner media', 'max streaming',
+        'we at hbo', 'hbo services'
+      ],
+      'Twitch': [
+        'twitch interactive', 'twitch, inc', 'we at twitch',
+        'twitch services', 'twitch platform', 'twitch stream'
+      ],
+      'Apple TV+': [
+        'apple tv', 'apple tv+', 'apple original'
+      ],
+
+      // ── E-commerce ──
+      'Amazon': [
+        'amazon.com, inc', 'amazon services', 'amazon web services',
+        'we at amazon', 'amazon provides', 'amazon marketplace', 'amazon prime'
+      ],
+      'Shopify': [
+        'shopify inc', 'shopify international', 'we at shopify',
+        'shopify provides', 'shopify services', 'shopify platform', 'shopify merchant'
+      ],
+      'eBay': [
+        'ebay inc', 'ebay marketplace', 'we at ebay',
+        'ebay provides', 'ebay services', 'ebay seller'
+      ],
+      'Etsy': [
+        'etsy, inc', 'etsy ireland', 'we at etsy',
+        'etsy provides', 'etsy services', 'etsy marketplace', 'etsy seller'
+      ],
+
+      // ── Ride-share / Delivery ──
       'Uber': [
         'uber technologies', 'uber b.v.', 'we at uber',
         'uber provides', 'uber services', 'uber platform'
+      ],
+      'Lyft': [
+        'lyft, inc', 'we at lyft', 'lyft provides',
+        'lyft services', 'lyft platform', 'lyft driver'
       ],
       'Airbnb': [
         'airbnb, inc', 'airbnb ireland', 'we at airbnb',
         'airbnb provides', 'airbnb platform', 'airbnb services'
       ],
+      'DoorDash': [
+        'doordash, inc', 'we at doordash', 'doordash provides',
+        'doordash services', 'doordash platform', 'dasher'
+      ],
+      'Instacart': [
+        'maplebear inc', 'instacart', 'we at instacart',
+        'instacart provides', 'instacart services', 'instacart shopper'
+      ],
+
+      // ── Productivity / Collaboration ──
       'Zoom': [
         'zoom video communications', 'we at zoom', 'zoom provides',
         'zoom services', 'zoom meetings'
-      ],
-      'Discord': [
-        'discord inc', 'we at discord', 'discord provides',
-        'discord services', 'discord platform'
       ],
       'Slack': [
         'slack technologies', 'we at slack', 'slack provides',
         'slack services', 'slack platform'
       ],
+      'Discord': [
+        'discord inc', 'we at discord', 'discord provides',
+        'discord services', 'discord platform'
+      ],
+      'Notion': [
+        'notion labs', 'we at notion', 'notion provides',
+        'notion services', 'notion workspace'
+      ],
+      'Figma': [
+        'figma, inc', 'we at figma', 'figma provides',
+        'figma services', 'figma platform'
+      ],
+      'Canva': [
+        'canva pty', 'we at canva', 'canva provides',
+        'canva services', 'canva platform'
+      ],
       'Dropbox': [
         'dropbox, inc', 'we at dropbox', 'dropbox provides',
         'dropbox services'
       ],
+      'Box': [
+        'box, inc', 'we at box', 'box provides',
+        'box services', 'box platform', 'box cloud'
+      ],
+      'Asana': [
+        'asana, inc', 'we at asana', 'asana provides',
+        'asana services', 'asana platform'
+      ],
+      'Monday.com': [
+        'monday.com ltd', 'we at monday', 'monday provides',
+        'monday services', 'monday platform'
+      ],
+      'Atlassian': [
+        'atlassian corporation', 'atlassian pty', 'we at atlassian',
+        'atlassian provides', 'jira', 'confluence', 'trello', 'atlassian services'
+      ],
+      'GitHub': [
+        'github, inc', 'we at github', 'github provides',
+        'github services', 'github platform', 'github repository'
+      ],
+      'GitLab': [
+        'gitlab inc', 'we at gitlab', 'gitlab provides',
+        'gitlab services', 'gitlab platform'
+      ],
+
+      // ── Adobe / Creative ──
+      'Adobe': [
+        'adobe inc', 'adobe systems', 'we at adobe',
+        'adobe provides', 'adobe services', 'adobe creative cloud', 'photoshop', 'acrobat'
+      ],
+
+      // ── Cloud / Enterprise ──
+      'Salesforce': [
+        'salesforce, inc', 'salesforce.com', 'we at salesforce',
+        'salesforce provides', 'salesforce services', 'salesforce platform', 'heroku'
+      ],
+      'HubSpot': [
+        'hubspot, inc', 'we at hubspot', 'hubspot provides',
+        'hubspot services', 'hubspot platform', 'hubspot crm'
+      ],
+      'Airtable': [
+        'airtable, inc', 'we at airtable', 'airtable provides',
+        'airtable services', 'airtable platform'
+      ],
+      'ServiceNow': [
+        'servicenow, inc', 'we at servicenow', 'servicenow provides',
+        'servicenow services', 'servicenow platform'
+      ],
+      'Oracle': [
+        'oracle corporation', 'oracle america', 'we at oracle',
+        'oracle provides', 'oracle services', 'oracle cloud'
+      ],
+
+      // ── HR / Payroll / People Ops ──
+      'Rippling': [
+        'rippling people center', 'rippling, inc', 'we at rippling',
+        'rippling provides', 'rippling services', 'rippling platform', 'rippling hr'
+      ],
+      'Deel': [
+        'deel, inc', 'deel ireland', 'we at deel',
+        'deel provides', 'deel services', 'deel platform', 'deel hr'
+      ],
+      'Justworks': [
+        'justworks, inc', 'we at justworks', 'justworks provides',
+        'justworks services', 'justworks platform', 'justworks hr', 'justworks peo'
+      ],
+      'Workday': [
+        'workday, inc', 'we at workday', 'workday provides',
+        'workday services', 'workday platform', 'workday hcm'
+      ],
+      'ADP': [
+        'adp, llc', 'automatic data processing', 'we at adp',
+        'adp provides', 'adp services', 'adp platform', 'adp workforce'
+      ],
+      'Gusto': [
+        'gusto, inc', 'we at gusto', 'gusto provides',
+        'gusto services', 'gusto platform', 'gusto payroll'
+      ],
+      'BambooHR': [
+        'bamboohr', 'bamboo hr', 'we at bamboohr', 'bamboohr provides',
+        'bamboohr services', 'bamboohr platform'
+      ],
+      'Greenhouse': [
+        'greenhouse software', 'we at greenhouse', 'greenhouse provides',
+        'greenhouse services', 'greenhouse recruiting', 'greenhouse ats'
+      ],
+      'Lever': [
+        'lever, inc', 'we at lever', 'lever provides',
+        'lever services', 'lever platform', 'lever ats', 'lever recruiting'
+      ],
+      'TriNet': [
+        'trinet group', 'we at trinet', 'trinet provides',
+        'trinet services', 'trinet platform', 'trinet peo'
+      ],
+      'Lattice': [
+        'lattice, inc', 'we at lattice', 'lattice provides',
+        'lattice services', 'lattice platform', 'lattice hr'
+      ],
+      'Merge': [
+        'merge api', 'merge.dev', 'we at merge', 'merge provides',
+        'merge services', 'merge platform'
+      ],
+
+      // ── Fintech / Payments ──
       'PayPal': [
         'paypal, inc', 'paypal holdings', 'we at paypal',
         'paypal provides', 'paypal services'
@@ -1319,6 +1476,36 @@
         'block, inc', 'square, inc', 'cash app',
         'we at cash app', 'cash app provides'
       ],
+      'Stripe': [
+        'stripe, inc', 'stripe payments', 'we at stripe',
+        'stripe provides', 'stripe services', 'stripe platform'
+      ],
+      'Robinhood': [
+        'robinhood markets', 'robinhood financial', 'we at robinhood',
+        'robinhood provides', 'robinhood services'
+      ],
+      'Coinbase': [
+        'coinbase, inc', 'coinbase global', 'we at coinbase',
+        'coinbase provides', 'coinbase services', 'coinbase platform'
+      ],
+      'Plaid': [
+        'plaid inc', 'plaid financial', 'we at plaid',
+        'plaid provides', 'plaid services', 'plaid platform'
+      ],
+      'Brex': [
+        'brex inc', 'we at brex', 'brex provides',
+        'brex services', 'brex platform', 'brex card'
+      ],
+      'Ramp': [
+        'ramp financial', 'ramp business', 'we at ramp',
+        'ramp provides', 'ramp services', 'ramp platform', 'ramp card'
+      ],
+      'Expensify': [
+        'expensify, inc', 'we at expensify', 'expensify provides',
+        'expensify services', 'expensify platform'
+      ],
+
+      // ── AI ──
       'OpenAI': [
         'openai, l.l.c', 'openai opco', 'we at openai',
         'openai provides', 'chatgpt'
@@ -1326,6 +1513,10 @@
       'Anthropic': [
         'anthropic pbc', 'anthropic, pbc', 'we at anthropic',
         'anthropic provides', 'claude'
+      ],
+      'Midjourney': [
+        'midjourney, inc', 'we at midjourney', 'midjourney provides',
+        'midjourney services'
       ],
     };
 
@@ -1336,7 +1527,7 @@
     for (const [platform, keywords] of Object.entries(platforms)) {
       let matches = 0;
       for (const keyword of keywords) {
-        const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        const regex = new RegExp('\\b' + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
         const count = (lowerText.match(regex) || []).length;
         matches += count;
       }
@@ -1346,9 +1537,17 @@
       }
     }
 
-    // If no matches found, remain Unknown
+    // If no matches found, fall back to the base domain of the URL if provided
     if (maxMatches === 0) {
-      detectedPlatform = 'Unknown';
+      if (url) {
+        try {
+          detectedPlatform = new URL(url).hostname.replace(/^www\./, '');
+        } catch (e) {
+          detectedPlatform = 'Unknown';
+        }
+      } else {
+        detectedPlatform = 'Unknown';
+      }
     }
 
     // Document type detection - prioritize title/header matches
@@ -1443,24 +1642,18 @@
       return;
     }
 
-    statusEl.textContent = 'Fetching content...';
+    statusEl.textContent = 'This may take a few seconds…';
     statusEl.style.color = '#31261A';
 
     const proxies = [
       async (u) => {
-        const r = await fetch('https://corsproxy.io/?url=' + encodeURIComponent(u));
-        if (!r.ok) throw new Error('corsproxy.io failed');
+        const r = await fetch('https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u));
+        if (!r.ok) throw new Error('codetabs failed: ' + r.status);
         return r.text();
       },
       async (u) => {
-        const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(u));
-        if (!r.ok) throw new Error('allorigins failed');
-        const json = await r.json();
-        return json.contents;
-      },
-      async (u) => {
-        const r = await fetch('https://thingproxy.freeboard.io/fetch/' + u);
-        if (!r.ok) throw new Error('thingproxy failed');
+        const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(u));
+        if (!r.ok) throw new Error('allorigins failed: ' + r.status);
         return r.text();
       },
     ];
@@ -1470,7 +1663,6 @@
       let lastError = null;
       for (const proxy of proxies) {
         try {
-          statusEl.textContent = `Fetching content... (trying proxy ${proxies.indexOf(proxy) + 1}/${proxies.length})`;
           html = await proxy(url);
           break;
         } catch (e) {
@@ -1494,17 +1686,17 @@
         statusEl.style.color = '#2E7D32';
 
         // Show detected metadata from content
-        const metadata = inferMetadata(extractedText);
+        const metadata = inferMetadata(extractedText, url);
         const detectedInfo = document.getElementById('detectedInfo');
         detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
         return true;
       } else {
-        statusEl.textContent = 'No text found at URL';
+        statusEl.textContent = 'We couldn\'t read that policy. Try pasting in text or sharing a file instead.';
         statusEl.style.color = '#8B0000';
         return false;
       }
     } catch (error) {
-      statusEl.textContent = `Error: ${error.message}`;
+      statusEl.textContent = 'We couldn\'t read that policy. Try pasting in text or sharing a file instead.';
       statusEl.style.color = '#8B0000';
       return false;
     }
@@ -1772,7 +1964,8 @@
     }
 
     // Automatically infer platform and document type
-    const metadata = inferMetadata(userText);
+    const sourceUrl = panelId === 'panel-url' ? document.getElementById('urlInput').value.trim() : null;
+    const metadata = inferMetadata(userText, sourceUrl);
     window.currentPlatform = metadata.platform;
     window.currentType = metadata.type;
 
@@ -2059,7 +2252,7 @@
       const cardNames = this.spread.map(c => c.name.toLowerCase());
 
       if (reversals >= 2) {
-        return "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is blocked.";
+        return "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is murky.";
       } else if (cardNames.includes('the devil')) {
         return "🔗 <strong>The Contract is Signed:</strong> Your data is bound to a material master. Proceed with extreme caution.";
       } else if (cardNames.includes('justice') || cardNames.includes('the sun')) {
@@ -2350,13 +2543,13 @@
 
       let conclusion;
       if (reversals >= 2) {
-        conclusion = "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is blocked.";
+        conclusion = "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is murky.";
       } else if (cardNames.includes('the devil')) {
         conclusion = "🔗 <strong>The Contract is Signed:</strong> Your data is bound to a material master. Proceed with extreme caution.";
       } else if (cardNames.includes('justice') || cardNames.includes('the star')) {
         conclusion = "✨ <strong>A Clear Path:</strong> This policy shines with transparency. Your rights are balanced and respected.";
       } else {
-        conclusion = "🔮 <strong>The Reading is Complete.</strong> Your digital fate is in your hands.";
+        conclusion = "🔮 <strong>A Steady Course:</strong> The terms are straightforward and unremarkable. The path appears open — walk it with awareness.";
       }
 
       const conclusionBlock = document.createElement('div');
@@ -2729,7 +2922,6 @@
             <img src="${imgSrc}" alt="${name}">
           </div>
           <div class="explore-card-back">
-            <button class="explore-flip-btn" title="Flip back">↻</button>
             <div class="explore-card-name">${name}</div>
             <div class="explore-meanings">${meanings}</div>
             ${reversed}
@@ -2740,8 +2932,7 @@
         wrap.classList.add('flipped');
       });
 
-      wrap.querySelector('.explore-flip-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
+      wrap.querySelector('.explore-card-back').addEventListener('click', () => {
         wrap.classList.remove('flipped');
       });
 
