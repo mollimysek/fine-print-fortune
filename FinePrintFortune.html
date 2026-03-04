@@ -2931,6 +2931,7 @@
   function initLegalReading() {
     ['legal-col-0', 'legal-col-1', 'legal-col-2', 'legal-col-3', 'legal-col-4', 'legal-col-5'].forEach(id => {
       document.querySelectorAll(`#${id} .placed-card`).forEach(c => c.remove());
+      document.querySelectorAll(`#${id} .reading-card-block`).forEach(c => c.remove());
     });
 
     const section1 = document.getElementById('legal-reading-section');
