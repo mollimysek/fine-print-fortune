@@ -38,6 +38,7 @@
       background: #B5D3EB;
       border-radius: 100px;
       white-space: nowrap;
+      box-shadow: 0 2px 12px rgba(49,38,26,0.18);
     }
     nav a {
       font-family: 'Courier Prime', monospace;
@@ -74,6 +75,7 @@
       font-weight: normal;
       letter-spacing: 0.08em;
       text-align: center;
+      margin-bottom: 12px;
     }
     .input-sub {
       font-size: 16px;
@@ -101,12 +103,12 @@
       transition: background 0.15s ease;
     }
     .seg-btn.active {
-      background: #F6C56C;
+      background: #1D6FA0;
+      color: #fff;
     }
 
     .input-container {
       width: min(640px, 90vw);
-      min-height: 260px;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -114,7 +116,7 @@
     }
 
     #drawBtn {
-      margin-top: 20px;
+      margin-top: 12px;
     }
 
     .input-panel {
@@ -129,7 +131,7 @@
 
     #userText, #urlInput {
       width: 100%;
-      background: #ffffff;
+      background: url('card_backs/blank.png') center / 160% 160% no-repeat;
       border: 1px solid #31261A;
       border-radius: 12px;
       padding: 18px;
@@ -156,14 +158,14 @@
       justify-content: center;
       width: 100%;
       height: 200px;
-      background: #ffffff;
+      background: url('card_backs/blank.png') center / 160% 160% no-repeat;
       border: 2px dashed #31261A;
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.2s;
     }
     .file-upload-label:hover {
-      background: rgba(140, 182, 212, 0.7);
+      filter: brightness(0.95);
       border-color: rgba(49,38,26,0.7);
     }
     .file-upload-label span {
@@ -180,8 +182,12 @@
       font-size: 13px;
       color: rgba(49,38,26,0.9);
       text-align: center;
-      margin-top: 12px;
-      min-height: 20px;
+      margin-top: 4px;
+      min-height: 0;
+    }
+    #detectedInfo {
+      min-height: 0 !important;
+      margin-top: 4px !important;
     }
 
     .btn-secondary {
@@ -206,6 +212,7 @@
       gap: 0;
       justify-content: flex-start;
     }
+
 
     .spread {
       display: flex;
@@ -337,7 +344,22 @@
       flex-direction: column;
       align-items: center;
       gap: 4px;
-      padding: 4px 0 4px;
+      padding: 4px 0;
+    }
+
+    /* Before drawing: collapse empty slot wrappers and center deck between chips and prompt */
+    #screen-draw .slot-wrapper,
+    #screen-draw .spread-slot {
+      max-height: 400px;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+    #screen-draw:not(.cards-started) .slot-wrapper,
+    #screen-draw:not(.cards-started) .spread-slot {
+      max-height: 0;
+    }
+    #screen-draw:not(.cards-started) .deck-section {
+      padding: 40px 0;
     }
 
     .reading-empty-state {
@@ -410,6 +432,7 @@
     }
 
     .history-container {
+      width: 100%;
       max-width: 1400px;
       margin: 0 auto;
       display: flex;
@@ -423,7 +446,7 @@
       font-weight: normal;
       letter-spacing: 0.08em;
       text-align: center;
-      margin-bottom: 0;
+      margin-bottom: 12px;
     }
 
     .history-sub {
@@ -591,38 +614,42 @@
     .analytics-card {
       background: url('card_backs/blank.png') center / 160% 160% no-repeat;
       border-radius: 12px;
+      border: 1px solid #000;
       padding: 20px 18px;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      min-width: 0;
     }
 
     .analytics-label {
       font-family: 'Courier Prime', monospace;
-      font-size: 10px;
+      font-size: 11px;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: rgba(49,38,26,0.55);
     }
 
     .analytics-value {
-      font-family: 'Courier Prime', monospace;
-      font-size: 22px;
-      font-weight: bold;
+      font-family: 'Jacquard 24', serif;
+      font-size: 32px;
+      font-weight: normal;
       color: rgba(49,38,26,0.9);
       line-height: 1.2;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
 
     .analytics-note {
       font-family: 'Courier Prime', monospace;
-      font-size: 11px;
+      font-size: 12px;
       color: rgba(49,38,26,0.5);
       margin-top: 2px;
     }
 
     .analytics-insight {
       font-family: 'Courier Prime', monospace;
-      font-size: 11.5px;
+      font-size: 12px;
       font-style: italic;
       color: rgba(49,38,26,0.65);
       line-height: 1.5;
@@ -682,7 +709,7 @@
       font-weight: normal;
       letter-spacing: 0.12em;
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 20px;
     }
 
     .legal-page-sub {
@@ -694,13 +721,24 @@
     }
 
     .legal-spread {
-      display: flex;
-      flex-direction: row;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 28px;
-      align-items: flex-start;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-bottom: 24px;
+      align-items: start;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 24px;
+    }
+
+    .legal-spread .spread-col {
+      width: 100%;
+    }
+
+    .legal-spread .slot-wrapper,
+    .legal-spread .spread-slot {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 198 / 320;
     }
 
     #legal-reading-section,
@@ -713,12 +751,13 @@
       opacity: 0;
     }
 
-    #legal-reading-section .reading-card-block,
-    #legal-reading-section-2 .reading-card-block {
-      width: 198px;
+    .legal-spread .reading-card-block {
+      width: 100%;
       flex-shrink: 0;
       border-top: none;
-      padding-top: 0px;
+      padding-top: 8px;
+      padding-bottom: 0;
+      text-align: center;
     }
 
     #legal-reading-section {
@@ -778,7 +817,7 @@
       font-weight: normal;
       letter-spacing: 0.12em;
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 20px;
     }
 
     .explore-sub {
@@ -828,7 +867,7 @@
 
     .explore-card-front {
       width: 100%;
-      border-radius: 10px;
+      border-radius: 0;
       overflow: hidden;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
@@ -843,7 +882,7 @@
       position: absolute;
       inset: 0;
       transform: rotateY(180deg);
-      border-radius: 10px;
+      border-radius: 0;
       overflow-y: auto;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
@@ -1104,7 +1143,7 @@
     .fortune-container::before,
     .fortune-container::after {
       content: "";
-      position: absolute;
+      position: fixed;
       top: 0;
       bottom: 0;
       width: 150px;
@@ -1115,7 +1154,7 @@
     }
 
     .fortune-container::before {
-      left: 30px;
+      left: 0;
       background-image:
         url('border_assets/top-left-moon.png'),
         linear-gradient(#B5D3EB, #B5D3EB),
@@ -1137,7 +1176,7 @@
     }
 
     .fortune-container::after {
-      right: 30px;
+      right: 0;
       background-image:
         url('border_assets/top-right-moon.png'),
         linear-gradient(#B5D3EB, #B5D3EB),
@@ -1156,6 +1195,37 @@
         150px auto,
         150px 156px,
         55px auto;
+    }
+
+    /* ── Border scaling at larger viewports ── */
+    @media (min-width: 1400px) {
+      .fortune-container::before,
+      .fortune-container::after {
+        width: 180px;
+      }
+      .fortune-container::before {
+        background-size: 180px auto, 180px 187px, 180px auto, 180px 187px, 66px auto;
+        background-position: top left, top left, bottom left, bottom left, 0 187px;
+      }
+      .fortune-container::after {
+        background-size: 180px auto, 180px 187px, 180px auto, 180px 187px, 66px auto;
+        background-position: top right, top right, bottom right, bottom right, 100% 187px;
+      }
+    }
+
+    @media (min-width: 1800px) {
+      .fortune-container::before,
+      .fortune-container::after {
+        width: 220px;
+      }
+      .fortune-container::before {
+        background-size: 220px auto, 220px 229px, 220px auto, 220px 229px, 81px auto;
+        background-position: top left, top left, bottom left, bottom left, 0 229px;
+      }
+      .fortune-container::after {
+        background-size: 220px auto, 220px 229px, 220px auto, 220px 229px, 81px auto;
+        background-position: top right, top right, bottom right, bottom right, 100% 229px;
+      }
     }
 
     /* ── Mobile responsiveness (≤850px) ── */
@@ -1228,8 +1298,8 @@
 
       /* 3b. Legal spread */
       .legal-spread {
-        flex-direction: column;
-        align-items: center;
+        grid-template-columns: 1fr;
+        max-width: min(300px, 80vw);
         gap: 20px;
       }
 
@@ -1238,10 +1308,17 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
-      /* 4. Screen-explore spacing */
-      #screen-explore {
+      /* 4. Screen-explore / screen-history spacing */
+      #screen-explore,
+      #screen-history {
         width: 100%;
         margin-left: 0;
+      }
+
+      /* 5. Analytics cards — single column, full width */
+      .history-analytics {
+        grid-template-columns: 1fr;
+        width: 100%;
       }
     }
   </style>
@@ -1299,6 +1376,7 @@
 
   <!-- SCREEN 2 -->
   <div class="screen" id="screen-draw">
+    <h1 class="input-heading" style="margin-bottom: 32px;">Fine Print Fortune</h1>
     <div class="spread" id="spread">
       <div class="spread-col" id="col-0">
         <div class="slot-label collection">Data Collection</div>
@@ -2210,6 +2288,7 @@
     window.currentType = metadata.type;
 
     drawnCards = selectCards(userText);
+    document.getElementById('screen-draw').querySelector('h1').textContent = 'Your Fortune';
     document.getElementById('screen-input').classList.remove('active');
     document.getElementById('screen-draw').classList.add('active');
   }
@@ -2227,6 +2306,9 @@
     const statusEl  = document.getElementById('status');
     statusEl.textContent = '';
     deckArea.style.pointerEvents = 'none';
+
+    // Restore slot wrappers now so getSlotRect (called ~1s later) has correct dimensions
+    document.getElementById('screen-draw').classList.add('cards-started');
 
     if (drawn === SLOTS.length - 1) {
       document.getElementById('readingEmpty').style.display = 'none';
@@ -2882,11 +2964,10 @@
     ];
 
     DESCRIPTIONS.forEach((text, i) => {
-      const section = i < 3 ? section1 : section2;
       const block = document.createElement('div');
       block.className = 'reading-card-block';
       block.innerHTML = `<p class="card-reading-body">${text}</p>`;
-      section.appendChild(block);
+      document.getElementById(`legal-col-${i}`).appendChild(block);
       placeLegalCard(i, cards[i]);
     });
   }
@@ -2903,6 +2984,8 @@
 
   function resetSpread() {
     drawn = 0; animating = false; drawnCards = []; userText = '';
+    document.getElementById('screen-draw').classList.remove('cards-started');
+    document.getElementById('screen-draw').querySelector('h1').textContent = 'Fine Print Fortune';
     readingTimers.forEach(t => clearTimeout(t));
     readingTimers = [];
 
@@ -3268,7 +3351,8 @@
 
     drawnCards.forEach((_, i) => placePermanentCard(i));
 
-    // Hide the deck section (it was restored by resetSpread)
+    // Restore slot wrappers and hide deck/prompt (reading is already complete)
+    document.getElementById('screen-draw').classList.add('cards-started');
     const deckSection = document.getElementById('deckSection');
     deckSection.style.display = 'none';
 
