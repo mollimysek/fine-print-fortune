@@ -1,0 +1,3254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarot Draw</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="storage-adapter.js"></script>
+  <script src="narrative_v2_implementation.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Jacquard+24&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #B5D3EB;
+      min-height: 100vh;
+      font-family: 'Courier Prime', monospace;
+      color: #31261A;
+    }
+
+    /* ── Texture canvas (hidden) ── */
+    #texture-canvas {
+      display: none;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 0;
+      padding: 10px 8px;
+      align-items: center;
+      background: #B5D3EB;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    nav a {
+      font-family: 'Courier Prime', monospace;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      text-decoration: none;
+      padding: 6px 18px;
+      white-space: nowrap;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    nav a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 2; }
+    .screen.active { display: flex; }
+
+    /* ── SCREEN 1 ── */
+    #screen-input {
+      width: 100%;
+      min-height: 100vh;
+      padding: 56px 24px 56px;
+      gap: 24px;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .input-heading {
+      font-family: 'Jacquard 24', serif;
+      font-size: 55pt;
+      font-weight: normal;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+    .input-sub {
+      font-size: 16px;
+      color: rgba(49,38,26,0.9);
+      text-align: center;
+      letter-spacing: 0.06em;
+      width: min(640px, 90vw);
+    }
+    .segmented-control {
+      display: flex;
+      background: rgba(49,38,26,0.10);
+      border-radius: 24px;
+      padding: 3px;
+    }
+    .seg-btn {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      background: transparent;
+      border: none;
+      padding: 8px 28px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .seg-btn.active {
+      background: #F6C56C;
+    }
+
+    .input-container {
+      width: min(640px, 90vw);
+      min-height: 260px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #drawBtn {
+      margin-top: 20px;
+    }
+
+    .input-panel {
+      display: none;
+      width: 100%;
+    }
+    .input-panel.active {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #userText, #urlInput {
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid #31261A;
+      border-radius: 12px;
+      padding: 18px;
+      color: #31261A;
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #userText {
+      height: 260px;
+      resize: vertical;
+    }
+    #urlInput {
+      height: 50px;
+    }
+    #userText:focus, #urlInput:focus { border-color: rgba(49,38,26,0.4); }
+    #userText::placeholder, #urlInput::placeholder { color: rgba(49,38,26,0.88); }
+
+    .file-upload-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 200px;
+      background: #ffffff;
+      border: 2px dashed #31261A;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .file-upload-label:hover {
+      background: rgba(140, 182, 212, 0.7);
+      border-color: rgba(49,38,26,0.7);
+    }
+    .file-upload-label span {
+      font-family: 'Courier Prime', monospace;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+    }
+    .file-upload-label input[type="file"] {
+      display: none;
+    }
+
+    #fileStatus, #processingStatus {
+      font-size: 13px;
+      color: rgba(49,38,26,0.9);
+      text-align: center;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+    .btn-secondary {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      background: #F6C56C;
+      border: 1px solid #31261A;
+      padding: 12px 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+    }
+    .btn-secondary:hover  { transform: translateY(-4px); filter: drop-shadow(0 5px 14px rgba(49,38,26,0.22)); }
+    .btn-secondary:active { transform: scale(0.97); filter: none; }
+
+    /* ── SCREEN 2 ── */
+    #screen-draw {
+      width: 100%;
+      padding: 56px 24px 56px;
+      gap: 0;
+      justify-content: flex-start;
+    }
+
+    .spread {
+      display: flex;
+      flex-direction: row;
+      gap: 28px;
+      align-items: flex-start;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #reading-area {
+      width: 100%;
+      max-width: calc(3 * 198px + 2 * 28px);
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    #reading-section {
+      display: none;
+      opacity: 0;
+      max-width: 100%;
+      margin: 0 auto;
+      width: 100%;
+      padding-top: 40px;
+    }
+    .reading-card-block {
+      padding: 28px 0;
+      border-top: 1px solid rgba(49,38,26,0.18);
+    }
+    .reading-conclusion {
+      margin-bottom: 40px;
+    }
+    .reading-card-block:first-child,
+    .reading-conclusion + .reading-card-block {
+      border-top: none;
+      padding-top: 4px;
+    }
+
+    .spread-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 198px;
+      gap: 12px;
+    }
+
+    .slot-label {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #31261A;
+      border: 1px solid #000;
+      border-radius: 100px;
+      padding: 5px 12px 3px;
+      font-weight: normal;
+      text-align: center;
+    }
+
+    .slot-wrapper {
+      position: relative;
+      width: 198px;
+      height: 320px;
+    }
+
+    .spread-slot {
+      width: 198px;
+      height: 320px;
+    }
+
+    .placed-card {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(0.88);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.25));
+    }
+    .placed-card.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .placed-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+.card-reading-label {
+      display: inline-block;
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #31261A;
+      border: 1px solid #000;
+      border-radius: 100px;
+      padding: 5px 12px 3px;
+    }
+    .card-reading-label[data-category="collection"],
+    .slot-label.collection { background: #A8DDFF; }
+    .card-reading-label[data-category="sharing"],
+    .slot-label.sharing    { background: #F7E0AA; }
+    .card-reading-label[data-category="retention"],
+    .slot-label.retention  { background: #D9CDFC; }
+    .card-reading-name {
+      font-family: 'Jacquard 24', serif;
+      font-size: 32px;
+      font-weight: normal;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .card-reading-body {
+      font-size: 14px;
+      line-height: 1.72;
+      margin: 0;
+    }
+
+    .deck-section {
+      flex-shrink: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0 4px;
+    }
+
+    .reading-empty-state {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 24px;
+      text-align: center;
+      font-family: 'Courier Prime', monospace;
+      font-size: 16px;
+      font-weight: normal;
+      color: rgba(49,38,26,0.9);
+      letter-spacing: 0.06em;
+      font-style: normal;
+    }
+
+    .deck-area {
+      width: 252px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .deck-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .deck-area:hover .deck-img {
+      transform: translateY(-5px);
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+    }
+    .deck-area.done { cursor: default; }
+    .deck-area.done:hover .deck-img { transform: none; filter: none; }
+
+    .status {
+      font-size: 12px;
+      color: rgba(49,38,26,0.9);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      height: 18px;
+    }
+
+    .btn {
+      padding: 11px 34px;
+      background: #F6C56C;
+      color: #31261A;
+      border: 1px solid #31261A;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Courier Prime', monospace;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+    }
+    .btn:hover  { transform: translateY(-4px); filter: drop-shadow(0 5px 14px rgba(49,38,26,0.22)); }
+    .btn:active { transform: scale(0.97); filter: none; }
+
+    /* ── SCREEN 3: YOUR HISTORY ── */
+    #screen-history {
+      width: calc(100% + 90px);
+      margin-left: -45px;
+      min-height: 100vh;
+      padding: 56px 24px 56px;
+      justify-content: flex-start;
+    }
+
+    .history-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .history-heading {
+      font-family: 'Jacquard 24', serif;
+      font-size: 55pt;
+      font-weight: normal;
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    .history-sub {
+      font-size: 16px;
+      color: rgba(49,38,26,0.9);
+      text-align: center;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    .history-list {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .history-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(49,38,26,0.6);
+      font-style: italic;
+      font-size: 15px;
+    }
+
+    .history-table {
+      width: 80%;
+      margin: 0 auto;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .history-table thead tr {
+      height: 52px;
+      position: relative;
+    }
+    .history-table th {
+      font-family: 'Courier Prime', monospace;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.85);
+      font-weight: bold;
+      padding: 16px 12px;
+      text-align: left;
+      border-bottom: 2px solid rgba(49,38,26,0.15);
+    }
+
+    .history-table td {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      color: rgba(49,38,26,0.85);
+      padding: 16px 12px;
+      border-bottom: 1px solid rgba(49,38,26,0.08);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    .history-table tbody tr {
+      transition: background 0.2s;
+    }
+
+    .history-table tbody tr {
+      cursor: pointer;
+    }
+    .history-table tbody tr:hover {
+      background: rgba(140, 182, 212, 0.5);
+    }
+
+    .history-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .history-table .col-date {
+      width: 130px;
+      white-space: nowrap;
+    }
+
+    .history-table .col-platform {
+      width: 120px;
+    }
+
+.history-table .col-cards {
+      width: 200px;
+    }
+
+    .history-table .col-summary {
+      min-width: 300px;
+    }
+
+    .history-table .col-actions {
+      width: 100px;
+      text-align: center;
+    }
+
+    .history-table .col-check {
+      width: 36px;
+      text-align: center;
+      padding-left: 12px;
+    }
+
+    .history-table input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #31261A;
+    }
+
+.history-card-tag {
+      display: inline-block;
+      background: rgba(49,38,26,0.08);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      color: rgba(49,38,26,0.85);
+      margin: 2px;
+      white-space: nowrap;
+    }
+
+    .history-btn {
+      font-family: 'Courier Prime', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      background: #F6C56C;
+      border: 1px solid rgba(49,38,26,0.3);
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .history-btn:hover {
+      background: rgba(49,38,26,0.08);
+      border-color: rgba(49,38,26,0.5);
+    }
+
+    .history-btn.delete {
+      color: #8B0000;
+      border: none;
+      background: transparent;
+      padding: 6px 8px;
+      line-height: 0;
+    }
+
+    .history-btn.delete:hover {
+      background: rgba(139,0,0,0.08);
+    }
+
+    .history-btn.delete svg {
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+
+    /* Responsive table */
+    @media (max-width: 1200px) {
+      .history-table .col-summary {
+        min-width: 250px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .history-table {
+        font-size: 12px;
+      }
+
+      .history-table th,
+      .history-table td {
+        padding: 12px 8px;
+      }
+
+      .history-card-tag {
+        font-size: 10px;
+        padding: 3px 8px;
+      }
+    }
+
+    /* ── Stages 1–3: Lift & reorient (800ms total) ──
+       Perspective is provided by a full-viewport wrapper (not inline here).
+       Stage 1 (0–30%):  lift only — angle unchanged, card rises off deck.
+       Stage 2 (30–70%): rotate from deck angle to flat face-on while rising.
+       Stage 3 (70–80%): micro-settle at flat orientation.
+       Stage 4 (flip) is triggered via JS transition after this ends.          */
+    /* ── SCREEN 3 (Legal) ── */
+    #screen-legal {
+      width: 100%;
+      min-height: 100vh;
+      padding: 56px 24px 56px;
+      gap: 0;
+      justify-content: flex-start;
+    }
+
+    .legal-page-title {
+      font-family: 'Jacquard 24', serif;
+      font-size: 55pt;
+      font-weight: normal;
+      letter-spacing: 0.12em;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .legal-page-sub {
+      font-size: 16px;
+      color: rgba(49,38,26,0.75);
+      text-align: center;
+      letter-spacing: 0.08em;
+      margin-bottom: 40px;
+    }
+
+    .legal-spread {
+      display: flex;
+      flex-direction: row;
+      gap: 28px;
+      align-items: flex-start;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-bottom: 24px;
+    }
+
+    #legal-reading-section,
+    #legal-reading-section-2 {
+      display: none;
+      flex-direction: row;
+      gap: 28px;
+      justify-content: center;
+      width: 100%;
+      opacity: 0;
+    }
+
+    #legal-reading-section .reading-card-block,
+    #legal-reading-section-2 .reading-card-block {
+      width: 198px;
+      flex-shrink: 0;
+      border-top: none;
+      padding-top: 0px;
+    }
+
+    #legal-reading-section {
+      margin-bottom: 20px;
+    }
+
+    .legal-text {
+      max-width: 640px;
+      width: 100%;
+      margin: 40px auto 0;
+      border-top: 1px solid rgba(49,38,26,0.18);
+      padding-top: 32px;
+    }
+
+    .legal-text h2 {
+      font-size: 11px;
+      font-weight: normal;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.5);
+      margin-bottom: 24px;
+    }
+
+    .legal-text h3 {
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0.06em;
+      margin: 24px 0 8px;
+    }
+
+    .legal-text p {
+      font-size: 13px;
+      line-height: 1.85;
+      color: rgba(49,38,26,0.82);
+      margin-bottom: 12px;
+    }
+
+    /* ── SCREEN: EXPLORE DECK ── */
+    #screen-explore {
+      width: calc(100% + 90px);
+      margin-left: -45px;
+      min-height: 100vh;
+      padding: 56px 24px 56px;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    .explore-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .explore-heading {
+      font-family: 'Jacquard 24', serif;
+      font-size: 55pt;
+      font-weight: normal;
+      letter-spacing: 0.12em;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .explore-sub {
+      font-size: 16px;
+      color: rgba(49,38,26,0.75);
+      text-align: center;
+      letter-spacing: 0.06em;
+      margin-bottom: 48px;
+    }
+
+    .explore-section {
+      margin-bottom: 52px;
+    }
+
+    .explore-section-title {
+      font-size: 11px;
+      font-weight: normal;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.5);
+      border-bottom: 1px solid rgba(49,38,26,0.15);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+
+    .explore-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .explore-card-wrap {
+      cursor: pointer;
+      perspective: 800px;
+    }
+
+    .explore-card-inner {
+      position: relative;
+      width: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .explore-card-wrap.flipped .explore-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .explore-card-front {
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .explore-card-front img {
+      width: 100%;
+      display: block;
+    }
+
+    .explore-card-back {
+      position: absolute;
+      inset: 0;
+      transform: rotateY(180deg);
+      border-radius: 10px;
+      overflow-y: auto;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      background: url('card_backs/blank.png') center / cover no-repeat;
+      cursor: pointer;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .explore-card-back::-webkit-scrollbar { width: 3px; }
+    .explore-card-back::-webkit-scrollbar-track { background: transparent; }
+    .explore-card-back::-webkit-scrollbar-thumb {
+      background: rgba(49,38,26,0.3);
+      border-radius: 2px;
+    }
+
+    .explore-flip-btn {
+      display: none;
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      background: rgba(49,38,26,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: rgba(49,38,26,0.65);
+      line-height: 1;
+      transition: background 0.15s;
+      z-index: 2;
+    }
+
+    .explore-flip-btn:hover {
+      background: rgba(49,38,26,0.22);
+    }
+
+    .explore-card-name {
+      font-family: 'Jacquard 24', serif;
+      font-size: 24px;
+      font-weight: normal;
+      letter-spacing: 0.03em;
+      line-height: 1.35;
+      margin-bottom: 8px;
+      padding-right: 26px;
+      color: #31261A;
+    }
+
+    .explore-meanings {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .explore-meaning-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .explore-meaning-label {
+      font-size: 9pt;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.65);
+      line-height: 1;
+    }
+
+    .explore-meaning-text {
+      font-size: 9pt;
+      line-height: 1.45;
+      color: #31261A;
+    }
+
+    .explore-reversed {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-top: 1px solid rgba(49,38,26,0.25);
+      padding-top: 12px;
+      margin-top: auto;
+    }
+
+    .explore-reversed-label {
+      font-size: 9pt;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.6);
+      font-style: italic;
+      line-height: 1;
+    }
+
+    .explore-reversed-text {
+      font-size: 9pt;
+      line-height: 1.45;
+      color: rgba(49,38,26,0.85);
+      font-style: italic;
+    }
+
+    @keyframes liftReorient {
+      0% {
+        transform: rotateX(50deg) rotateY(-11deg) rotateZ(40deg) translateZ(0px) translateY(0px) scale(1);
+        filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18));
+        animation-timing-function: ease-out;
+      }
+      30% {
+        transform: rotateX(50deg) rotateY(-11deg) rotateZ(40deg) translateZ(20px) translateY(-20px) scale(1);
+        filter: drop-shadow(0 6px 14px rgba(0,0,0,0.22));
+        animation-timing-function: cubic-bezier(0.42,0,0.58,1);
+      }
+      70% {
+        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateZ(20px) translateX(var(--center-tx)) translateY(var(--center-ty)) scale(2.0);
+        filter: drop-shadow(0 14px 28px rgba(0,0,0,0.28));
+        animation-timing-function: ease-out;
+      }
+      80%, 100% {
+        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateZ(20px) translateX(var(--center-tx)) translateY(var(--center-ty)) scale(1.8);
+        filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25));
+      }
+    }
+
+    /* ── Learn More / Citations panel ── */
+    .receipts-accordion {
+      margin-top: 20px;
+    }
+    .receipts-accordion summary {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      padding: 0;
+      cursor: pointer;
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+    .receipts-accordion summary::-webkit-details-marker { display: none; }
+    .receipts-accordion summary span {
+      text-decoration: underline;
+    }
+    .receipts-accordion .hide-text { display: none; }
+    .receipts-accordion[open] .show-text { display: none; }
+    .receipts-accordion[open] .hide-text { display: inline; }
+    .receipts-accordion summary::after {
+      content: '›';
+      font-size: 16px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+    .receipts-accordion[open] summary::after {
+      transform: rotate(90deg);
+    }
+    .citations-panel {
+      padding: 20px 0 0;
+    }
+
+    .citations-panel-heading {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.5);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .source-text-accordion {
+      margin-top: 40px;
+      border-top: 1px solid rgba(49,38,26,0.18);
+      padding-top: 28px;
+    }
+    .source-text-accordion summary {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      cursor: pointer;
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+    .source-text-accordion summary::-webkit-details-marker { display: none; }
+    .source-text-accordion summary span { text-decoration: underline; }
+    .source-text-accordion .hide-text { display: none; }
+    .source-text-accordion[open] .show-text { display: none; }
+    .source-text-accordion[open] .hide-text { display: inline; }
+    .source-text-accordion summary::after {
+      content: '›';
+      font-size: 16px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+    .source-text-accordion[open] summary::after { transform: rotate(90deg); }
+    .source-text-body {
+      margin-top: 20px;
+      max-height: 320px;
+      overflow-y: auto;
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(49,38,26,0.8);
+      background: rgba(140,182,212,0.12);
+      border-radius: 8px;
+      padding: 16px 20px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .citation-quote {
+      margin: 0 0 10px 0;
+      padding: 12px 16px;
+      border-left: 3px solid rgba(49,38,26,0.25);
+      background: rgba(140,182,212,0.18);
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(49,38,26,0.82);
+      font-style: italic;
+    }
+    .citation-quote:last-child {
+      margin-bottom: 0;
+    }
+
+    .citation-section {
+      display: inline-block;
+      font-style: normal;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(49,38,26,0.5);
+      background: rgba(49,38,26,0.07);
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-bottom: 6px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* ── Fortune border container ── */
+    .fortune-container {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 56px 195px;
+      background-color: #B5D3EB;
+      min-height: 100vh;
+    }
+
+    .fortune-container::before,
+    .fortune-container::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 150px;
+      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-y;
+      background-color: #B5D3EB;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .fortune-container::before {
+      left: 30px;
+      background-image:
+        url('border_assets/top-left-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/bottom-left-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/vertical-vine-tile-left.png');
+      background-position:
+        top left,
+        top left,
+        bottom left,
+        bottom left,
+        0 156px;
+      background-size:
+        150px auto,
+        150px 156px,
+        150px auto,
+        150px 156px,
+        55px auto;
+    }
+
+    .fortune-container::after {
+      right: 30px;
+      background-image:
+        url('border_assets/top-right-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/bottom-right-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/vertical-vine-tile-right.png');
+      background-position:
+        top right,
+        top right,
+        bottom right,
+        bottom right,
+        100% 156px;
+      background-size:
+        150px auto,
+        150px 156px,
+        150px auto,
+        150px 156px,
+        55px auto;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="texture-canvas" aria-hidden="true"></canvas>
+
+  <nav>
+    <a href="#" onclick="navigateTo('input'); return false;">New reading</a>
+    <a href="#" onclick="navigateTo('explore'); return false;">Explore deck</a>
+    <a href="#your-history" onclick="navigateTo('history'); return false;">Your history</a>
+    <a href="#legal" onclick="navigateTo('legal'); return false;">Legal</a>
+  </nav>
+
+  <div class="fortune-container">
+
+  <!-- SCREEN 1 -->
+  <div class="screen active" id="screen-input">
+    <h1 class="input-heading">Fine Print Fortune</h1>
+    <p class="input-sub">Paste in the text, add a URL, or upload a screenshot for any Terms of service, Privacy Policy, or similar legal document.</p>
+
+    <div class="segmented-control">
+      <button class="seg-btn active" onclick="switchInputTab('text')">Text</button>
+      <button class="seg-btn" onclick="switchInputTab('url')">URL</button>
+      <button class="seg-btn" onclick="switchInputTab('file')">File</button>
+    </div>
+
+    <div class="input-container">
+      <div class="input-panel active" id="panel-text">
+        <textarea id="userText" placeholder="Paste in your fine print..."></textarea>
+      </div>
+
+      <div class="input-panel" id="panel-url">
+        <input type="url" id="urlInput" placeholder="https://example.com/terms-of-service">
+      </div>
+
+      <div class="input-panel" id="panel-file">
+        <label class="file-upload-label" for="fileInput">
+          <span>Choose PNG or PDF</span>
+          <input type="file" id="fileInput" accept=".png,.jpg,.jpeg,.pdf" onchange="handleFileUpload(event)">
+        </label>
+        <div id="fileStatus"></div>
+      </div>
+      <div id="processingStatus"></div>
+      <div id="detectedInfo" style="text-align:center;font-size:12px;color:rgba(49,38,26,0.7);margin-top:12px;min-height:18px;"></div>
+      <button class="btn" onclick="proceedToDraw()" id="drawBtn">Reveal your fortune</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 -->
+  <div class="screen" id="screen-draw">
+    <div class="spread" id="spread">
+      <div class="spread-col" id="col-0">
+        <div class="slot-label collection">Data Collection</div>
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="col-1">
+        <div class="slot-label sharing">Data Sharing</div>
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="col-2">
+        <div class="slot-label retention">Data Retention</div>
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+    </div>
+
+    <div class="deck-section" id="deckSection">
+      <div class="status" id="status"></div>
+      <div class="deck-area" id="deckArea" onclick="drawCard()">
+        <img class="deck-img" id="deckImg" src="card_backs/Stack.png" alt="Deck">
+      </div>
+    </div>
+
+    <div id="reading-area">
+      <div class="reading-empty-state" id="readingEmpty">Draw 3 cards to reveal the secrets hidden in your policy.</div>
+      <div id="reading-section"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: YOUR HISTORY -->
+  <div class="screen" id="screen-history">
+    <div class="history-container">
+      <h1 class="history-heading">Your Reading History</h1>
+      <p class="history-sub">Review your past Fine Print Fortunes.</p>
+
+      <div id="history-list" class="history-list">
+        <div class="history-empty">
+          <p>No readings yet. Start a new reading to begin your journey.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN: EXPLORE DECK -->
+  <div class="screen" id="screen-explore">
+    <div class="explore-container">
+      <h1 class="explore-heading">The Fine Print Arcana</h1>
+      <p class="explore-sub">Explore every card and its meaning in the context of your data.</p>
+      <div id="explore-content"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4 (Legal) -->
+  <div class="screen" id="screen-legal">
+    <h1 class="legal-page-title">Legal Disclaimers and Cosmic Conditions</h1>
+    <p class="legal-page-sub">Read the fine print about Fine Print Fortunes.</p>
+
+    <div class="legal-spread" id="legal-spread">
+      <div class="spread-col" id="legal-col-0">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="legal-col-1">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="legal-col-2">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+    </div>
+
+    <div id="legal-reading-section"></div>
+
+    <div class="legal-spread" id="legal-spread-2">
+      <div class="spread-col" id="legal-col-3">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="legal-col-4">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="legal-col-5">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+    </div>
+
+    <div id="legal-reading-section-2"></div>
+  </div>
+
+<script>
+  const MAJOR_ARCANA = [
+    'the high priestess.png','the magician.png','the fool.png','the empress.png',
+    'the emperor.png','the hierophant.png','the lovers.png','the chariot.png',
+    'strength.png','the hermit.png','the wheel of fortune.png','justice.png',
+    'the hanged man.png','death.png','temperance.png','the devil.png',
+    'the tower.png','the star.png','the moon.png','the sun.png','the world.png',
+  ];
+
+  const MINOR_ARCANA = [
+    'page of wands.png','king of pentacles.png','king of swords.png','king of cups.png',
+    'king of wands.png','queen of pentacles.png','queen of swords.png','queen of cups.png',
+    'queen of wands.png','knight of pentacles.png','knight of swords.png','knight of cups.png',
+    'knight of wands.png','ace of pentacles.png','ace of swords.png','ace of cups.png',
+    'ace of wands.png','two of pentacles.png','two of swords.png','two of cups.png',
+    'two of wands.png','three of pentacles.png','three of swords.png','three of cups.png',
+    'three of wands.png','four of pentacles.png','four of swords.png','four of cups.png',
+    'four of wands.png','five of pentacles.png','five of swords.png','five of cups.png',
+    'five of wands.png','six of pentacles.png','six of swords.png','six of cups.png',
+    'six of wands.png','seven of pentacles.png','seven of swords.png','seven of cups.png',
+    'seven of wands.png','eight of pentacles.png','eight of swords.png','eight of cups.png',
+    'eight of wands.png','nine of pentacles.png','nine of swords.png','nine of cups.png',
+    'nine of wands.png','ten of pentacles.png','ten of swords.png','ten of cups.png',
+    'ten of wands.png','page of pentacles.png','page of swords.png','page of cups.png',
+  ];
+
+  // Draw order: Data Collection → Data Sharing → Data Retention
+  const SLOTS = [
+    { col: 0, category: 'collection' },
+    { col: 1, category: 'sharing'    },
+    { col: 2, category: 'retention'  },
+  ];
+
+  const CARD_RATIO = 320 / 198; // height / width, matches slot
+
+  let drawn      = 0;
+  let animating  = false;
+  let userText   = '';
+  let drawnCards = [];
+  let replayingHistory = false;
+  let extractedText = '';
+  let tarotDeck = null; // Will hold the loaded deck.json
+
+  // Configure PDF.js worker
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  // Load deck.json on page load
+  async function loadTarotDeck() {
+    try {
+      const response = await fetch('deck.json');
+      tarotDeck = await response.json();
+      console.log('Tarot deck loaded:', tarotDeck.deck_name);
+    } catch (error) {
+      console.error('Failed to load deck.json:', error);
+      // Fallback - will use hardcoded cards
+    }
+  }
+
+  // Call immediately
+  loadTarotDeck();
+
+  // Infer platform and document type from text
+  function inferMetadata(text, url) {
+    const lowerText = text.toLowerCase();
+
+    // Platform detection - look for company names, references, and legal entities in the content
+    const platforms = {
+      // ── Social / Consumer Tech ──
+      'Facebook': [
+        'facebook, inc', 'meta platforms', 'meta platforms, inc', 'facebook ireland',
+        'we at facebook', 'facebook provides', 'facebook services', 'facebook products',
+        'instagram', 'whatsapp', 'oculus', 'meta technologies'
+      ],
+      'Google': [
+        'google llc', 'google ireland', 'alphabet inc', 'google provides',
+        'we at google', 'google services', 'youtube', 'gmail', 'google workspace',
+        'google play', 'android', 'chrome'
+      ],
+      'Twitter/X': [
+        'twitter, inc', 'x corp', 'twitter international', 'we at twitter',
+        'twitter provides', 'twitter services', 'tweet', 'retweet'
+      ],
+      'TikTok': [
+        'tiktok inc', 'bytedance', 'tiktok pte', 'tiktok technology',
+        'we at tiktok', 'tiktok provides', 'tiktok platform'
+      ],
+      'Apple': [
+        'apple inc', 'apple distribution international', 'we at apple',
+        'apple provides', 'app store', 'itunes', 'icloud', 'apple services'
+      ],
+      'Microsoft': [
+        'microsoft corporation', 'microsoft ireland', 'we at microsoft',
+        'microsoft provides', 'microsoft services', 'windows', 'xbox', 'office 365'
+      ],
+      'LinkedIn': [
+        'linkedin corporation', 'linkedin ireland', 'we at linkedin',
+        'linkedin provides', 'linkedin services', 'linkedin platform'
+      ],
+      'Snapchat': [
+        'snap inc', 'snap group limited', 'we at snap', 'snapchat provides',
+        'snapchat services', 'snapchat platform'
+      ],
+      'Pinterest': [
+        'pinterest, inc', 'pinterest europe', 'we at pinterest',
+        'pinterest provides', 'pinterest services'
+      ],
+      'Reddit': [
+        'reddit, inc', 'we at reddit', 'reddit provides',
+        'reddit services', 'subreddit'
+      ],
+      'Tumblr': [
+        'tumblr, inc', 'automattic', 'we at tumblr', 'tumblr services'
+      ],
+      'BeReal': [
+        'bereal sas', 'we at bereal', 'bereal services', 'bereal platform'
+      ],
+
+      // ── Streaming / Entertainment ──
+      'Netflix': [
+        'netflix, inc', 'netflix international', 'we at netflix',
+        'netflix provides', 'netflix service'
+      ],
+      'Spotify': [
+        'spotify ab', 'spotify usa', 'we at spotify',
+        'spotify provides', 'spotify service', 'spotify premium'
+      ],
+      'Disney+': [
+        'disney streaming', 'disney+', 'the walt disney company', 'hulu',
+        'we at disney', 'disney provides', 'disney services'
+      ],
+      'HBO Max': [
+        'hbo max', 'warner bros', 'warner media', 'max streaming',
+        'we at hbo', 'hbo services'
+      ],
+      'Twitch': [
+        'twitch interactive', 'twitch, inc', 'we at twitch',
+        'twitch services', 'twitch platform', 'twitch stream'
+      ],
+      'Apple TV+': [
+        'apple tv', 'apple tv+', 'apple original'
+      ],
+
+      // ── E-commerce ──
+      'Amazon': [
+        'amazon.com, inc', 'amazon services', 'amazon web services',
+        'we at amazon', 'amazon provides', 'amazon marketplace', 'amazon prime'
+      ],
+      'Shopify': [
+        'shopify inc', 'shopify international', 'we at shopify',
+        'shopify provides', 'shopify services', 'shopify platform', 'shopify merchant'
+      ],
+      'eBay': [
+        'ebay inc', 'ebay marketplace', 'we at ebay',
+        'ebay provides', 'ebay services', 'ebay seller'
+      ],
+      'Etsy': [
+        'etsy, inc', 'etsy ireland', 'we at etsy',
+        'etsy provides', 'etsy services', 'etsy marketplace', 'etsy seller'
+      ],
+
+      // ── Ride-share / Delivery ──
+      'Uber': [
+        'uber technologies', 'uber b.v.', 'we at uber',
+        'uber provides', 'uber services', 'uber platform'
+      ],
+      'Lyft': [
+        'lyft, inc', 'we at lyft', 'lyft provides',
+        'lyft services', 'lyft platform', 'lyft driver'
+      ],
+      'Airbnb': [
+        'airbnb, inc', 'airbnb ireland', 'we at airbnb',
+        'airbnb provides', 'airbnb platform', 'airbnb services'
+      ],
+      'DoorDash': [
+        'doordash, inc', 'we at doordash', 'doordash provides',
+        'doordash services', 'doordash platform', 'dasher'
+      ],
+      'Instacart': [
+        'maplebear inc', 'instacart', 'we at instacart',
+        'instacart provides', 'instacart services', 'instacart shopper'
+      ],
+
+      // ── Productivity / Collaboration ──
+      'Zoom': [
+        'zoom video communications', 'we at zoom', 'zoom provides',
+        'zoom services', 'zoom meetings'
+      ],
+      'Slack': [
+        'slack technologies', 'we at slack', 'slack provides',
+        'slack services', 'slack platform'
+      ],
+      'Discord': [
+        'discord inc', 'we at discord', 'discord provides',
+        'discord services', 'discord platform'
+      ],
+      'Notion': [
+        'notion labs', 'we at notion', 'notion provides',
+        'notion services', 'notion workspace'
+      ],
+      'Figma': [
+        'figma, inc', 'we at figma', 'figma provides',
+        'figma services', 'figma platform'
+      ],
+      'Canva': [
+        'canva pty', 'we at canva', 'canva provides',
+        'canva services', 'canva platform'
+      ],
+      'Dropbox': [
+        'dropbox, inc', 'we at dropbox', 'dropbox provides',
+        'dropbox services'
+      ],
+      'Box': [
+        'box, inc', 'we at box', 'box provides',
+        'box services', 'box platform', 'box cloud'
+      ],
+      'Asana': [
+        'asana, inc', 'we at asana', 'asana provides',
+        'asana services', 'asana platform'
+      ],
+      'Monday.com': [
+        'monday.com ltd', 'we at monday', 'monday provides',
+        'monday services', 'monday platform'
+      ],
+      'Atlassian': [
+        'atlassian corporation', 'atlassian pty', 'we at atlassian',
+        'atlassian provides', 'jira', 'confluence', 'trello', 'atlassian services'
+      ],
+      'GitHub': [
+        'github, inc', 'we at github', 'github provides',
+        'github services', 'github platform', 'github repository'
+      ],
+      'GitLab': [
+        'gitlab inc', 'we at gitlab', 'gitlab provides',
+        'gitlab services', 'gitlab platform'
+      ],
+
+      // ── Adobe / Creative ──
+      'Adobe': [
+        'adobe inc', 'adobe systems', 'we at adobe',
+        'adobe provides', 'adobe services', 'adobe creative cloud', 'photoshop', 'acrobat'
+      ],
+
+      // ── Cloud / Enterprise ──
+      'Salesforce': [
+        'salesforce, inc', 'salesforce.com', 'we at salesforce',
+        'salesforce provides', 'salesforce services', 'salesforce platform', 'heroku'
+      ],
+      'HubSpot': [
+        'hubspot, inc', 'we at hubspot', 'hubspot provides',
+        'hubspot services', 'hubspot platform', 'hubspot crm'
+      ],
+      'Airtable': [
+        'airtable, inc', 'we at airtable', 'airtable provides',
+        'airtable services', 'airtable platform'
+      ],
+      'ServiceNow': [
+        'servicenow, inc', 'we at servicenow', 'servicenow provides',
+        'servicenow services', 'servicenow platform'
+      ],
+      'Oracle': [
+        'oracle corporation', 'oracle america', 'we at oracle',
+        'oracle provides', 'oracle services', 'oracle cloud'
+      ],
+
+      // ── HR / Payroll / People Ops ──
+      'Rippling': [
+        'rippling people center', 'rippling, inc', 'we at rippling',
+        'rippling provides', 'rippling services', 'rippling platform', 'rippling hr'
+      ],
+      'Deel': [
+        'deel, inc', 'deel ireland', 'we at deel',
+        'deel provides', 'deel services', 'deel platform', 'deel hr'
+      ],
+      'Justworks': [
+        'justworks, inc', 'we at justworks', 'justworks provides',
+        'justworks services', 'justworks platform', 'justworks hr', 'justworks peo'
+      ],
+      'Workday': [
+        'workday, inc', 'we at workday', 'workday provides',
+        'workday services', 'workday platform', 'workday hcm'
+      ],
+      'ADP': [
+        'adp, llc', 'automatic data processing', 'we at adp',
+        'adp provides', 'adp services', 'adp platform', 'adp workforce'
+      ],
+      'Gusto': [
+        'gusto, inc', 'we at gusto', 'gusto provides',
+        'gusto services', 'gusto platform', 'gusto payroll'
+      ],
+      'BambooHR': [
+        'bamboohr', 'bamboo hr', 'we at bamboohr', 'bamboohr provides',
+        'bamboohr services', 'bamboohr platform'
+      ],
+      'Greenhouse': [
+        'greenhouse software', 'we at greenhouse', 'greenhouse provides',
+        'greenhouse services', 'greenhouse recruiting', 'greenhouse ats'
+      ],
+      'Lever': [
+        'lever, inc', 'we at lever', 'lever provides',
+        'lever services', 'lever platform', 'lever ats', 'lever recruiting'
+      ],
+      'TriNet': [
+        'trinet group', 'we at trinet', 'trinet provides',
+        'trinet services', 'trinet platform', 'trinet peo'
+      ],
+      'Lattice': [
+        'lattice, inc', 'we at lattice', 'lattice provides',
+        'lattice services', 'lattice platform', 'lattice hr'
+      ],
+      'Merge': [
+        'merge api', 'merge.dev', 'we at merge', 'merge provides',
+        'merge services', 'merge platform'
+      ],
+
+      // ── Fintech / Payments ──
+      'PayPal': [
+        'paypal, inc', 'paypal holdings', 'we at paypal',
+        'paypal provides', 'paypal services'
+      ],
+      'Venmo': [
+        'venmo llc', 'we at venmo', 'venmo provides',
+        'venmo services'
+      ],
+      'Cash App': [
+        'block, inc', 'square, inc', 'cash app',
+        'we at cash app', 'cash app provides'
+      ],
+      'Stripe': [
+        'stripe, inc', 'stripe payments', 'we at stripe',
+        'stripe provides', 'stripe services', 'stripe platform'
+      ],
+      'Robinhood': [
+        'robinhood markets', 'robinhood financial', 'we at robinhood',
+        'robinhood provides', 'robinhood services'
+      ],
+      'Coinbase': [
+        'coinbase, inc', 'coinbase global', 'we at coinbase',
+        'coinbase provides', 'coinbase services', 'coinbase platform'
+      ],
+      'Plaid': [
+        'plaid inc', 'plaid financial', 'we at plaid',
+        'plaid provides', 'plaid services', 'plaid platform'
+      ],
+      'Brex': [
+        'brex inc', 'we at brex', 'brex provides',
+        'brex services', 'brex platform', 'brex card'
+      ],
+      'Ramp': [
+        'ramp financial', 'ramp business', 'we at ramp',
+        'ramp provides', 'ramp services', 'ramp platform', 'ramp card'
+      ],
+      'Expensify': [
+        'expensify, inc', 'we at expensify', 'expensify provides',
+        'expensify services', 'expensify platform'
+      ],
+
+      // ── AI ──
+      'OpenAI': [
+        'openai, l.l.c', 'openai opco', 'we at openai',
+        'openai provides', 'chatgpt'
+      ],
+      'Anthropic': [
+        'anthropic pbc', 'anthropic, pbc', 'we at anthropic',
+        'anthropic provides', 'claude'
+      ],
+      'Midjourney': [
+        'midjourney, inc', 'we at midjourney', 'midjourney provides',
+        'midjourney services'
+      ],
+    };
+
+    let detectedPlatform = 'Unknown';
+    let maxMatches = 0;
+
+    // Count keyword matches for each platform to find the best match
+    for (const [platform, keywords] of Object.entries(platforms)) {
+      let matches = 0;
+      for (const keyword of keywords) {
+        const regex = new RegExp('\\b' + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+        const count = (lowerText.match(regex) || []).length;
+        matches += count;
+      }
+      if (matches > maxMatches) {
+        maxMatches = matches;
+        detectedPlatform = platform;
+      }
+    }
+
+    // If no matches found, fall back to the base domain of the URL if provided
+    if (maxMatches === 0) {
+      if (url) {
+        try {
+          detectedPlatform = new URL(url).hostname.replace(/^www\./, '');
+        } catch (e) {
+          detectedPlatform = 'Unknown';
+        }
+      } else {
+        detectedPlatform = 'Unknown';
+      }
+    }
+
+    // Document type detection - prioritize title/header matches
+    const docTypes = {
+      'Privacy Policy': [
+        'privacy policy', 'privacy notice', 'privacy statement',
+        'data protection policy', 'how we use your information',
+        'information we collect'
+      ],
+      'Terms of Service': [
+        'terms of service', 'terms of use', 'terms and conditions',
+        'user agreement', 'service agreement', 'terms & conditions'
+      ],
+      'Cookie Policy': [
+        'cookie policy', 'cookies policy', 'use of cookies',
+        'cookie notice', 'about cookies'
+      ],
+      'Data Policy': [
+        'data policy', 'data usage policy', 'data processing agreement',
+        'how we handle data'
+      ],
+      'EULA': [
+        'end user license agreement', 'eula', 'software license agreement',
+        'license agreement', 'software terms'
+      ],
+      'Community Guidelines': [
+        'community guidelines', 'community standards', 'community rules',
+        'acceptable use policy', 'code of conduct'
+      ],
+      'Content Policy': [
+        'content policy', 'prohibited content', 'content guidelines',
+        'user content policy'
+      ],
+      'Advertising Policy': [
+        'advertising policy', 'ad policy', 'advertising terms',
+        'advertising guidelines'
+      ],
+    };
+
+    let detectedType = 'Legal Document';
+    let maxTypeMatches = 0;
+
+    // Count matches for each document type
+    for (const [docType, keywords] of Object.entries(docTypes)) {
+      let matches = 0;
+      for (const keyword of keywords) {
+        if (lowerText.includes(keyword)) {
+          // Weight matches in the first 500 characters more heavily (likely title/header)
+          const firstPart = lowerText.substring(0, 500);
+          if (firstPart.includes(keyword)) {
+            matches += 3; // Title match worth more
+          } else {
+            matches += 1; // Body match
+          }
+        }
+      }
+      if (matches > maxTypeMatches) {
+        maxTypeMatches = matches;
+        detectedType = docType;
+      }
+    }
+
+    return {
+      platform: detectedPlatform,
+      type: detectedType
+    };
+  }
+
+  function switchInputTab(tabName) {
+    // Update segmented control
+    document.querySelectorAll('.seg-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Update panels
+    document.querySelectorAll('.input-panel').forEach(panel => panel.classList.remove('active'));
+    document.getElementById(`panel-${tabName}`).classList.add('active');
+
+    // Clear status
+    document.getElementById('processingStatus').textContent = '';
+    document.getElementById('fileStatus').textContent = '';
+    document.getElementById('detectedInfo').textContent = '';
+  }
+
+  async function fetchFromURL() {
+    const urlInput = document.getElementById('urlInput');
+    const url = urlInput.value.trim();
+    const statusEl = document.getElementById('processingStatus');
+
+    if (!url) {
+      statusEl.textContent = 'Please enter a valid URL';
+      statusEl.style.color = '#8B0000';
+      return;
+    }
+
+    statusEl.textContent = 'This may take a few seconds…';
+    statusEl.style.color = '#31261A';
+
+    const proxies = [
+      async (u) => {
+        const r = await fetch('https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u));
+        if (!r.ok) throw new Error('codetabs failed: ' + r.status);
+        return r.text();
+      },
+      async (u) => {
+        const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(u));
+        if (!r.ok) throw new Error('allorigins failed: ' + r.status);
+        return r.text();
+      },
+    ];
+
+    try {
+      let html = null;
+      let lastError = null;
+      for (const proxy of proxies) {
+        try {
+          html = await proxy(url);
+          break;
+        } catch (e) {
+          lastError = e;
+        }
+      }
+      if (html === null) throw new Error('All proxies failed: ' + lastError?.message);
+
+      // Extract text from HTML
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // Remove script and style tags
+      doc.querySelectorAll('script, style').forEach(el => el.remove());
+
+      extractedText = doc.body.textContent || doc.body.innerText || '';
+      extractedText = extractedText.replace(/\s+/g, ' ').trim();
+
+      const MIN_POLICY_LENGTH = 500;
+      if (extractedText.length >= MIN_POLICY_LENGTH) {
+        statusEl.textContent = `✓ Extracted ${extractedText.length} characters`;
+        statusEl.style.color = '#2E7D32';
+
+        // Show detected metadata from content
+        const metadata = inferMetadata(extractedText, url);
+        const detectedInfo = document.getElementById('detectedInfo');
+        detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
+        return true;
+      } else {
+        statusEl.textContent = 'This site is actively blocking us from fetching the content. Copy and paste the text or add a screenshot instead.';
+        statusEl.style.color = '#8B0000';
+        return false;
+      }
+    } catch (error) {
+      statusEl.textContent = 'This site is actively blocking us from fetching the content. Copy and paste the text or add a screenshot instead.';
+      statusEl.style.color = '#8B0000';
+      return false;
+    }
+  }
+
+  async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const fileStatusEl = document.getElementById('fileStatus');
+    const processingStatusEl = document.getElementById('processingStatus');
+
+    fileStatusEl.textContent = `Selected: ${file.name}`;
+    processingStatusEl.textContent = 'Processing...';
+    processingStatusEl.style.color = '#31261A';
+
+    try {
+      if (file.type === 'application/pdf') {
+        extractedText = await extractTextFromPDF(file);
+      } else if (file.type.startsWith('image/')) {
+        extractedText = await extractTextFromImage(file);
+      } else {
+        throw new Error('Unsupported file type');
+      }
+
+      if (extractedText.length > 0) {
+        processingStatusEl.textContent = `✓ Extracted ${extractedText.length} characters`;
+        processingStatusEl.style.color = '#2E7D32';
+
+        // Show detected metadata
+        const metadata = inferMetadata(extractedText);
+        const detectedInfo = document.getElementById('detectedInfo');
+        detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
+      } else {
+        processingStatusEl.textContent = 'No text found in file';
+        processingStatusEl.style.color = '#8B0000';
+      }
+    } catch (error) {
+      processingStatusEl.textContent = `Error: ${error.message}`;
+      processingStatusEl.style.color = '#8B0000';
+    }
+  }
+
+  async function extractTextFromPDF(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = '';
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      fullText += pageText + ' ';
+    }
+
+    return fullText.trim();
+  }
+
+  async function extractTextFromImage(file) {
+    const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+      logger: info => {
+        if (info.status === 'recognizing text') {
+          const percent = Math.round(info.progress * 100);
+          document.getElementById('processingStatus').textContent = `Processing image: ${percent}%`;
+        }
+      }
+    });
+    return text.trim();
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function analyzeText(text) {
+    const lowerText = text.toLowerCase();
+
+    // Keyword categories for card selection
+    const keywords = {
+      major: {
+        'the fool': ['begin', 'start', 'new', 'journey', 'risk', 'leap'],
+        'the magician': ['power', 'skill', 'create', 'manifest', 'control'],
+        'the high priestess': ['secret', 'intuition', 'hidden', 'knowledge', 'mystery'],
+        'the empress': ['create', 'nurture', 'abundance', 'growth', 'fertility'],
+        'the emperor': ['authority', 'structure', 'control', 'govern', 'rule', 'order'],
+        'the hierophant': ['tradition', 'conform', 'institution', 'teach', 'belief'],
+        'the lovers': ['choice', 'relationship', 'union', 'partner', 'harmony'],
+        'the chariot': ['victory', 'determination', 'will', 'overcome', 'succeed'],
+        'strength': ['courage', 'patience', 'compassion', 'inner', 'overcome'],
+        'the hermit': ['solitude', 'introspection', 'search', 'wisdom', 'alone'],
+        'the wheel of fortune': ['change', 'cycle', 'fate', 'luck', 'destiny', 'turning'],
+        'justice': ['fairness', 'truth', 'law', 'balance', 'consequence', 'legal'],
+        'the hanged man': ['sacrifice', 'surrender', 'let go', 'pause', 'suspend'],
+        'death': ['transformation', 'end', 'change', 'release', 'transition'],
+        'temperance': ['balance', 'moderation', 'patience', 'purpose', 'middle'],
+        'the devil': ['bondage', 'addiction', 'materialism', 'restriction', 'trap'],
+        'the tower': ['disruption', 'chaos', 'revelation', 'sudden', 'upheaval'],
+        'the star': ['hope', 'inspiration', 'serenity', 'renewal', 'purpose'],
+        'the moon': ['illusion', 'fear', 'anxiety', 'subconscious', 'confuse'],
+        'the sun': ['success', 'vitality', 'joy', 'positivity', 'optimism'],
+        'the world': ['completion', 'accomplish', 'success', 'fulfill', 'achieve'],
+      },
+      suits: {
+        'wands': ['action', 'energy', 'passion', 'enterprise', 'project', 'ambition'],
+        'cups': ['emotion', 'feeling', 'relationship', 'intuition', 'connection'],
+        'swords': ['thought', 'logic', 'conflict', 'challenge', 'decision', 'mental'],
+        'pentacles': ['material', 'financial', 'practical', 'resource', 'money', 'security'],
+      }
+    };
+
+    // Calculate scores for major arcana
+    const majorScores = {};
+    MAJOR_ARCANA.forEach(card => {
+      const cardName = card.replace('.png', '');
+      majorScores[card] = 0;
+      if (keywords.major[cardName]) {
+        keywords.major[cardName].forEach(keyword => {
+          const regex = new RegExp(keyword, 'gi');
+          const matches = lowerText.match(regex);
+          if (matches) {
+            majorScores[card] += matches.length;
+          }
+        });
+      }
+    });
+
+    // Calculate scores for suits
+    const suitScores = { wands: 0, cups: 0, swords: 0, pentacles: 0 };
+    Object.keys(keywords.suits).forEach(suit => {
+      keywords.suits[suit].forEach(keyword => {
+        const regex = new RegExp(keyword, 'gi');
+        const matches = lowerText.match(regex);
+        if (matches) {
+          suitScores[suit] += matches.length;
+        }
+      });
+    });
+
+    return { majorScores, suitScores };
+  }
+
+  function selectCards(text) {
+    // Use V2 narrative engine if deck is loaded
+    if (tarotDeck && window.PrivacyTarotEngine) {
+      const engine = new window.PrivacyTarotEngine(tarotDeck);
+
+      // Split text into thirds for the three stations
+      const textLength = text.length;
+      const third = Math.floor(textLength / 3);
+
+      const collectionText = text.substring(0, third);
+      const sharingText = text.substring(third, third * 2);
+      const retentionText = text.substring(third * 2);
+
+      // Perform the spread using tarot_logic algorithm
+      const spread = engine.performSpread(collectionText, sharingText, retentionText);
+
+      // Convert to format expected by the rest of the app
+      const segments = {
+        collection: collectionText,
+        sharing: sharingText,
+        retention: retentionText
+      };
+
+      const cards = ['collection', 'sharing', 'retention'].map(station => {
+        const result = spread[station];
+        const cardName = result.name;
+
+        // Determine if it's major or minor arcana
+        // Major arcana have 'card' field, minor arcana have 'rank' and 'suit' fields
+        const isMajor = result.card.card !== undefined;
+        const folder = isMajor ? 'major_arcana' : 'minor_arcana';
+        const cardFile = isMajor
+          ? getMajorArcanaFilename(cardName)
+          : cardName.toLowerCase().replace(/\s+/g, ' ') + '.png';
+
+        return {
+          src: `${folder}/${cardFile}`,
+          name: cardName,
+          reversed: result.isReversed,
+          cardData: result.card,
+          logic: result.logic, // The pre-computed logic from tarot_logic
+          segmentText: segments[station],
+          station: station,
+          score: result.score
+        };
+      });
+
+      console.log('Card spread selected:', cards.map(c => `${c.name} (score: ${c.score}, reversed: ${c.reversed})`));
+      return cards;
+    }
+
+    // Fallback to random selection if deck not loaded
+    console.warn('Deck not loaded, using random selection');
+    const { majorScores, suitScores } = analyzeText(text);
+    const numMajor = Math.random() < 0.5 ? 1 : 2;
+    const numMinor = 3 - numMajor;
+
+    const selectedMajors = [];
+    const availableMajors = [...MAJOR_ARCANA];
+
+    for (let i = 0; i < numMajor; i++) {
+      const selected = selectWeighted(availableMajors, majorScores);
+      selectedMajors.push({
+        src: `major_arcana/${selected}`,
+        name: selected.replace('.png', ''),
+        reversed: Math.random() < 0.35,
+      });
+      availableMajors.splice(availableMajors.indexOf(selected), 1);
+    }
+
+    // Select minor arcana based on dominant suits
+    const topSuits = Object.entries(suitScores)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([suit]) => suit);
+
+    const selectedMinors = [];
+    for (let i = 0; i < numMinor; i++) {
+      const preferredSuit = topSuits[i % topSuits.length];
+      const suitCards = MINOR_ARCANA.filter(card =>
+        card.toLowerCase().includes(preferredSuit)
+      );
+
+      const pool = suitCards.length > 0 ? suitCards : MINOR_ARCANA;
+      const selected = pool[Math.floor(Math.random() * pool.length)];
+
+      selectedMinors.push({
+        src: `minor_arcana/${selected}`,
+        name: selected.replace('.png', ''),
+        reversed: Math.random() < 0.35,
+      });
+    }
+
+    return shuffle([...selectedMajors, ...selectedMinors]);
+  }
+
+  async function proceedToDraw() {
+    const activePanel = document.querySelector('.input-panel.active');
+    const panelId = activePanel.id;
+    const drawBtn = document.getElementById('drawBtn');
+
+    if (panelId === 'panel-url') {
+      drawBtn.disabled = true;
+      drawBtn.textContent = 'Fetching...';
+      const success = await fetchFromURL();
+      drawBtn.disabled = false;
+      drawBtn.textContent = 'Reveal your fortune';
+      if (!success) return;
+      userText = extractedText;
+    } else if (panelId === 'panel-text') {
+      userText = document.getElementById('userText').value.trim();
+    } else {
+      userText = extractedText;
+    }
+
+    if (!userText || userText.length < 10) {
+      alert('Please provide some text first (at least 10 characters)');
+      return;
+    }
+
+    // Automatically infer platform and document type
+    const sourceUrl = panelId === 'panel-url' ? document.getElementById('urlInput').value.trim() : null;
+    const metadata = inferMetadata(userText, sourceUrl);
+    window.currentPlatform = metadata.platform;
+    window.currentType = metadata.type;
+
+    drawnCards = selectCards(userText);
+    document.getElementById('screen-input').classList.remove('active');
+    document.getElementById('screen-draw').classList.add('active');
+  }
+
+  function getSlotRect(colIndex) {
+    return document.querySelector(`#col-${colIndex} .slot-wrapper`).getBoundingClientRect();
+  }
+
+  function drawCard() {
+    if (animating || drawn >= SLOTS.length) return;
+    animating = true;
+
+    const deckArea  = document.getElementById('deckArea');
+    const deckImgEl = document.getElementById('deckImg');
+    const statusEl  = document.getElementById('status');
+    statusEl.textContent = '';
+    deckArea.style.pointerEvents = 'none';
+
+    if (drawn === SLOTS.length - 1) {
+      document.getElementById('readingEmpty').style.display = 'none';
+    }
+
+    const deckImgRect = deckImgEl.getBoundingClientRect();
+    const cardData    = drawnCards[drawn];
+
+    // Visual center of the deck image — card element will be centered here.
+    const cx = deckImgRect.left + deckImgRect.width  / 2;
+    const cy = deckImgRect.top  + deckImgRect.height / 2;
+
+    // Translation needed to move card center from deck position to viewport center.
+    const tx = Math.round(window.innerWidth  / 2 - cx);
+    const ty = Math.round(window.innerHeight / 2 - cy);
+
+    // Full-viewport wrapper provides the perspective context for all 3D transforms.
+    const perspWrap = document.createElement('div');
+    perspWrap.style.cssText = `
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 200;
+      perspective: 2000px;
+      perspective-origin: ${cx}px ${cy}px;
+    `;
+
+    // Card element — 130×210, transform-style:preserve-3d so both faces work.
+    // liftReorient animates it from deck angle → flat face-on over 800ms.
+    const cardEl = document.createElement('div');
+    cardEl.style.cssText = `
+      position: absolute;
+      left: ${cx - 99}px;
+      top:  ${cy - 160}px;
+      width: 198px;
+      height: 320px;
+      transform-style: preserve-3d;
+      transform-origin: center center;
+      animation: liftReorient 800ms forwards;
+      --center-tx: ${tx}px;
+      --center-ty: ${ty}px;
+    `;
+
+    // Back face — visible during stages 1–3 and at flip start.
+    const faceBack = document.createElement('div');
+    faceBack.style.cssText = `
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+      transform: translateZ(2px);
+    `;
+    faceBack.innerHTML = `<img src="card_backs/Card back.png"
+      style="width:100%;height:100%;object-fit:contain;" alt="">`;
+
+    // Front face — pre-rotated 180° so it appears after the Y-axis flip.
+    const faceFront = document.createElement('div');
+    faceFront.style.cssText = `
+      position: absolute; inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform;
+      transform: rotateY(180deg) translateZ(2px);
+    `;
+    const frontImgStyle = 'width:100%;height:100%;object-fit:contain;'
+      + (cardData.reversed ? 'transform:rotate(180deg);' : '');
+    faceFront.innerHTML = `<img src="${cardData.src}" style="${frontImgStyle}" alt="${cardData.name}">`;
+
+    cardEl.appendChild(faceBack);
+    cardEl.appendChild(faceFront);
+    perspWrap.appendChild(cardEl);
+    document.body.appendChild(perspWrap);
+
+    // Stage 4 — Flip: triggered the instant liftReorient ends.
+    cardEl.addEventListener('animationend', () => {
+      // Pin the final animation state as an inline transform, then clear the
+      // animation so it no longer holds the value.  No visual snap occurs
+      // because the explicit value matches the forwards-fill value.
+      // Translations come first so rotateY pivots at the card's screen-center
+      // position rather than at the deck, eliminating the swoop.
+      const flatTransform = `translateX(${tx}px) translateY(${ty}px) translateZ(20px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1.8)`;
+      cardEl.style.transform = flatTransform;
+      cardEl.style.animation  = 'none';
+      cardEl.style.filter     = 'none';
+
+      // Force a style recalc so the browser registers flatTransform as the
+      // "before" state before we set the "after" state for the transition.
+      cardEl.offsetHeight; // eslint-disable-line no-unused-expressions
+
+      cardEl.style.transition = 'transform 200ms ease-in-out';
+      cardEl.style.transform  = `translateX(${tx}px) translateY(${ty}px) translateZ(20px) rotateX(0deg) rotateY(180deg) rotateZ(0deg) scale(1.8)`;
+
+      // After flip completes, capture visual position and fly card to slot.
+      setTimeout(() => {
+        const rect = cardEl.getBoundingClientRect();
+        perspWrap.remove();
+
+        // Simple 2D fly element — no 3D transforms.
+        const flyEl = document.createElement('div');
+        flyEl.style.cssText = `
+          position: fixed;
+          left:   ${rect.left}px;
+          top:    ${rect.top}px;
+          width:  ${rect.width}px;
+          height: ${rect.height}px;
+          pointer-events: none;
+          z-index: 200;
+          filter: drop-shadow(0 8px 16px rgba(0,0,0,0.22));
+        `;
+        flyEl.innerHTML = `<img src="${cardData.src}" style="${frontImgStyle}" alt="${cardData.name}">`;
+        document.body.appendChild(flyEl);
+
+        const slotRect = getSlotRect(SLOTS[drawn].col);
+        requestAnimationFrame(() => {
+          flyEl.style.transition = [
+            'left 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'top 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'width 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'height 0.6s cubic-bezier(0.4,0,0.2,1)',
+            'filter 0.5s ease',
+          ].join(', ');
+          flyEl.style.left   = `${slotRect.left}px`;
+          flyEl.style.top    = `${slotRect.top}px`;
+          flyEl.style.width  = `${slotRect.width}px`;
+          flyEl.style.height = `${slotRect.height}px`;
+          flyEl.style.filter = 'drop-shadow(0 4px 10px rgba(0,0,0,0.22))';
+        });
+
+        setTimeout(() => {
+          placePermanentCard(drawn);
+          requestAnimationFrame(() => flyEl.remove());
+          drawn++;
+          animating = false;
+          deckArea.style.pointerEvents = 'auto';
+          deckArea.classList.toggle('done', drawn >= SLOTS.length);
+          if (drawn >= SLOTS.length) {
+            statusEl.textContent = '';
+            moveDeckToSlot();
+            generateReading();
+          } else {
+            statusEl.textContent = '';
+          }
+        }, 580);
+      }, 220); // flip duration
+    }, { once: true });
+
+  }
+
+  function placePermanentCard(index) {
+    const wrapper  = document.querySelector(`#col-${SLOTS[index].col} .slot-wrapper`);
+    const cardData = drawnCards[index];
+    const card     = document.createElement('div');
+    card.className = 'placed-card visible';
+    const imgStyle = 'width:100%;height:100%;object-fit:contain;'
+      + (cardData.reversed ? 'transform:rotate(180deg);' : '');
+    card.innerHTML = `<img src="${cardData.src}" style="${imgStyle}" alt="${cardData.name}">`;
+    wrapper.appendChild(card);
+  }
+
+  function moveDeckToSlot() {
+    const deckSection = document.getElementById('deckSection');
+    const deckSectionRect = deckSection.getBoundingClientRect();
+
+    // Pull out of flow and freeze at current screen position so removal
+    // doesn't shift the reading area abruptly
+    deckSection.style.transition = 'none';
+    deckSection.style.position   = 'fixed';
+    deckSection.style.top        = deckSectionRect.top  + 'px';
+    deckSection.style.left       = deckSectionRect.left + 'px';
+
+    deckSection.offsetHeight; // force reflow
+
+    // Fade out and hide
+    deckSection.style.transition = 'opacity 0.5s ease';
+    deckSection.style.opacity    = '0';
+    setTimeout(() => { deckSection.style.display = 'none'; }, 500);
+  }
+
+  // ── Background texture ──────────────────────────────────────────────────
+  // Layer A: large soft mottling blobs (watercolor pooling)
+  // Layer B: fine grain — half-res random noise scaled up via drawImage so
+  //          bilinear interpolation softens sharp pixel edges automatically.
+  (function paintTexture() {
+    const canvas = document.getElementById('texture-canvas');
+    const W = canvas.width  = window.innerWidth;
+    const H = canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+
+    // Mottling blobs: [cx%, cy%, rx%, ry%, r, g, b, peakAlpha]
+    [
+      [0.76, 0.14, 0.70, 0.60, 255, 255, 255, 0.10],
+      [0.18, 0.82, 0.60, 0.70,   0,   0,  20, 0.10],
+      [0.40, 0.46, 0.52, 0.55, 255, 255, 255, 0.07],
+      [0.93, 0.50, 0.38, 0.72,   0,   0,  20, 0.08],
+      [0.54, 0.96, 0.66, 0.32, 255, 255, 255, 0.06],
+    ].forEach(([fx, fy, frx, fry, r, g, b, a]) => {
+      ctx.save();
+      ctx.translate(fx * W, fy * H);
+      ctx.scale(frx * W, fry * H);
+      const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+      grd.addColorStop(0,   `rgba(${r},${g},${b},${a})`);
+      grd.addColorStop(0.6, `rgba(${r},${g},${b},${+(a * 0.3).toFixed(3)})`);
+      grd.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(0, 0, 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // Grain: generate at half resolution, drawImage scales it up smoothly
+    const gW = Math.ceil(W / 2), gH = Math.ceil(H / 2);
+    const scratch = document.createElement('canvas');
+    scratch.width = gW; scratch.height = gH;
+    const gctx = scratch.getContext('2d');
+    const img  = gctx.createImageData(gW, gH);
+    const px   = img.data;
+    for (let i = 0; i < px.length; i += 4) {
+      const v = Math.random() * 255 | 0;
+      px[i] = px[i + 1] = px[i + 2] = v;
+      px[i + 3] = 255;
+    }
+    gctx.putImageData(img, 0, 0);
+    ctx.globalAlpha = 0.06;
+    ctx.drawImage(scratch, 0, 0, W, H);
+    ctx.globalAlpha = 1;
+  })();
+
+  let readingTimers = [];
+
+  function generateReading() {
+    // Small pause so the last card can settle before the reading appears
+    readingTimers.push(setTimeout(startReadingSequence, 600));
+  }
+
+  function startReadingSequence() {
+    populateReading();
+
+    const section = document.getElementById('reading-section');
+    section.style.opacity    = '0';
+    section.style.display    = 'block';
+    section.offsetHeight; // force reflow so transition registers
+    section.style.transition = 'opacity 1.8s ease-in';
+    section.style.opacity    = '1';
+  }
+
+  // Tarot Narrator - generates cohesive narrative from card spread
+  class TarotNarrator {
+    constructor(spreadResults, userText) {
+      this.spread = spreadResults;
+      this.text = userText;
+    }
+
+    getIntro() {
+      const intros = [
+        "I have peered into the fine print of your destiny.",
+        "The spirits of the terms and conditions are speaking. Here is what they reveal."
+      ];
+      return intros[Math.floor(Math.random() * intros.length)];
+    }
+
+    getConclusion() {
+      const reversals = this.spread.filter(card => card.reversed).length;
+      const cardNames = this.spread.map(c => c.name.toLowerCase());
+
+      if (reversals >= 2) {
+        return "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is murky.";
+      } else if (cardNames.includes('the devil')) {
+        return "🔗 <strong>The Contract is Signed:</strong> Your data is bound to a material master. Proceed with extreme caution.";
+      } else if (cardNames.includes('justice') || cardNames.includes('the sun')) {
+        return "✨ <strong>A Clear Path:</strong> This policy shines with transparency. Your rights are balanced and respected.";
+      } else {
+        return "🔮 <strong>The Reading is Complete.</strong> Your digital fate is in your hands.";
+      }
+    }
+
+    generateReading() {
+      const intro = this.getIntro();
+      const body = this.spread.map((card, i) => ({
+        ...card,
+        reading: this.getCardLogic(card, SLOTS[i].category)
+      }));
+      const conclusion = this.getConclusion();
+
+      return { intro, body, conclusion };
+    }
+
+    getCardLogic(card, category) {
+      const cardName = card.name.toLowerCase();
+      const isReversed = card.reversed;
+
+      // Category-specific interpretations
+      const interpretations = {
+        collection: {
+          'the fool': {
+            upright: 'They collect your data with reckless abandon, gathering information without clear boundaries or purpose.',
+            reversed: 'Data collection is haphazard and poorly defined. You may not even know what they are taking.',
+          },
+          'the magician': {
+            upright: 'They wield sophisticated tools to collect your information. Every click, every interaction is captured with precision.',
+            reversed: 'Deceptive data collection practices. Hidden trackers and disguised consent forms manipulate your choices.',
+          },
+          'the high priestess': {
+            upright: 'Your most intimate digital secrets are being observed. They know more than they reveal.',
+            reversed: 'Critical information about data collection is deliberately hidden in the fine print.',
+          },
+          'the empress': {
+            upright: 'They nurture and cultivate your data like a garden, growing vast profiles from seeds of information.',
+            reversed: 'Overreach in data collection. They take far more than necessary, hoarding information indiscriminately.',
+          },
+          'the emperor': {
+            upright: 'Structured and systematic data collection. Every piece of information is catalogued and controlled.',
+            reversed: 'Authoritarian data practices. They dictate what you must surrender with little room for negotiation.',
+          },
+          'justice': {
+            upright: 'Fair and balanced data collection. Only necessary information is gathered with clear justification.',
+            reversed: 'Unjust data collection practices. The scales are tipped in their favor.',
+          },
+          'the devil': {
+            upright: 'Your data is collected through addictive services. Convenience binds you to their terms.',
+            reversed: 'Predatory collection practices. Breaking free requires significant effort and sacrifice.',
+          },
+          'the tower': {
+            upright: 'Sudden, sweeping data collection changes. Previous promises may be demolished.',
+            reversed: 'Resistance to change. Outdated collection practices persist despite modern privacy standards.',
+          },
+          'the sun': {
+            upright: 'Transparent and joyful data collection. Everything is clearly explained and purposeful.',
+            reversed: 'False transparency. What appears open may hide shadows.',
+          },
+        },
+        sharing: {
+          'the fool': {
+            upright: 'Your data embarks on a journey to unknown third parties. The destination is uncertain.',
+            reversed: 'Reckless sharing without proper safeguards. Your information leaps into the void.',
+          },
+          'the magician': {
+            upright: 'They skillfully monetize your data, sharing it with partners through complex arrangements.',
+            reversed: 'Data brokers work behind the scenes, manipulating your information for profit.',
+          },
+          'the high priestess': {
+            upright: 'Your data is shared with mysterious partners. The full scope remains hidden.',
+            reversed: 'Critical information about data sharing is concealed. Trust your intuition.',
+          },
+          'the empress': {
+            upright: 'Your data is shared abundantly across an ecosystem of partners and affiliates.',
+            reversed: 'Excessive sharing. Your information is scattered like seeds in the wind.',
+          },
+          'the emperor': {
+            upright: 'Data sharing follows strict protocols and hierarchies. Partners are carefully vetted.',
+            reversed: 'Rigid control over your data. You have little say in who receives your information.',
+          },
+          'justice': {
+            upright: 'Fair data sharing practices. Partners are disclosed and data use is proportional.',
+            reversed: 'Unbalanced sharing arrangements. Third parties may have more rights than you do.',
+          },
+          'the devil': {
+            upright: 'Your data is bound to an advertising network. Tracking follows you across the digital realm.',
+            reversed: 'Breaking free from data sharing is nearly impossible. The chains are strong.',
+          },
+          'the tower': {
+            upright: 'Sudden changes in sharing practices. Previous privacy promises may crumble.',
+            reversed: 'Resistance to limiting data sharing despite growing concerns.',
+          },
+          'the sun': {
+            upright: 'Clear and honest data sharing. Every partner and purpose is illuminated.',
+            reversed: 'The appearance of openness masks hidden sharing arrangements.',
+          },
+        },
+        retention: {
+          'the fool': {
+            upright: 'Your data begins a new cycle, potentially stored indefinitely without clear end.',
+            reversed: 'Careless retention. Data may be kept longer than necessary or deleted prematurely.',
+          },
+          'the magician': {
+            upright: 'They possess the power to transform and archive your data across multiple systems.',
+            reversed: 'Data retention is manipulated to serve their interests, not yours.',
+          },
+          'the high priestess': {
+            upright: 'Your data rests in hidden archives. Its true retention period is a mystery.',
+            reversed: 'Critical details about data retention are deliberately obscured.',
+          },
+          'the empress': {
+            upright: 'Your data grows and multiplies in their systems, creating a rich historical record.',
+            reversed: 'Hoarding behavior. They keep everything, deleting nothing.',
+          },
+          'the emperor': {
+            upright: 'Systematic retention policies. Data is stored in organized hierarchies with clear timeframes.',
+            reversed: 'Authoritarian retention. They control your data long after you\'ve moved on.',
+          },
+          'justice': {
+            upright: 'Fair retention policies. Data is kept only as long as necessary and then properly disposed.',
+            reversed: 'Unjust retention practices. Your right to deletion is restricted or ignored.',
+          },
+          'the devil': {
+            upright: 'Your data is bound to their servers, potentially forever. Deletion is theoretical.',
+            reversed: 'Escaping their retention is nearly impossible. Backup systems preserve everything.',
+          },
+          'the tower': {
+            upright: 'Sudden data purges or breaches. Your information may be suddenly exposed or destroyed.',
+            reversed: 'Refusal to update retention practices. Old data lingers in forgotten databases.',
+          },
+          'the sun': {
+            upright: 'Clear retention policies. Timeframes are specified and deletion is guaranteed.',
+            reversed: 'False promises about retention. The stated policy may not match reality.',
+          },
+        },
+      };
+
+      // Get interpretation or create a generic one
+      const categoryInterpretations = interpretations[category];
+      if (categoryInterpretations && categoryInterpretations[cardName]) {
+        return isReversed
+          ? categoryInterpretations[cardName].reversed
+          : categoryInterpretations[cardName].upright;
+      }
+
+      // Generic fallback based on category and suit
+      const isMajor = card.src.includes('major_arcana');
+      if (isMajor) {
+        const genericMajor = {
+          collection: 'This card suggests significant data collection practices.',
+          sharing: 'Your data flows through important channels and partnerships.',
+          retention: 'The retention of your information carries weight and consequence.',
+        };
+        return genericMajor[category];
+      }
+
+      // Minor arcana suit-based interpretation
+      const suit = this.getSuit(card.name);
+      const suitMeanings = {
+        collection: {
+          wands: 'They collect data about your actions, projects, and creative endeavors.',
+          cups: 'They collect data about your relationships, preferences, and emotional connections.',
+          swords: 'They collect data about your decisions, searches, and intellectual activities.',
+          pentacles: 'They collect data about your purchases, finances, and material interactions.',
+        },
+        sharing: {
+          wands: 'Your activity data is shared with partners to fuel business initiatives.',
+          cups: 'Your preference data is shared to build social and relational networks.',
+          swords: 'Your behavioral data is shared for analysis and decision-making.',
+          pentacles: 'Your financial data is shared for commercial and transactional purposes.',
+        },
+        retention: {
+          wands: 'Your activity history is retained to track your energy and engagement patterns.',
+          cups: 'Your preference history is retained to maintain relationship profiles.',
+          swords: 'Your decision history is retained for analysis and pattern recognition.',
+          pentacles: 'Your transaction history is retained for financial records and auditing.',
+        },
+      };
+
+      return suitMeanings[category][suit] || 'The cards reveal important information about this aspect of the policy.';
+    }
+
+    getSuit(cardName) {
+      const lower = cardName.toLowerCase();
+      if (lower.includes('wand')) return 'wands';
+      if (lower.includes('cup')) return 'cups';
+      if (lower.includes('sword')) return 'swords';
+      if (lower.includes('pentacle')) return 'pentacles';
+      return 'wands';
+    }
+  }
+
+  function populateReading() {
+    const section = document.getElementById('reading-section');
+    section.innerHTML = '';
+
+    // Use V2 logic if cards have pre-computed logic from tarot_logic.py
+    if (drawnCards[0].logic !== undefined) {
+      // Pre-shuffle magic stings so each card gets a unique one
+      const magicStings = [
+        "The stars suggest this digital bond is written in permanent ink.",
+        "A flickering light remains in the digital void, should you choose to follow it.",
+        "The scales are tipped; the price of entry is your own reflection.",
+        "The cards see a mirror held up to your data, but whose eyes are looking back?",
+        "What is hidden in shadow will eventually find the light—or remain buried forever.",
+        "The thread of your data weaves through unseen hands.",
+        "In this digital realm, transparency is both illusion and truth."
+      ];
+      for (let s = magicStings.length - 1; s > 0; s--) {
+        const r = Math.floor(Math.random() * (s + 1));
+        [magicStings[s], magicStings[r]] = [magicStings[r], magicStings[s]];
+      }
+
+      // Generate reading for each card using tarot_logic results
+      drawnCards.forEach((card, i) => {
+        const slot = SLOTS[i];
+        const label = 'Data ' + slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
+        const name = card.name.charAt(0).toUpperCase() + card.name.slice(1);
+        const rev = card.reversed ? ' - Reversed' : '';
+
+        // Use TarotSynthesizer from narrative_engine to generate the summary
+        let reading = card.logic; // fallback if synthesizer unavailable
+        let citations = [];
+
+        if (window.TarotSynthesizer && card.cardData) {
+          const cardResult = {
+            card: card.cardData,
+            name: card.name,
+            isReversed: card.reversed,
+            score: card.score,
+            logic: card.logic
+          };
+          const synthesizer = new window.TarotSynthesizer(
+            cardResult,
+            card.segmentText || userText,
+            slot.category
+          );
+
+          // Generate narrative summary from narrative_engine logic
+          let rawSummary = synthesizer.createSummary(magicStings[i]);
+
+          // Convert markdown bold/italic to HTML, tighten paragraph spacing
+          rawSummary = rawSummary
+            .replace(/\*\*([^*]+)\*\*/g, '$1')
+            .replace(/\*([^*]+)\*/g, '$1')
+            .replace(/\n\n/g, ' ')
+            .trim();
+
+          reading = rawSummary;
+          citations = synthesizer.findCitations();
+        }
+
+        const block = document.createElement('div');
+        block.className = 'reading-card-block';
+        block.innerHTML =
+          `<div class="card-reading-name">${name}${rev} <span class="card-reading-label" data-category="${slot.category}">${label}</span></div>` +
+          `<p class="card-reading-body">${reading}</p>`;
+
+        // Per-card "Show the receipts" accordion — always show in V2 path
+        // Fall back to first sentences of the segment if no keyword citations found
+        if (citations.length === 0) {
+          const segText = card.segmentText || userText || '';
+          const fallbackSentences = segText
+            .split(/(?<=[.!?])\s+/)
+            .map(s => s.trim())
+            .filter(s => s.length > 40);
+          citations = fallbackSentences.slice(0, 3).map(s => ({ sentence: s, section: null }));
+        }
+
+        if (citations.length > 0) {
+          const accordion = document.createElement('details');
+          accordion.className = 'receipts-accordion';
+          accordion.innerHTML =
+            `<summary><span class="show-text">Show the receipts</span><span class="hide-text">Hide the receipts</span></summary>` +
+            `<div class="citations-panel">` +
+            `<div class="citations-panel-heading">From your policy</div>` +
+            citations.map(c => {
+              const sectionTag = c.section
+                ? `<span class="citation-section">${c.section}</span>`
+                : '';
+              return `<blockquote class="citation-quote">${sectionTag}${c.sentence}</blockquote>`;
+            }).join('') +
+            `</div>`;
+          block.appendChild(accordion);
+        }
+
+        section.appendChild(block);
+      });
+
+      // Generate conclusion based on reversals and specific cards
+      const reversals = drawnCards.filter(c => c.reversed).length;
+      const cardNames = drawnCards.map(c => c.name.toLowerCase());
+
+      let conclusion;
+      if (reversals >= 2) {
+        conclusion = "⚠️ <strong>Warning:</strong> This policy is shrouded in shadows. Its terms are obstructive and the path to privacy is murky.";
+      } else if (cardNames.includes('the devil')) {
+        conclusion = "🔗 <strong>The Contract is Signed:</strong> Your data is bound to a material master. Proceed with extreme caution.";
+      } else if (cardNames.includes('justice') || cardNames.includes('the star')) {
+        conclusion = "✨ <strong>A Clear Path:</strong> This policy shines with transparency. Your rights are balanced and respected.";
+      } else {
+        conclusion = "🔮 <strong>A Steady Course:</strong> The terms are straightforward and unremarkable. The path appears open — walk it with awareness.";
+      }
+
+      const conclusionBlock = document.createElement('div');
+      conclusionBlock.className = 'reading-conclusion';
+      conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
+      section.insertBefore(conclusionBlock, section.firstChild);
+
+      // Save to history
+      if (!replayingHistory) saveReadingToHistory(drawnCards, '', conclusion, userText);
+    } else {
+      // Fallback to old narrator if V2 not available
+      const narrator = new TarotNarrator(drawnCards, userText);
+      const { intro, body, conclusion } = narrator.generateReading();
+
+      // Add conclusion at top
+      const conclusionBlock = document.createElement('div');
+      conclusionBlock.className = 'reading-conclusion';
+      conclusionBlock.innerHTML = `<p style="font-size:15px;text-align:center;margin-top:32px;padding:20px;background:rgba(49,38,26,0.06);border-radius:12px;">${conclusion}</p>`;
+      section.appendChild(conclusionBlock);
+
+      // Add intro
+      const introBlock = document.createElement('div');
+      introBlock.className = 'reading-intro';
+      introBlock.innerHTML = `<p style="font-style:italic;font-size:15px;text-align:center;margin-bottom:32px;color:rgba(49,38,26,0.85);">${intro}</p>`;
+      section.appendChild(introBlock);
+
+      // Add each card reading
+      body.forEach((card, i) => {
+        const slot  = SLOTS[i];
+        const label = 'Data ' + slot.category.charAt(0).toUpperCase() + slot.category.slice(1);
+        const name  = card.name.charAt(0).toUpperCase() + card.name.slice(1);
+        const rev   = card.reversed ? ' - Reversed' : '';
+
+        const block = document.createElement('div');
+        block.className = 'reading-card-block';
+        block.innerHTML =
+          `<div class="card-reading-name">${name}${rev} <span class="card-reading-label" data-category="${slot.category}">${label}</span></div>` +
+          `<p class="card-reading-body">${card.reading}</p>`;
+        section.appendChild(block);
+      });
+
+      // Save to history
+      if (!replayingHistory) saveReadingToHistory(drawnCards, intro, conclusion, userText);
+    }
+  }
+
+  function initLegalReading() {
+    ['legal-col-0', 'legal-col-1', 'legal-col-2', 'legal-col-3', 'legal-col-4', 'legal-col-5'].forEach(id => {
+      document.querySelectorAll(`#${id} .placed-card`).forEach(c => c.remove());
+    });
+
+    const section1 = document.getElementById('legal-reading-section');
+    section1.innerHTML = '';
+    section1.style.display = 'flex';
+    section1.style.opacity  = '1';
+    section1.style.transition = '';
+
+    const section2 = document.getElementById('legal-reading-section-2');
+    section2.innerHTML = '';
+    section2.style.display = 'flex';
+    section2.style.opacity  = '1';
+    section2.style.transition = '';
+
+    const cards = [
+      { src: 'major_arcana/the star.png', reversed: false },
+      { src: 'major_arcana/the hermit.png',  reversed: false },
+      { src: 'major_arcana/the magician.png', reversed: false },
+      { src: 'major_arcana/the hanged man.png', reversed: false },
+      { src: 'major_arcana/the moon.png', reversed: false },
+      { src: 'major_arcana/judgement.png', reversed: false },
+    ];
+
+    const DESCRIPTIONS = [
+      "The data you provide is entirely up to you. We process the legal text you provide in order to generate your reading. We don't collect personal information beyond what you voluntarily provide in that text.",
+      "We don't sell or share your data with third parties. Your reading is generated within this experience and not distributed elsewhere.",
+      "Your readings are saved so you can revisit them, but you can delete them anytime from <a href=\"#your-history\" onclick=\"navigateTo('history'); return false;\">Your history</a> or by clearing your browser cache. When you let them go, they're gone.",
+      "Begin with curiosity, not commitment. This experience is for entertainment only. We're not lawyers, and nothing here is legal advice. Think for yourself before taking action.",
+      "Readings may be unclear, symbolic, or open to interpretation. We can't promise accuracy, outcomes, or results. Trust your judgment before acting on anything you read here.",
+      "You are responsible for your own decisions. This experience is entertainment, not professional guidance. If you need legal advice, consult a qualified attorney.",
+    ];
+
+    DESCRIPTIONS.forEach((text, i) => {
+      const section = i < 3 ? section1 : section2;
+      const block = document.createElement('div');
+      block.className = 'reading-card-block';
+      block.innerHTML = `<p class="card-reading-body">${text}</p>`;
+      section.appendChild(block);
+      placeLegalCard(i, cards[i]);
+    });
+  }
+
+  function placeLegalCard(index, cardData) {
+    const wrapper = document.querySelector(`#legal-col-${index} .slot-wrapper`);
+    const card = document.createElement('div');
+    card.className = 'placed-card visible';
+    const imgStyle = 'width:100%;height:100%;object-fit:contain;'
+      + (cardData.reversed ? 'transform:rotate(180deg);' : '');
+    card.innerHTML = `<img src="${cardData.src}" style="${imgStyle}" alt="${cardData.name}">`;
+    wrapper.appendChild(card);
+  }
+
+  function resetSpread() {
+    drawn = 0; animating = false; drawnCards = []; userText = '';
+    readingTimers.forEach(t => clearTimeout(t));
+    readingTimers = [];
+
+    document.getElementById('userText').value = '';
+
+    document.querySelectorAll('.placed-card').forEach(c => c.remove());
+
+    // Reset reading section
+    const section = document.getElementById('reading-section');
+    section.innerHTML     = '';
+    section.style.display = 'none';
+    section.style.opacity = '0';
+    section.style.transition = '';
+
+    const empty = document.getElementById('readingEmpty');
+    empty.style.display    = '';
+    empty.style.opacity    = '1';
+    empty.style.transition = '';
+
+    // Clear input fields
+    document.getElementById('userText').value = '';
+    document.getElementById('urlInput').value = '';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('processingStatus').textContent = '';
+    document.getElementById('fileStatus').textContent = '';
+    document.getElementById('detectedInfo').textContent = '';
+    extractedText = '';
+    window.currentPlatform = '';
+    window.currentType = '';
+
+    // Restore deck visibility
+    const deckSection = document.getElementById('deckSection');
+    const deckArea    = document.getElementById('deckArea');
+    const status      = document.getElementById('status');
+
+    deckSection.style.transition = 'none';
+    deckSection.style.display    = '';
+    deckSection.style.opacity    = '';
+    deckSection.style.position   = '';
+    deckSection.style.top        = '';
+    deckSection.style.left       = '';
+
+    deckArea.style.transition      = 'none';
+    deckArea.style.transform       = '';
+    deckArea.style.transformOrigin = '';
+
+    status.style.transition = '';
+    status.style.opacity    = '';
+    status.textContent      = '';
+
+    // Restore CSS transitions on next frame so snap doesn't fight them
+    requestAnimationFrame(() => {
+      deckSection.style.transition = '';
+    });
+
+    deckArea.style.pointerEvents = 'auto';
+    deckArea.classList.remove('done');
+
+    // Don't auto-navigate - let the navigation system handle it
+    // document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    // document.getElementById('screen-input').classList.add('active');
+  }
+
+  // ── Navigation & History Management ──────────────────────────────────
+
+  function navigateTo(screenName) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+    // Update active nav link
+    const navMap = { 'input': 0, 'explore': 1, 'history': 2, 'legal': 3 };
+    document.querySelectorAll('nav a').forEach((a, i) => a.classList.toggle('active', i === navMap[screenName]));
+
+    // Show the requested screen
+    const screenMap = {
+      'input': 'screen-input',
+      'draw': 'screen-draw',
+      'history': 'screen-history',
+      'explore': 'screen-explore',
+      'legal': 'screen-legal',
+    };
+
+    const screenId = screenMap[screenName] || 'screen-input';
+    document.getElementById(screenId).classList.add('active');
+
+    // Update URL hash and call screen-specific init functions
+    if (screenName === 'history') {
+      window.location.hash = 'your-history';
+      loadHistory();
+    } else if (screenName === 'explore') {
+      window.location.hash = 'explore';
+      initExploreDeck();
+    } else if (screenName === 'legal') {
+      window.location.hash = 'legal';
+      initLegalReading();
+    } else {
+      window.location.hash = '';
+    }
+
+    // Reset spread if navigating to input
+    if (screenName === 'input') {
+      resetSpread();
+    }
+  }
+
+  function saveReadingToHistory(cards, intro, conclusion, sourceText) {
+    const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+
+    const reading = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      platform: window.currentPlatform || 'Unknown',
+      type: window.currentType || 'Unknown',
+      cards: cards.map(card => ({
+        name: card.name,
+        reversed: card.reversed,
+        category: SLOTS[cards.indexOf(card)].category
+      })),
+      intro,
+      conclusion,
+      sourceSnippet: sourceText.substring(0, 200),
+      fullText: sourceText
+    };
+
+    history.unshift(reading); // Add to beginning
+
+    // Keep only last 50 readings
+    if (history.length > 50) {
+      history.splice(50);
+    }
+
+    localStorage.setItem('tarotHistory', JSON.stringify(history));
+  }
+
+  async function loadHistory() {
+    // Load from chrome.storage if available
+    if (typeof window.loadTarotHistory === 'function') {
+      await window.loadTarotHistory();
+    }
+
+    const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    const historyList = document.getElementById('history-list');
+
+    if (history.length === 0) {
+      historyList.innerHTML = '<div class="history-empty"><p>No readings yet. Start a new reading to begin your journey.</p></div>';
+      return;
+    }
+
+    const tableRows = history.map(reading => {
+      const date = new Date(reading.date);
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      const timeStr = date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const cardTags = reading.cards.map(card => {
+        const rev = card.reversed ? ' ↓' : '';
+        return `<span class="history-card-tag">${card.name}${rev}</span>`;
+      }).join(' ');
+
+      // Create summary from intro and conclusion
+      const conclusionText = reading.conclusion.replace(/<[^>]*>/g, '');
+      const fullSummary = `${reading.intro} ${conclusionText}`;
+      const summary = fullSummary.length > 200
+        ? fullSummary.substring(0, 200) + '...'
+        : fullSummary;
+
+      return `
+        <tr onclick="viewHistoryDetail(${reading.id})">
+          <td class="col-check"><input type="checkbox" class="row-check" data-id="${reading.id}" onclick="event.stopPropagation(); updateBulkBar();"></td>
+          <td class="col-date">${dateStr}<br><small style="color:rgba(49,38,26,0.6);">${timeStr}</small></td>
+          <td class="col-platform">${reading.platform || 'Unknown'}</td>
+          <td class="col-cards">${cardTags}</td>
+          <td class="col-summary">${summary}</td>
+          <td class="col-actions">
+            <button class="history-btn delete" onclick="deleteReading(${reading.id}); event.stopPropagation();" aria-label="Delete reading"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    historyList.innerHTML = `
+      <table class="history-table">
+        <thead>
+          ${HISTORY_NORMAL_HEADER}
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function viewHistoryDetail(readingId) {
+    const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    const reading = history.find(r => r.id === readingId);
+    if (!reading) return;
+
+    replayingHistory = true;
+
+    // Restore global state
+    userText = reading.fullText || '';
+    window.currentPlatform = reading.platform || 'Unknown';
+    window.currentType = reading.type || 'Unknown';
+
+    // Re-split text into thirds for segmentText
+    const textLength = userText.length;
+    const third = Math.floor(textLength / 3);
+    const segments = {
+      collection: userText.substring(0, third),
+      sharing:    userText.substring(third, third * 2),
+      retention:  userText.substring(third * 2)
+    };
+
+    // Reconstruct drawnCards from stored card names + reversed flags
+    drawnCards = reading.cards.map((storedCard, i) => {
+      const category = SLOTS[i].category;
+      const cardName = storedCard.name;
+
+      // Find cardData in loaded deck
+      let cardData = null;
+      if (tarotDeck) {
+        cardData = tarotDeck.major_arcana.find(c => c.card === cardName
+          || c.card.toLowerCase() === cardName.toLowerCase());
+        if (!cardData) {
+          for (const suit of ['pentacles', 'swords', 'wands', 'cups']) {
+            cardData = (tarotDeck.minor_arcana[suit] || []).find(c =>
+              `${c.rank} of ${c.suit}`.toLowerCase() === cardName.toLowerCase()
+            );
+            if (cardData) break;
+          }
+        }
+      }
+
+      // Determine src path
+      const isMajor = !!(cardData && cardData.card);
+      const src = isMajor
+        ? `major_arcana/${getMajorArcanaFilename(cardName)}`
+        : `minor_arcana/${cardName.toLowerCase()}.png`;
+
+      return {
+        name: cardName,
+        reversed: storedCard.reversed,
+        src,
+        cardData,
+        logic: cardData ? (cardData.station_logic?.[category] || '') : '',
+        segmentText: segments[category],
+        station: category,
+        score: 1
+      };
+    });
+
+    // Reset spread visuals then restore reconstructed cards
+    const restoredCards = drawnCards;
+    resetSpread();
+    drawnCards = restoredCards;
+    drawn = drawnCards.length;
+
+    drawnCards.forEach((_, i) => placePermanentCard(i));
+
+    // Hide the deck section (it was restored by resetSpread)
+    const deckSection = document.getElementById('deckSection');
+    deckSection.style.display = 'none';
+
+    // Hide empty state
+    const empty = document.getElementById('readingEmpty');
+    empty.style.display = 'none';
+
+    // Populate and show reading immediately (no animation delay)
+    populateReading();
+    replayingHistory = false;
+
+    // Append original source text accordion
+    if (reading.fullText) {
+      const section = document.getElementById('reading-section');
+      const sourceAccordion = document.createElement('details');
+      sourceAccordion.className = 'source-text-accordion';
+      sourceAccordion.innerHTML =
+        `<summary><span class="show-text">Reveal source</span><span class="hide-text">Hide source</span></summary>` +
+        `<div class="source-text-body">${reading.fullText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+      section.appendChild(sourceAccordion);
+    }
+
+    const section = document.getElementById('reading-section');
+    section.style.display  = 'block';
+    section.style.opacity  = '1';
+    section.style.transition = '';
+
+    navigateTo('draw');
+    window.scrollTo(0, 0);
+  }
+
+  function deleteReading(readingId) {
+    if (!confirm('Are you sure you want to delete this reading?')) {
+      return;
+    }
+
+    let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    history = history.filter(r => r.id !== readingId);
+    localStorage.setItem('tarotHistory', JSON.stringify(history));
+
+    loadHistory();
+  }
+
+  const HISTORY_NORMAL_HEADER = `
+    <tr>
+      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"><span id="bulkInfo" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;display:inline-flex;align-items:center;gap:16px;white-space:nowrap;"><span id="bulkCount" style="opacity:0.7;"></span>&ensp;<button class="btn-secondary" style="padding:4px 14px;font-size:12px;" onclick="bulkDeleteReadings()">Delete selected</button></span></th>
+      <th class="col-date">Date</th>
+      <th class="col-platform">Platform</th>
+      <th class="col-cards">Cards</th>
+      <th class="col-summary">Summary</th>
+      <th class="col-actions">Delete</th>
+    </tr>`;
+
+  function toggleSelectAll(source) {
+    document.querySelectorAll('.row-check').forEach(cb => cb.checked = source.checked);
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    const total = document.querySelectorAll('.row-check');
+    const bulkInfo = document.getElementById('bulkInfo');
+    const bulkCount = document.getElementById('bulkCount');
+    const selectAll = document.getElementById('selectAll');
+    if (!bulkInfo) return;
+
+    if (checked.length > 0) {
+      bulkCount.textContent = `${checked.length} selected`;
+      bulkInfo.style.opacity = '1';
+      bulkInfo.style.pointerEvents = 'auto';
+    } else {
+      bulkInfo.style.opacity = '0';
+      bulkInfo.style.pointerEvents = 'none';
+    }
+
+    if (selectAll) {
+      selectAll.checked = checked.length === total.length && total.length > 0;
+      selectAll.indeterminate = checked.length > 0 && checked.length < total.length;
+    }
+  }
+
+  function bulkDeleteReadings() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    if (checked.length === 0) return;
+    if (!confirm(`Delete ${checked.length} reading${checked.length > 1 ? 's' : ''}?`)) return;
+
+    const ids = new Set([...checked].map(cb => parseInt(cb.dataset.id)));
+    let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    history = history.filter(r => !ids.has(r.id));
+    localStorage.setItem('tarotHistory', JSON.stringify(history));
+
+    loadHistory();
+  }
+
+  // ── Explore Deck ────────────────────────────────────────────────────────
+
+  function getMajorArcanaFilename(cardName) {
+    const lower = cardName.toLowerCase();
+    const exact = MAJOR_ARCANA.find(f => f.replace('.png', '') === lower);
+    if (exact) return exact;
+    // Handle cases where deck.json name omits "The" prefix (e.g. "Wheel of Fortune")
+    const withThe = MAJOR_ARCANA.find(f =>
+      f.replace('.png', '').replace(/^the /, '') === lower.replace(/^the /, '')
+    );
+    return withThe || (lower + '.png');
+  }
+
+  function buildExploreSection(title, cards, type) {
+    const section = document.createElement('div');
+    section.className = 'explore-section';
+
+    const heading = document.createElement('h2');
+    heading.className = 'explore-section-title';
+    heading.textContent = title;
+    section.appendChild(heading);
+
+    const grid = document.createElement('div');
+    grid.className = 'explore-grid';
+
+    cards.forEach(card => {
+      const name = card.card || `${card.rank} of ${card.suit.charAt(0).toUpperCase() + card.suit.slice(1)}`;
+      const imgSrc = type === 'major'
+        ? `major_arcana/${getMajorArcanaFilename(card.card)}`
+        : `minor_arcana/${card.rank.toLowerCase()} of ${card.suit.toLowerCase()}.png`;
+
+      const sl = card.station_logic || {};
+      const meanings = `
+        <div class="explore-meaning-row">
+          <span class="explore-meaning-label">Collection</span>
+          <span class="explore-meaning-text">${sl.collection || ''}</span>
+        </div>
+        <div class="explore-meaning-row">
+          <span class="explore-meaning-label">Sharing</span>
+          <span class="explore-meaning-text">${sl.sharing || ''}</span>
+        </div>
+        <div class="explore-meaning-row">
+          <span class="explore-meaning-label">Retention</span>
+          <span class="explore-meaning-text">${sl.retention || ''}</span>
+        </div>`;
+
+      const reversed = card.reversed_logic ? `
+        <div class="explore-reversed">
+          <span class="explore-reversed-label">Reversed</span>
+          <span class="explore-reversed-text">${card.reversed_logic}</span>
+        </div>` : '';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'explore-card-wrap';
+      wrap.innerHTML = `
+        <div class="explore-card-inner">
+          <div class="explore-card-front">
+            <img src="${imgSrc}" alt="${name}">
+          </div>
+          <div class="explore-card-back">
+            <div class="explore-card-name">${name}</div>
+            <div class="explore-meanings">${meanings}</div>
+            ${reversed}
+          </div>
+        </div>`;
+
+      wrap.querySelector('.explore-card-front').addEventListener('click', () => {
+        wrap.classList.add('flipped');
+      });
+
+      wrap.querySelector('.explore-card-back').addEventListener('click', () => {
+        wrap.classList.remove('flipped');
+      });
+
+      grid.appendChild(wrap);
+    });
+
+    section.appendChild(grid);
+    return section;
+  }
+
+  function initExploreDeck() {
+    const container = document.getElementById('explore-content');
+
+    if (!tarotDeck) {
+      container.innerHTML = '<p style="text-align:center;padding:40px;color:rgba(49,38,26,0.6);">Loading deck data…</p>';
+      // Retry once deck finishes loading
+      setTimeout(initExploreDeck, 500);
+      return;
+    }
+
+    container.innerHTML = '';
+
+    container.appendChild(buildExploreSection('Major Arcana', tarotDeck.major_arcana, 'major'));
+
+    const suits = [
+      { key: 'pentacles', label: 'Pentacles' },
+      { key: 'swords',    label: 'Swords'    },
+      { key: 'wands',     label: 'Wands'     },
+      { key: 'cups',      label: 'Cups'      },
+    ];
+
+    suits.forEach(({ key, label }) => {
+      const cards = tarotDeck.minor_arcana[key] || [];
+      container.appendChild(buildExploreSection(label, cards, 'minor'));
+    });
+  }
+
+  // Handle URL hash on page load
+  window.addEventListener('load', () => {
+    if (window.location.hash === '#your-history') {
+      navigateTo('history');
+    } else if (window.location.hash === '#legal') {
+      navigateTo('legal');
+    } else if (window.location.hash === '#explore') {
+      navigateTo('explore');
+    } else {
+      navigateTo('input');
+    }
+
+    // Add listener to text input for automatic detection
+    const userTextEl = document.getElementById('userText');
+    if (userTextEl) {
+      userTextEl.addEventListener('input', () => {
+        const text = userTextEl.value.trim();
+        const detectedInfo = document.getElementById('detectedInfo');
+
+        if (text.length > 50) {
+          const metadata = inferMetadata(text);
+          detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
+        } else {
+          detectedInfo.textContent = '';
+        }
+      });
+    }
+  });
+
+</script>
+  </div><!-- /.fortune-container -->
+</body>
+</html>
