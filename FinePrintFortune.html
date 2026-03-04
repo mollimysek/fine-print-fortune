@@ -192,13 +192,12 @@
       background: #F6C56C;
       border: 1px solid #31261A;
       padding: 12px 28px;
-      border-radius: 20px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
     }
-    .btn-secondary:hover {
-      background: rgba(49,38,26,0.08);
-    }
+    .btn-secondary:hover  { transform: translateY(-4px); filter: drop-shadow(0 5px 14px rgba(49,38,26,0.22)); }
+    .btn-secondary:active { transform: scale(0.97); filter: none; }
 
     /* ── SCREEN 2 ── */
     #screen-draw {
@@ -391,7 +390,7 @@
       background: #F6C56C;
       color: #31261A;
       border: 1px solid #31261A;
-      border-radius: 30px;
+      border-radius: 8px;
       font-size: 14px;
       font-family: 'Courier Prime', monospace;
       cursor: pointer;
@@ -407,6 +406,7 @@
       margin-left: -45px;
       min-height: 100vh;
       padding: 56px 24px 56px;
+      justify-content: flex-start;
     }
 
     .history-container {
@@ -455,6 +455,12 @@
       overflow: hidden;
     }
 
+    .history-table thead tr {
+      height: 52px;
+    }
+    .history-table thead th.col-date {
+      position: relative;
+    }
     .history-table th {
       font-family: 'Courier Prime', monospace;
       font-size: 12px;
@@ -514,7 +520,20 @@
       text-align: center;
     }
 
-    .history-card-tag {
+    .history-table .col-check {
+      width: 36px;
+      text-align: center;
+      padding-left: 12px;
+    }
+
+    .history-table input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+      accent-color: #31261A;
+    }
+
+.history-card-tag {
       display: inline-block;
       background: rgba(49,38,26,0.08);
       padding: 4px 10px;
@@ -534,7 +553,7 @@
       background: #F6C56C;
       border: 1px solid rgba(49,38,26,0.3);
       padding: 6px 14px;
-      border-radius: 16px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -805,7 +824,7 @@
     }
 
     .explore-card-name {
-      font-size: calc(14px - 1pt);
+      font-size: 9pt;
       font-weight: bold;
       letter-spacing: 0.03em;
       line-height: 1.35;
@@ -828,7 +847,7 @@
     }
 
     .explore-meaning-label {
-      font-size: calc(10px - 1pt);
+      font-size: 9pt;
       letter-spacing: 0.13em;
       text-transform: uppercase;
       color: rgba(49,38,26,0.65);
@@ -836,7 +855,7 @@
     }
 
     .explore-meaning-text {
-      font-size: calc(12px - 1pt);
+      font-size: 9pt;
       line-height: 1.45;
       color: #31261A;
     }
@@ -851,7 +870,7 @@
     }
 
     .explore-reversed-label {
-      font-size: calc(10px - 1pt);
+      font-size: 9pt;
       letter-spacing: 0.13em;
       text-transform: uppercase;
       color: rgba(49,38,26,0.6);
@@ -860,7 +879,7 @@
     }
 
     .explore-reversed-text {
-      font-size: calc(12px - 1pt);
+      font-size: 9pt;
       line-height: 1.45;
       color: rgba(49,38,26,0.85);
       font-style: italic;
@@ -1118,7 +1137,7 @@
       </div>
       <div id="processingStatus"></div>
       <div id="detectedInfo" style="text-align:center;font-size:12px;color:rgba(49,38,26,0.7);margin-top:12px;min-height:18px;"></div>
-      <button class="btn" onclick="proceedToDraw()" id="drawBtn">Draw your cards</button>
+      <button class="btn" onclick="proceedToDraw()" id="drawBtn">Reveal your fortune</button>
     </div>
   </div>
 
@@ -1740,12 +1759,12 @@
         detectedInfo.textContent = `Detected: ${metadata.platform} - ${metadata.type}`;
         return true;
       } else {
-        statusEl.textContent = 'We couldn\'t read that policy. Try pasting in text or sharing a file instead.';
+        statusEl.textContent = 'This site is actively blocking us from fetching the content. Copy and paste the text or add a screenshot instead.';
         statusEl.style.color = '#8B0000';
         return false;
       }
     } catch (error) {
-      statusEl.textContent = 'We couldn\'t read that policy. Try pasting in text or sharing a file instead.';
+      statusEl.textContent = 'This site is actively blocking us from fetching the content. Copy and paste the text or add a screenshot instead.';
       statusEl.style.color = '#8B0000';
       return false;
     }
@@ -1998,7 +2017,7 @@
       drawBtn.textContent = 'Fetching...';
       const success = await fetchFromURL();
       drawBtn.disabled = false;
-      drawBtn.textContent = 'Draw your cards';
+      drawBtn.textContent = 'Reveal your fortune';
       if (!success) return;
       userText = extractedText;
     } else if (panelId === 'panel-text') {
@@ -2868,6 +2887,7 @@
 
       return `
         <tr onclick="viewHistoryDetail(${reading.id})">
+          <td class="col-check"><input type="checkbox" class="row-check" data-id="${reading.id}" onclick="event.stopPropagation(); updateBulkBar();"></td>
           <td class="col-date">${dateStr}<br><small style="color:rgba(49,38,26,0.6);">${timeStr}</small></td>
           <td class="col-platform">${reading.platform || 'Unknown'}</td>
           <td class="col-cards">${cardTags}</td>
@@ -2882,13 +2902,7 @@
     historyList.innerHTML = `
       <table class="history-table">
         <thead>
-          <tr>
-            <th class="col-date">Date</th>
-            <th class="col-platform">Platform</th>
-            <th class="col-cards">Name of Cards</th>
-            <th class="col-summary">Summary of Reading</th>
-            <th class="col-actions">Actions</th>
-          </tr>
+          ${HISTORY_NORMAL_HEADER}
         </thead>
         <tbody>
           ${tableRows}
@@ -3003,6 +3017,55 @@
 
     let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
     history = history.filter(r => r.id !== readingId);
+    localStorage.setItem('tarotHistory', JSON.stringify(history));
+
+    loadHistory();
+  }
+
+  const HISTORY_NORMAL_HEADER = `
+    <tr>
+      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"></th>
+      <th class="col-date" colspan="3"><span id="bulkInfo" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;display:inline-flex;align-items:center;gap:16px;white-space:nowrap;"><span id="bulkCount" style="opacity:0.7;"></span>&ensp;<button class="btn-secondary" style="padding:4px 14px;font-size:12px;" onclick="bulkDeleteReadings()">Delete selected</button></span></th>
+      <th class="col-summary"></th>
+      <th class="col-actions"></th>
+    </tr>`;
+
+  function toggleSelectAll(source) {
+    document.querySelectorAll('.row-check').forEach(cb => cb.checked = source.checked);
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    const total = document.querySelectorAll('.row-check');
+    const bulkInfo = document.getElementById('bulkInfo');
+    const bulkCount = document.getElementById('bulkCount');
+    const selectAll = document.getElementById('selectAll');
+    if (!bulkInfo) return;
+
+    if (checked.length > 0) {
+      bulkCount.textContent = `${checked.length} selected`;
+      bulkInfo.style.opacity = '1';
+      bulkInfo.style.pointerEvents = 'auto';
+    } else {
+      bulkInfo.style.opacity = '0';
+      bulkInfo.style.pointerEvents = 'none';
+    }
+
+    if (selectAll) {
+      selectAll.checked = checked.length === total.length && total.length > 0;
+      selectAll.indeterminate = checked.length > 0 && checked.length < total.length;
+    }
+  }
+
+  function bulkDeleteReadings() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    if (checked.length === 0) return;
+    if (!confirm(`Delete ${checked.length} reading${checked.length > 1 ? 's' : ''}?`)) return;
+
+    const ids = new Set([...checked].map(cb => parseInt(cb.dataset.id)));
+    let history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
+    history = history.filter(r => !ids.has(r.id));
     localStorage.setItem('tarotHistory', JSON.stringify(history));
 
     loadHistory();
