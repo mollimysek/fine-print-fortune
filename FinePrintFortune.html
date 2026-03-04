@@ -14,10 +14,6 @@
 
     body {
       background: #B5D3EB;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
       font-family: 'Courier Prime', monospace;
       color: #31261A;
@@ -60,14 +56,14 @@
       text-decoration: underline;
     }
 
-    .screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 3; }
+    .screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 2; }
     .screen.active { display: flex; }
 
     /* ── SCREEN 1 ── */
     #screen-input {
       width: 100%;
       min-height: 100vh;
-      padding: 128px 24px 60px;
+      padding: 56px 24px 56px;
       gap: 24px;
       justify-content: flex-start;
       align-items: center;
@@ -209,7 +205,7 @@
       width: 100%;
       height: 100vh;
       overflow: hidden;
-      padding: 88px 24px 24px;
+      padding: 56px 24px 56px;
       gap: 0;
       justify-content: flex-start;
     }
@@ -426,7 +422,7 @@
     #screen-history {
       width: 100%;
       min-height: 100vh;
-      padding: 88px 24px 60px;
+      padding: 56px 24px 56px;
     }
 
     .history-container {
@@ -612,7 +608,7 @@
     #screen-legal {
       width: 100%;
       min-height: 100vh;
-      padding: 96px 24px 80px;
+      padding: 56px 24px 56px;
       gap: 0;
       justify-content: flex-start;
     }
@@ -695,7 +691,7 @@
     #screen-explore {
       width: 100%;
       min-height: 100vh;
-      padding: 88px 24px 80px;
+      padding: 56px 24px 56px;
       justify-content: flex-start;
       align-items: flex-start;
     }
@@ -977,6 +973,73 @@
       margin-right: 4px;
       vertical-align: middle;
     }
+
+    /* ── Fortune border container ── */
+    .fortune-container {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 56px 195px;
+      background-color: #B5D3EB;
+      min-height: 100vh;
+    }
+
+    .fortune-container::before,
+    .fortune-container::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 150px;
+      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-y;
+      background-color: #B5D3EB;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .fortune-container::before {
+      left: 30px;
+      background-image:
+        url('border_assets/top-left-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/bottom-left-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/vertical-vine-tile-left.png');
+      background-position:
+        top left,
+        top left,
+        bottom left,
+        bottom left,
+        0 156px;
+      background-size:
+        150px auto,
+        150px 156px,
+        150px auto,
+        150px 156px,
+        55px auto;
+    }
+
+    .fortune-container::after {
+      right: 30px;
+      background-image:
+        url('border_assets/top-right-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/bottom-right-moon.png'),
+        linear-gradient(#B5D3EB, #B5D3EB),
+        url('border_assets/vertical-vine-tile-right.png');
+      background-position:
+        top right,
+        top right,
+        bottom right,
+        bottom right,
+        100% 156px;
+      background-size:
+        150px auto,
+        150px 156px,
+        150px auto,
+        150px 156px,
+        55px auto;
+    }
   </style>
 </head>
 <body>
@@ -989,6 +1052,8 @@
     <a href="#your-history" onclick="navigateTo('history'); return false;">Your history</a>
     <a href="#legal" onclick="navigateTo('legal'); return false;">Legal</a>
   </nav>
+
+  <div class="fortune-container">
 
   <!-- SCREEN 1 -->
   <div class="screen active" id="screen-input">
@@ -2744,5 +2809,6 @@
   });
 
 </script>
+  </div><!-- /.fortune-container -->
 </body>
 </html>
