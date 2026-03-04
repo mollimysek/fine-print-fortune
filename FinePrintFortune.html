@@ -457,8 +457,6 @@
 
     .history-table thead tr {
       height: 52px;
-    }
-    .history-table thead th.col-date {
       position: relative;
     }
     .history-table th {
@@ -3057,10 +3055,12 @@
 
   const HISTORY_NORMAL_HEADER = `
     <tr>
-      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"></th>
-      <th class="col-date" colspan="3"><span id="bulkInfo" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;display:inline-flex;align-items:center;gap:16px;white-space:nowrap;"><span id="bulkCount" style="opacity:0.7;"></span>&ensp;<button class="btn-secondary" style="padding:4px 14px;font-size:12px;" onclick="bulkDeleteReadings()">Delete selected</button></span></th>
-      <th class="col-summary"></th>
-      <th class="col-actions"></th>
+      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"><span id="bulkInfo" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;display:inline-flex;align-items:center;gap:16px;white-space:nowrap;"><span id="bulkCount" style="opacity:0.7;"></span>&ensp;<button class="btn-secondary" style="padding:4px 14px;font-size:12px;" onclick="bulkDeleteReadings()">Delete selected</button></span></th>
+      <th class="col-date">Date</th>
+      <th class="col-platform">Platform</th>
+      <th class="col-cards">Cards</th>
+      <th class="col-summary">Summary</th>
+      <th class="col-actions">Delete</th>
     </tr>`;
 
   function toggleSelectAll(source) {
