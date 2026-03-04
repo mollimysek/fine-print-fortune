@@ -1157,6 +1157,93 @@
         150px 156px,
         55px auto;
     }
+
+    /* ── Mobile responsiveness (≤850px) ── */
+    .hamburger-btn { display: none; }
+
+    @media (max-width: 850px) {
+      /* 1. Remove decorative border */
+      .fortune-container {
+        padding: 56px 24px;
+      }
+      .fortune-container::before,
+      .fortune-container::after {
+        display: none;
+      }
+
+      /* 2. Hamburger nav */
+      nav {
+        left: auto;
+        right: 16px;
+        transform: none;
+        flex-direction: column;
+        align-items: flex-end;
+        padding: 8px;
+        border-radius: 16px;
+      }
+      .hamburger-btn {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 6px;
+      }
+      .hamburger-btn span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: #31261A;
+        border-radius: 2px;
+      }
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        padding-top: 6px;
+      }
+      nav.nav-open .nav-links {
+        display: flex;
+      }
+      nav a {
+        padding: 6px 12px;
+      }
+
+      /* 3. Card stacking — draw spread */
+      .spread {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+      .spread-col {
+        width: min(198px, 80vw);
+      }
+      .slot-wrapper,
+      .spread-slot {
+        width: min(198px, 80vw);
+        height: calc(min(198px, 80vw) * 1.616);
+      }
+
+      /* 3b. Legal spread */
+      .legal-spread {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      /* 3c. Explore grid */
+      .explore-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      /* 4. Screen-explore spacing */
+      #screen-explore {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1164,10 +1251,15 @@
   <canvas id="texture-canvas" aria-hidden="true"></canvas>
 
   <nav>
-    <a href="#" onclick="navigateTo('input'); return false;">New reading</a>
-    <a href="#" onclick="navigateTo('explore'); return false;">Explore deck</a>
-    <a href="#your-history" onclick="navigateTo('history'); return false;">Your history</a>
-    <a href="#legal" onclick="navigateTo('legal'); return false;">Legal</a>
+    <button class="hamburger-btn" onclick="toggleHamburger()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="#" onclick="navigateTo('input'); closeHamburger(); return false;">New reading</a>
+      <a href="#" onclick="navigateTo('explore'); closeHamburger(); return false;">Explore deck</a>
+      <a href="#your-history" onclick="navigateTo('history'); closeHamburger(); return false;">Your history</a>
+      <a href="#legal" onclick="navigateTo('legal'); closeHamburger(); return false;">Legal</a>
+    </div>
   </nav>
 
   <div class="fortune-container">
@@ -2876,7 +2968,15 @@
 
   // ── Navigation & History Management ──────────────────────────────────
 
+  function toggleHamburger() {
+    document.querySelector('nav').classList.toggle('nav-open');
+  }
+  function closeHamburger() {
+    document.querySelector('nav').classList.remove('nav-open');
+  }
+
   function navigateTo(screenName) {
+    closeHamburger();
     // Hide all screens
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
 
