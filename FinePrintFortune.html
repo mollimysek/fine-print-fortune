@@ -481,6 +481,9 @@
       transition: background 0.2s;
     }
 
+    .history-table tbody tr {
+      cursor: pointer;
+    }
     .history-table tbody tr:hover {
       background: rgba(140, 182, 212, 0.5);
     }
@@ -931,6 +934,50 @@
       text-align: center;
     }
 
+    .source-text-accordion {
+      margin-top: 40px;
+      border-top: 1px solid rgba(49,38,26,0.18);
+      padding-top: 28px;
+    }
+    .source-text-accordion summary {
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: #31261A;
+      cursor: pointer;
+      list-style: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+    .source-text-accordion summary::-webkit-details-marker { display: none; }
+    .source-text-accordion summary span { text-decoration: underline; }
+    .source-text-accordion .hide-text { display: none; }
+    .source-text-accordion[open] .show-text { display: none; }
+    .source-text-accordion[open] .hide-text { display: inline; }
+    .source-text-accordion summary::after {
+      content: '›';
+      font-size: 16px;
+      line-height: 1;
+      transition: transform 0.2s ease;
+    }
+    .source-text-accordion[open] summary::after { transform: rotate(90deg); }
+    .source-text-body {
+      margin-top: 20px;
+      max-height: 320px;
+      overflow-y: auto;
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(49,38,26,0.8);
+      background: rgba(140,182,212,0.12);
+      border-radius: 8px;
+      padding: 16px 20px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
     .citation-quote {
       margin: 0 0 10px 0;
       padding: 12px 16px;
@@ -1187,6 +1234,7 @@
   let animating  = false;
   let userText   = '';
   let drawnCards = [];
+  let replayingHistory = false;
   let extractedText = '';
   let tarotDeck = null; // Will hold the loaded deck.json
 
@@ -2569,7 +2617,7 @@
       section.insertBefore(conclusionBlock, section.firstChild);
 
       // Save to history
-      saveReadingToHistory(drawnCards, '', conclusion, userText);
+      if (!replayingHistory) saveReadingToHistory(drawnCards, '', conclusion, userText);
     } else {
       // Fallback to old narrator if V2 not available
       const narrator = new TarotNarrator(drawnCards, userText);
@@ -2603,7 +2651,7 @@
       });
 
       // Save to history
-      saveReadingToHistory(drawnCards, intro, conclusion, userText);
+      if (!replayingHistory) saveReadingToHistory(drawnCards, intro, conclusion, userText);
     }
   }
 
@@ -2819,7 +2867,7 @@
         : fullSummary;
 
       return `
-        <tr>
+        <tr onclick="viewHistoryDetail(${reading.id})">
           <td class="col-date">${dateStr}<br><small style="color:rgba(49,38,26,0.6);">${timeStr}</small></td>
           <td class="col-platform">${reading.platform || 'Unknown'}</td>
           <td class="col-cards">${cardTags}</td>
@@ -2852,11 +2900,100 @@
   function viewHistoryDetail(readingId) {
     const history = JSON.parse(localStorage.getItem('tarotHistory') || '[]');
     const reading = history.find(r => r.id === readingId);
-
     if (!reading) return;
 
-    // TODO: Show detailed view in a modal or separate screen
-    alert('Detailed view coming soon! For now, you can view the summary in your history.');
+    replayingHistory = true;
+
+    // Restore global state
+    userText = reading.fullText || '';
+    window.currentPlatform = reading.platform || 'Unknown';
+    window.currentType = reading.type || 'Unknown';
+
+    // Re-split text into thirds for segmentText
+    const textLength = userText.length;
+    const third = Math.floor(textLength / 3);
+    const segments = {
+      collection: userText.substring(0, third),
+      sharing:    userText.substring(third, third * 2),
+      retention:  userText.substring(third * 2)
+    };
+
+    // Reconstruct drawnCards from stored card names + reversed flags
+    drawnCards = reading.cards.map((storedCard, i) => {
+      const category = SLOTS[i].category;
+      const cardName = storedCard.name;
+
+      // Find cardData in loaded deck
+      let cardData = null;
+      if (tarotDeck) {
+        cardData = tarotDeck.major_arcana.find(c => c.card === cardName
+          || c.card.toLowerCase() === cardName.toLowerCase());
+        if (!cardData) {
+          for (const suit of ['pentacles', 'swords', 'wands', 'cups']) {
+            cardData = (tarotDeck.minor_arcana[suit] || []).find(c =>
+              `${c.rank} of ${c.suit}`.toLowerCase() === cardName.toLowerCase()
+            );
+            if (cardData) break;
+          }
+        }
+      }
+
+      // Determine src path
+      const isMajor = !!(cardData && cardData.card);
+      const src = isMajor
+        ? `major_arcana/${getMajorArcanaFilename(cardName)}`
+        : `minor_arcana/${cardName.toLowerCase()}.png`;
+
+      return {
+        name: cardName,
+        reversed: storedCard.reversed,
+        src,
+        cardData,
+        logic: cardData ? (cardData.station_logic?.[category] || '') : '',
+        segmentText: segments[category],
+        station: category,
+        score: 1
+      };
+    });
+
+    // Reset spread visuals then restore reconstructed cards
+    const restoredCards = drawnCards;
+    resetSpread();
+    drawnCards = restoredCards;
+    drawn = drawnCards.length;
+
+    drawnCards.forEach((_, i) => placePermanentCard(i));
+
+    // Hide the deck section (it was restored by resetSpread)
+    const deckSection = document.getElementById('deckSection');
+    deckSection.style.display = 'none';
+
+    // Hide empty state
+    const empty = document.getElementById('readingEmpty');
+    empty.style.display = 'none';
+
+    // Populate and show reading immediately (no animation delay)
+    populateReading();
+    replayingHistory = false;
+
+    // Append original source text accordion
+    if (reading.fullText) {
+      const section = document.getElementById('reading-section');
+      const sourceAccordion = document.createElement('details');
+      sourceAccordion.className = 'source-text-accordion';
+      sourceAccordion.innerHTML =
+        `<summary><span class="show-text">Reveal source</span><span class="hide-text">Hide source</span></summary>` +
+        `<div class="source-text-body">${reading.fullText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
+      section.appendChild(sourceAccordion);
+    }
+
+    const section = document.getElementById('reading-section');
+    section.style.display  = 'block';
+    section.style.opacity  = '1';
+    section.style.transition = '';
+
+    navigateTo('draw');
+    window.scrollTo(0, 0);
   }
 
   function deleteReading(readingId) {
