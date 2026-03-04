@@ -358,6 +358,11 @@
     #screen-draw:not(.cards-started) .spread-slot {
       max-height: 0;
     }
+    /* Once cards are drawn, allow shadows to render outside slot bounds */
+    #screen-draw.cards-started .slot-wrapper,
+    #screen-draw.cards-started .spread-slot {
+      overflow: visible;
+    }
     #screen-draw:not(.cards-started) .deck-section {
       padding: 40px 0;
     }
