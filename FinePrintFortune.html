@@ -643,10 +643,11 @@
       align-items: flex-start;
       justify-content: center;
       flex-shrink: 0;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
 
-    #legal-reading-section {
+    #legal-reading-section,
+    #legal-reading-section-2 {
       display: none;
       flex-direction: row;
       gap: 28px;
@@ -655,11 +656,16 @@
       opacity: 0;
     }
 
-    #legal-reading-section .reading-card-block {
+    #legal-reading-section .reading-card-block,
+    #legal-reading-section-2 .reading-card-block {
       width: 198px;
       flex-shrink: 0;
       border-top: none;
-      padding-top: 12px;
+      padding-top: 0px;
+    }
+
+    #legal-reading-section {
+      margin-bottom: 20px;
     }
 
     .legal-text {
@@ -1212,6 +1218,20 @@
     </div>
 
     <div id="legal-reading-section"></div>
+
+    <div class="legal-spread" id="legal-spread-2">
+      <div class="spread-col" id="legal-col-3">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="legal-col-4">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+      <div class="spread-col" id="legal-col-5">
+        <div class="slot-wrapper"><div class="spread-slot"></div></div>
+      </div>
+    </div>
+
+    <div id="legal-reading-section-2"></div>
   </div>
 
 <script>
@@ -2675,29 +2695,42 @@
   }
 
   function initLegalReading() {
-    ['legal-col-0', 'legal-col-1', 'legal-col-2'].forEach(id => {
+    ['legal-col-0', 'legal-col-1', 'legal-col-2', 'legal-col-3', 'legal-col-4', 'legal-col-5'].forEach(id => {
       document.querySelectorAll(`#${id} .placed-card`).forEach(c => c.remove());
     });
 
-    const section = document.getElementById('legal-reading-section');
-    section.innerHTML = '';
-    section.style.display = 'flex';
-    section.style.opacity  = '1';
-    section.style.transition = '';
+    const section1 = document.getElementById('legal-reading-section');
+    section1.innerHTML = '';
+    section1.style.display = 'flex';
+    section1.style.opacity  = '1';
+    section1.style.transition = '';
+
+    const section2 = document.getElementById('legal-reading-section-2');
+    section2.innerHTML = '';
+    section2.style.display = 'flex';
+    section2.style.opacity  = '1';
+    section2.style.transition = '';
 
     const cards = [
-      { src: 'major_arcana/the fool.png', reversed: false },
-      { src: 'major_arcana/justice.png',  reversed: false },
+      { src: 'major_arcana/the star.png', reversed: false },
+      { src: 'major_arcana/the hermit.png',  reversed: false },
+      { src: 'major_arcana/the magician.png', reversed: false },
+      { src: 'major_arcana/the hanged man.png', reversed: false },
       { src: 'major_arcana/the moon.png', reversed: false },
+      { src: 'major_arcana/judgement.png', reversed: false },
     ];
 
     const DESCRIPTIONS = [
+      "The data you provide is entirely up to you. We process the legal text you provide in order to generate your reading. We don't collect personal information beyond what you voluntarily provide in that text.",
+      "We don't sell or share your data with third parties. Your reading is generated within this experience and not distributed elsewhere.",
+      "Your readings are saved so you can revisit them, but you can delete them anytime from <a href=\"#your-history\" onclick=\"navigateTo('history'); return false;\">Your history</a> or by clearing your browser cache. When you let them go, they're gone.",
       "Begin with curiosity, not commitment. This experience is for entertainment only. We're not lawyers, and nothing here is legal advice. Think for yourself before taking action.",
-      "You are responsible for your own decisions. This experience is entertainment, not professional guidance. If you need legal advice, consult a qualified attorney.",
       "Readings may be unclear, symbolic, or open to interpretation. We can't promise accuracy, outcomes, or results. Trust your judgment before acting on anything you read here.",
+      "You are responsible for your own decisions. This experience is entertainment, not professional guidance. If you need legal advice, consult a qualified attorney.",
     ];
 
     DESCRIPTIONS.forEach((text, i) => {
+      const section = i < 3 ? section1 : section2;
       const block = document.createElement('div');
       block.className = 'reading-card-block';
       block.innerHTML = `<p class="card-reading-body">${text}</p>`;
