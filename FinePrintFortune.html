@@ -1239,6 +1239,38 @@
       }
     }
 
+    /* ── Clip border at short viewport heights ── */
+    @media (max-height: 700px) {
+      .fortune-container::before {
+        background-image:
+          url('border_assets/top-left-moon.png'),
+          linear-gradient(#B5D3EB, #B5D3EB),
+          url('border_assets/vertical-vine-tile-left.png');
+        background-position:
+          top left,
+          top left,
+          0 156px;
+        background-size:
+          150px auto,
+          150px 156px,
+          55px auto;
+      }
+      .fortune-container::after {
+        background-image:
+          url('border_assets/top-right-moon.png'),
+          linear-gradient(#B5D3EB, #B5D3EB),
+          url('border_assets/vertical-vine-tile-right.png');
+        background-position:
+          top right,
+          top right,
+          100% 156px;
+        background-size:
+          150px auto,
+          150px 156px,
+          55px auto;
+      }
+    }
+
     /* ── Mobile responsiveness (≤850px) ── */
     .hamburger-btn { display: none; }
 
