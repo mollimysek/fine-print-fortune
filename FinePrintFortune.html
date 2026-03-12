@@ -1146,7 +1146,7 @@
       position: relative;
       max-width: 1400px;
       margin: 0 auto;
-      padding: 56px 195px;
+      padding: 56px 15vw;
       background-color: #B5D3EB;
       min-height: 100vh;
     }
@@ -1157,9 +1157,8 @@
       position: fixed;
       top: 0;
       bottom: 0;
-      width: 150px;
-      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-y;
-      background-color: #B5D3EB;
+      width: 15vw;
+      background-repeat: no-repeat, no-repeat;
       z-index: 1;
       pointer-events: none;
     }
@@ -1168,107 +1167,26 @@
       left: 0;
       background-image:
         url('border_assets/top-left-moon.png'),
-        linear-gradient(#B5D3EB, #B5D3EB),
-        url('border_assets/bottom-left-moon.png'),
-        linear-gradient(#B5D3EB, #B5D3EB),
-        url('border_assets/vertical-vine-tile-left.png');
+        url('border_assets/bottom-left-moon.png');
       background-position:
         top left,
-        top left,
-        bottom left,
-        bottom left,
-        0 156px;
+        bottom left;
       background-size:
-        150px auto,
-        150px 156px,
-        150px auto,
-        150px 156px,
-        55px auto;
+        15vw auto,
+        15vw auto;
     }
 
     .fortune-container::after {
       right: 0;
       background-image:
         url('border_assets/top-right-moon.png'),
-        linear-gradient(#B5D3EB, #B5D3EB),
-        url('border_assets/bottom-right-moon.png'),
-        linear-gradient(#B5D3EB, #B5D3EB),
-        url('border_assets/vertical-vine-tile-right.png');
+        url('border_assets/bottom-right-moon.png');
       background-position:
         top right,
-        top right,
-        bottom right,
-        bottom right,
-        100% 156px;
+        bottom right;
       background-size:
-        150px auto,
-        150px 156px,
-        150px auto,
-        150px 156px,
-        55px auto;
-    }
-
-    /* ── Border scaling at larger viewports ── */
-    @media (min-width: 1400px) {
-      .fortune-container::before,
-      .fortune-container::after {
-        width: 180px;
-      }
-      .fortune-container::before {
-        background-size: 180px auto, 180px 187px, 180px auto, 180px 187px, 66px auto;
-        background-position: top left, top left, bottom left, bottom left, 0 187px;
-      }
-      .fortune-container::after {
-        background-size: 180px auto, 180px 187px, 180px auto, 180px 187px, 66px auto;
-        background-position: top right, top right, bottom right, bottom right, 100% 187px;
-      }
-    }
-
-    @media (min-width: 1800px) {
-      .fortune-container::before,
-      .fortune-container::after {
-        width: 220px;
-      }
-      .fortune-container::before {
-        background-size: 220px auto, 220px 229px, 220px auto, 220px 229px, 81px auto;
-        background-position: top left, top left, bottom left, bottom left, 0 229px;
-      }
-      .fortune-container::after {
-        background-size: 220px auto, 220px 229px, 220px auto, 220px 229px, 81px auto;
-        background-position: top right, top right, bottom right, bottom right, 100% 229px;
-      }
-    }
-
-    /* ── Clip border at short viewport heights ── */
-    @media (max-height: 700px) {
-      .fortune-container::before {
-        background-image:
-          url('border_assets/top-left-moon.png'),
-          linear-gradient(#B5D3EB, #B5D3EB),
-          url('border_assets/vertical-vine-tile-left.png');
-        background-position:
-          top left,
-          top left,
-          0 156px;
-        background-size:
-          150px auto,
-          150px 156px,
-          55px auto;
-      }
-      .fortune-container::after {
-        background-image:
-          url('border_assets/top-right-moon.png'),
-          linear-gradient(#B5D3EB, #B5D3EB),
-          url('border_assets/vertical-vine-tile-right.png');
-        background-position:
-          top right,
-          top right,
-          100% 156px;
-        background-size:
-          150px auto,
-          150px 156px,
-          55px auto;
-      }
+        15vw auto,
+        15vw auto;
     }
 
     /* ── Mobile responsiveness (≤850px) ── */
