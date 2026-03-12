@@ -131,7 +131,7 @@
 
     #userText, #urlInput {
       width: 100%;
-      background: url('card_backs/blank.png') center / 160% 160% no-repeat;
+      background: url('card_backs/blank.webp') center / 160% 160% no-repeat;
       border: 1px solid #31261A;
       border-radius: 12px;
       padding: 18px;
@@ -158,7 +158,7 @@
       justify-content: center;
       width: 100%;
       height: 200px;
-      background: url('card_backs/blank.png') center / 160% 160% no-repeat;
+      background: url('card_backs/blank.webp') center / 160% 160% no-repeat;
       border: 2px dashed #31261A;
       border-radius: 12px;
       cursor: pointer;
@@ -617,7 +617,7 @@
     }
 
     .analytics-card {
-      background: url('card_backs/blank.png') center / 160% 160% no-repeat;
+      background: url('card_backs/blank.webp') center / 160% 160% no-repeat;
       border-radius: 12px;
       border: 1px solid #000;
       padding: 20px 18px;
@@ -891,7 +891,7 @@
       overflow-y: auto;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      background: url('card_backs/blank.png') center / cover no-repeat;
+      background: url('card_backs/blank.webp') center / cover no-repeat;
       cursor: pointer;
       padding: 10px;
       display: flex;
@@ -1400,7 +1400,7 @@
     <div class="deck-section" id="deckSection">
       <div class="status" id="status"></div>
       <div class="deck-area" id="deckArea" onclick="drawCard()">
-        <img class="deck-img" id="deckImg" src="card_backs/Stack.png" alt="Deck">
+        <img class="deck-img" id="deckImg" src="card_backs/Stack.webp" alt="Deck">
       </div>
     </div>
 
@@ -1471,28 +1471,28 @@
 
 <script>
   const MAJOR_ARCANA = [
-    'the high priestess.png','the magician.png','the fool.png','the empress.png',
-    'the emperor.png','the hierophant.png','the lovers.png','the chariot.png',
-    'strength.png','the hermit.png','the wheel of fortune.png','justice.png',
-    'the hanged man.png','death.png','temperance.png','the devil.png',
-    'the tower.png','the star.png','the moon.png','the sun.png','the world.png',
+    'the high priestess.webp','the magician.webp','the fool.webp','the empress.webp',
+    'the emperor.webp','the hierophant.webp','the lovers.webp','the chariot.webp',
+    'strength.webp','the hermit.webp','the wheel of fortune.webp','justice.webp',
+    'the hanged man.webp','death.webp','temperance.webp','the devil.webp',
+    'the tower.webp','the star.webp','the moon.webp','the sun.webp','the world.webp',
   ];
 
   const MINOR_ARCANA = [
-    'page of wands.png','king of pentacles.png','king of swords.png','king of cups.png',
-    'king of wands.png','queen of pentacles.png','queen of swords.png','queen of cups.png',
-    'queen of wands.png','knight of pentacles.png','knight of swords.png','knight of cups.png',
-    'knight of wands.png','ace of pentacles.png','ace of swords.png','ace of cups.png',
-    'ace of wands.png','two of pentacles.png','two of swords.png','two of cups.png',
-    'two of wands.png','three of pentacles.png','three of swords.png','three of cups.png',
-    'three of wands.png','four of pentacles.png','four of swords.png','four of cups.png',
-    'four of wands.png','five of pentacles.png','five of swords.png','five of cups.png',
-    'five of wands.png','six of pentacles.png','six of swords.png','six of cups.png',
-    'six of wands.png','seven of pentacles.png','seven of swords.png','seven of cups.png',
-    'seven of wands.png','eight of pentacles.png','eight of swords.png','eight of cups.png',
-    'eight of wands.png','nine of pentacles.png','nine of swords.png','nine of cups.png',
-    'nine of wands.png','ten of pentacles.png','ten of swords.png','ten of cups.png',
-    'ten of wands.png','page of pentacles.png','page of swords.png','page of cups.png',
+    'page of wands.webp','king of pentacles.webp','king of swords.webp','king of cups.webp',
+    'king of wands.webp','queen of pentacles.webp','queen of swords.webp','queen of cups.webp',
+    'queen of wands.webp','knight of pentacles.webp','knight of swords.webp','knight of cups.webp',
+    'knight of wands.webp','ace of pentacles.webp','ace of swords.webp','ace of cups.webp',
+    'ace of wands.webp','two of pentacles.webp','two of swords.webp','two of cups.webp',
+    'two of wands.webp','three of pentacles.webp','three of swords.webp','three of cups.webp',
+    'three of wands.webp','four of pentacles.webp','four of swords.webp','four of cups.webp',
+    'four of wands.webp','five of pentacles.webp','five of swords.webp','five of cups.webp',
+    'five of wands.webp','six of pentacles.webp','six of swords.webp','six of cups.webp',
+    'six of wands.webp','seven of pentacles.webp','seven of swords.webp','seven of cups.webp',
+    'seven of wands.webp','eight of pentacles.webp','eight of swords.webp','eight of cups.webp',
+    'eight of wands.webp','nine of pentacles.webp','nine of swords.webp','nine of cups.webp',
+    'nine of wands.webp','ten of pentacles.webp','ten of swords.webp','ten of cups.webp',
+    'ten of wands.webp','page of pentacles.webp','page of swords.webp','page of cups.webp',
   ];
 
   // Draw order: Data Collection → Data Sharing → Data Retention
@@ -2199,7 +2199,7 @@
         const folder = isMajor ? 'major_arcana' : 'minor_arcana';
         const cardFile = isMajor
           ? getMajorArcanaFilename(cardName)
-          : cardName.toLowerCase().replace(/\s+/g, ' ') + '.png';
+          : cardName.toLowerCase().replace(/\s+/g, ' ') + '.webp';
 
         return {
           src: `${folder}/${cardFile}`,
@@ -2230,7 +2230,7 @@
       const selected = selectWeighted(availableMajors, majorScores);
       selectedMajors.push({
         src: `major_arcana/${selected}`,
-        name: selected.replace('.png', ''),
+        name: selected.replace('.webp', ''),
         reversed: Math.random() < 0.35,
       });
       availableMajors.splice(availableMajors.indexOf(selected), 1);
@@ -2254,7 +2254,7 @@
 
       selectedMinors.push({
         src: `minor_arcana/${selected}`,
-        name: selected.replace('.png', ''),
+        name: selected.replace('.webp', ''),
         reversed: Math.random() < 0.35,
       });
     }
@@ -2365,7 +2365,7 @@
       will-change: transform;
       transform: translateZ(2px);
     `;
-    faceBack.innerHTML = `<img src="card_backs/Card back.png"
+    faceBack.innerHTML = `<img src="card_backs/Card back.webp"
       style="width:100%;height:100%;object-fit:contain;" alt="">`;
 
     // Front face — pre-rotated 180° so it appears after the Y-axis flip.
@@ -2960,12 +2960,12 @@
     section2.style.transition = '';
 
     const cards = [
-      { src: 'major_arcana/the star.png', reversed: false },
-      { src: 'major_arcana/the hermit.png',  reversed: false },
-      { src: 'major_arcana/the magician.png', reversed: false },
-      { src: 'major_arcana/the hanged man.png', reversed: false },
-      { src: 'major_arcana/the moon.png', reversed: false },
-      { src: 'major_arcana/judgement.png', reversed: false },
+      { src: 'major_arcana/the star.webp', reversed: false },
+      { src: 'major_arcana/the hermit.webp',  reversed: false },
+      { src: 'major_arcana/the magician.webp', reversed: false },
+      { src: 'major_arcana/the hanged man.webp', reversed: false },
+      { src: 'major_arcana/the moon.webp', reversed: false },
+      { src: 'major_arcana/judgement.webp', reversed: false },
     ];
 
     const DESCRIPTIONS = [
@@ -3387,7 +3387,7 @@
       const isMajor = !!(cardData && cardData.card);
       const src = isMajor
         ? `major_arcana/${getMajorArcanaFilename(cardName)}`
-        : `minor_arcana/${cardName.toLowerCase()}.png`;
+        : `minor_arcana/${cardName.toLowerCase()}.webp`;
 
       return {
         name: cardName,
@@ -3509,13 +3509,13 @@
 
   function getMajorArcanaFilename(cardName) {
     const lower = cardName.toLowerCase();
-    const exact = MAJOR_ARCANA.find(f => f.replace('.png', '') === lower);
+    const exact = MAJOR_ARCANA.find(f => f.replace('.webp', '') === lower);
     if (exact) return exact;
     // Handle cases where deck.json name omits "The" prefix (e.g. "Wheel of Fortune")
     const withThe = MAJOR_ARCANA.find(f =>
-      f.replace('.png', '').replace(/^the /, '') === lower.replace(/^the /, '')
+      f.replace('.webp', '').replace(/^the /, '') === lower.replace(/^the /, '')
     );
-    return withThe || (lower + '.png');
+    return withThe || (lower + '.webp');
   }
 
   function buildExploreSection(title, cards, type) {
@@ -3534,7 +3534,7 @@
       const name = card.card || `${card.rank} of ${card.suit.charAt(0).toUpperCase() + card.suit.slice(1)}`;
       const imgSrc = type === 'major'
         ? `major_arcana/${getMajorArcanaFilename(card.card)}`
-        : `minor_arcana/${card.rank.toLowerCase()} of ${card.suit.toLowerCase()}.png`;
+        : `minor_arcana/${card.rank.toLowerCase()} of ${card.suit.toLowerCase()}.webp`;
 
       const sl = card.station_logic || {};
       const meanings = `
