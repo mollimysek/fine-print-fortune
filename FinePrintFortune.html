@@ -480,6 +480,9 @@
       font-style: italic;
       font-size: 15px;
     }
+    .history-empty .btn {
+      margin-top: 12px;
+    }
 
     .history-table {
       width: 80%;
@@ -808,16 +811,15 @@
 
     /* ── SCREEN: EXPLORE DECK ── */
     #screen-explore {
-      width: calc(100% + 90px);
-      margin-left: -45px;
+      width: 100%;
       min-height: 100vh;
-      padding: 56px 24px 56px;
+      padding: 56px 24px;
       justify-content: flex-start;
       align-items: flex-start;
     }
 
     .explore-container {
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
       width: 100%;
     }
@@ -856,7 +858,7 @@
 
     .explore-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 14px;
     }
 
@@ -1274,8 +1276,7 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
-      /* 4. Screen-explore / screen-history spacing */
-      #screen-explore,
+      /* 4. Screen-history spacing */
       #screen-history {
         width: 100%;
         margin-left: 0;
@@ -1382,6 +1383,7 @@
       <div id="history-list" class="history-list">
         <div class="history-empty">
           <p>No readings yet. Start a new reading to begin your journey.</p>
+          <button class="btn" onclick="navigateTo('input')">Start new reading</button>
         </div>
       </div>
     </div>
@@ -2132,23 +2134,9 @@
     if (tarotDeck && window.PrivacyTarotEngine) {
       const engine = new window.PrivacyTarotEngine(tarotDeck);
 
-      // Split text into thirds for the three stations
-      const textLength = text.length;
-      const third = Math.floor(textLength / 3);
-
-      const collectionText = text.substring(0, third);
-      const sharingText = text.substring(third, third * 2);
-      const retentionText = text.substring(third * 2);
-
-      // Perform the spread using tarot_logic algorithm
-      const spread = engine.performSpread(collectionText, sharingText, retentionText);
-
-      // Convert to format expected by the rest of the app
-      const segments = {
-        collection: collectionText,
-        sharing: sharingText,
-        retention: retentionText
-      };
+      // Perform the spread — engine handles smart text segmentation internally
+      const spread = engine.performSpread(text);
+      const segments = spread.segments;
 
       const cards = ['collection', 'sharing', 'retention'].map(station => {
         const result = spread[station];
@@ -2748,20 +2736,90 @@
 
     // Use V2 logic if cards have pre-computed logic from tarot_logic.py
     if (drawnCards[0].logic !== undefined) {
-      // Pre-shuffle magic stings so each card gets a unique one
-      const magicStings = [
-        "The stars suggest this digital bond is written in permanent ink.",
-        "A flickering light remains in the digital void, should you choose to follow it.",
-        "The scales are tipped; the price of entry is your own reflection.",
-        "The cards see a mirror held up to your data, but whose eyes are looking back?",
-        "What is hidden in shadow will eventually find the light—or remain buried forever.",
-        "The thread of your data weaves through unseen hands.",
-        "In this digital realm, transparency is both illusion and truth."
-      ];
-      for (let s = magicStings.length - 1; s > 0; s--) {
-        const r = Math.floor(Math.random() * (s + 1));
-        [magicStings[s], magicStings[r]] = [magicStings[r], magicStings[s]];
+      const MAGIC_STINGS = {
+        collection: {
+          positive: [
+            "The boundary is drawn in clear ink — only what is needed passes through.",
+            "What you offer is received with care; nothing is taken that was not freely given.",
+            "The collection here is measured and intentional — a precise hand, not a hungry one.",
+            "Your data enters this space as a guest, not a captive.",
+            "The harvest is modest; only what the season requires is gathered.",
+            "A careful hand reaches only as far as it must — no further."
+          ],
+          ambiguous: [
+            "What you reveal here echoes further than the moment of disclosure.",
+            "Something is gathered here; its full shape is not yet clear.",
+            "The terms of the exchange are written, though not always in plain sight."
+          ],
+          negative: [
+            "Every threshold crossed leaves a mark — and this one collects them all.",
+            "The net is cast wide; what it catches, it keeps.",
+            "The toll for entry is paid not in coin, but in fragments of yourself.",
+            "The intake is generous; the limits are not.",
+            "The scales are tipped; the price of entry is your own reflection."
+          ]
+        },
+        sharing: {
+          positive: [
+            "What passes between hands here is governed by a clear and honest covenant.",
+            "Your data does not wander — its path is mapped and its destinations are known.",
+            "The circle of trust is small and deliberate; your information stays close.",
+            "No whispers reach unknown ears — the lines of transmission are held tight.",
+            "What is shared is shared with purpose; there are no open doors here.",
+            "The hands that touch your data are few, and they are named."
+          ],
+          ambiguous: [
+            "The river flows onward; the tributaries are not always named.",
+            "Something passes between walls here — its destination is left to context.",
+            "The line between known and unknown partners is drawn in pencil.",
+            "What leaves this space does not disappear — it simply changes hands.",
+            "The circle widens at certain thresholds — the edges are worth knowing."
+          ],
+          negative: [
+            "The doors here open inward and outward — and not always with your knowledge.",
+            "Your information is currency in a market you did not choose to enter.",
+            "Many hands are named; many more are implied.",
+            "What was yours is now traveling — and it did not pack lightly.",
+            "The sharing here is generous — to everyone but you.",
+            "The thread of your data weaves through unseen hands."
+          ]
+        },
+        retention: {
+          positive: [
+            "What is no longer needed is released — the ledger does not hold on out of habit.",
+            "Time has a shape here; your data does not linger beyond its welcome.",
+            "The archive closes when the purpose is fulfilled — nothing is kept for its own sake.",
+            "Data moves through this space like a tide — what is no longer useful recedes.",
+            "The shelf has a limit; when the work is done, so is the record.",
+            "Nothing is held in perpetuity — the clock runs, and it is honored."
+          ],
+          ambiguous: [
+            "The record persists — for how long depends on conditions yet to be tested.",
+            "Something remains after you leave; its shape is difficult to predict.",
+            "The clock is running, though the dial is not always visible.",
+            "What is stored here waits — patient, purposeful, or simply unattended.",
+            "The archive neither promises permanence nor guarantees release."
+          ],
+          negative: [
+            "The record does not forget — and it has not been asked to.",
+            "Nothing here is discarded lightly; most things are not discarded at all.",
+            "The vault closes but does not empty.",
+            "The stars suggest this digital bond is written in permanent ink.",
+            "What was collected is held tightly.",
+            "The shelf extends beyond what you can see.",
+            "What is hidden in shadow will eventually find the light—or remain buried forever."
+          ]
+        }
+      };
+
+      function pickSting(station, valence) {
+        const tier = valence >= 1 ? 'positive' : valence >= -1 ? 'ambiguous' : 'negative';
+        const pool = MAGIC_STINGS[station]?.[tier] || MAGIC_STINGS[station].ambiguous;
+        return pool[Math.floor(Math.random() * pool.length)];
       }
+
+      // Shared set to ensure closing lines don't repeat across the three cards
+      const usedClosings = new Set();
 
       // Generate reading for each card using tarot_logic results
       drawnCards.forEach((card, i) => {
@@ -2789,7 +2847,10 @@
           );
 
           // Generate narrative summary from narrative_engine logic
-          let rawSummary = synthesizer.createSummary(magicStings[i]);
+          const cardValence = card.reversed
+            ? (card.cardData?.reversed_valence ?? 0)
+            : (card.cardData?.upright_valence ?? 0);
+          let rawSummary = synthesizer.createSummary(pickSting(slot.category, cardValence), cardValence, usedClosings);
 
           // Convert markdown bold/italic to HTML, tighten paragraph spacing
           rawSummary = rawSummary
@@ -2815,7 +2876,7 @@
           const fallbackSentences = segText
             .split(/(?<=[.!?])\s+/)
             .map(s => s.trim())
-            .filter(s => s.length > 40);
+            .filter(s => s.length > 0);
           citations = fallbackSentences.slice(0, 3).map(s => ({ sentence: s, section: null }));
         }
 
@@ -3193,15 +3254,15 @@
     if (totalCards > 0) {
       // Percentage-based tier (9 tiers)
       let pctSaying;
-      if (reversalPct === 0)       pctSaying = 'All cards upright — the policies you\'ve read have been relatively straightforward.';
-      else if (reversalPct <= 10)  pctSaying = 'A rare reversal or two — the fine print shows only faint shadows so far.';
-      else if (reversalPct <= 25)  pctSaying = 'Few reversals — most fine print you\'ve encountered has been fairly above board.';
-      else if (reversalPct <= 40)  pctSaying = 'Reversals are creeping in — some of the policies you sign hide more than they admit.';
-      else if (reversalPct <= 50)  pctSaying = 'Nearly half reversed — hidden clauses are becoming a pattern in the agreements you\'ve read.';
-      else if (reversalPct <= 65)  pctSaying = 'More reversed than upright — the agreements you encounter tend to obscure as much as they reveal.';
-      else if (reversalPct <= 80)  pctSaying = 'Heavily reversed — buried clauses and obfuscation appear frequently in your fine print.';
-      else if (reversalPct < 100)  pctSaying = 'Nearly every card reversed — the agreements you sign are steeped in misdirection.';
-      else                         pctSaying = 'All cards reversed — every policy you\'ve encountered has concealed more than it disclosed.';
+      if (reversalPct === 0)       pctSaying = 'Every card fell upright — the policies you\'ve read wear their intentions plainly.';
+      else if (reversalPct <= 10)  pctSaying = 'The shadow side appears rarely — most of what you\'ve signed has read as written.';
+      else if (reversalPct <= 25)  pctSaying = 'A few cards turned in the reading — the fine print holds some complexity, but mostly speaks clearly.';
+      else if (reversalPct <= 40)  pctSaying = 'The cards are beginning to turn — nuance and contradiction are starting to appear in your agreements.';
+      else if (reversalPct <= 50)  pctSaying = 'Nearly half the cards carry shadow meaning — the policies you\'ve encountered hold as much beneath the surface as above it.';
+      else if (reversalPct <= 65)  pctSaying = 'More cards reversed than upright — the agreements you read tend to say one thing and mean another.';
+      else if (reversalPct <= 80)  pctSaying = 'The spread runs heavy with reversals — complexity and contradiction are the norm in your fine print.';
+      else if (reversalPct < 100)  pctSaying = 'Almost every card has turned — the agreements you sign rarely mean exactly what they say.';
+      else                         pctSaying = 'Every card reversed — the policies you\'ve encountered speak entirely in shadow and implication.';
 
       // Count-based milestones — show the highest one crossed
       const countMilestones = [
@@ -3249,7 +3310,7 @@
     renderAnalytics(history);
 
     if (history.length === 0) {
-      historyList.innerHTML = '<div class="history-empty"><p>No readings yet. Start a new reading to begin your journey.</p></div>';
+      historyList.innerHTML = '<div class="history-empty"><p>No readings yet. Start a new reading to begin your journey.</p><button class="btn" onclick="navigateTo(\'input\')">Start new reading</button></div>';
       return;
     }
 
@@ -3301,6 +3362,7 @@
         </tbody>
       </table>
     `;
+    updateBulkBar();
   }
 
   function viewHistoryDetail(readingId) {
@@ -3417,12 +3479,12 @@
 
   const HISTORY_NORMAL_HEADER = `
     <tr>
-      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"><span id="bulkInfo" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;display:inline-flex;align-items:center;gap:16px;white-space:nowrap;"><span id="bulkCount" style="opacity:0.7;"></span>&ensp;<button class="btn-secondary" style="padding:4px 14px;font-size:12px;" onclick="bulkDeleteReadings()">Delete selected</button></span></th>
-      <th class="col-date">Date</th>
-      <th class="col-platform">Platform</th>
-      <th class="col-cards">Cards</th>
-      <th class="col-summary">Fortune Preview</th>
-      <th class="col-actions">Delete</th>
+      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"><span id="bulkInfo" style="position:absolute;left:38px;top:50%;transform:translateY(-50%);font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;display:inline-flex;align-items:center;gap:16px;white-space:nowrap;"><span id="bulkCount" style="opacity:0.7;"></span><button id="bulkDeleteBtn" class="btn-secondary" style="padding:4px 14px;font-size:12px;display:none;" onclick="bulkDeleteReadings()">Delete selected</button></span></th>
+      <th class="col-date"></th>
+      <th class="col-platform"></th>
+      <th class="col-cards"></th>
+      <th class="col-summary"></th>
+      <th class="col-actions"></th>
     </tr>`;
 
   function toggleSelectAll(source) {
@@ -3433,18 +3495,17 @@
   function updateBulkBar() {
     const checked = document.querySelectorAll('.row-check:checked');
     const total = document.querySelectorAll('.row-check');
-    const bulkInfo = document.getElementById('bulkInfo');
     const bulkCount = document.getElementById('bulkCount');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
     const selectAll = document.getElementById('selectAll');
-    if (!bulkInfo) return;
+    if (!bulkCount) return;
 
     if (checked.length > 0) {
-      bulkCount.textContent = `${checked.length} selected`;
-      bulkInfo.style.opacity = '1';
-      bulkInfo.style.pointerEvents = 'auto';
+      bulkCount.textContent = `${checked.length} of ${total.length} selected`;
+      if (bulkDeleteBtn) bulkDeleteBtn.style.display = '';
     } else {
-      bulkInfo.style.opacity = '0';
-      bulkInfo.style.pointerEvents = 'none';
+      bulkCount.textContent = `${total.length} readings`;
+      if (bulkDeleteBtn) bulkDeleteBtn.style.display = 'none';
     }
 
     if (selectAll) {
