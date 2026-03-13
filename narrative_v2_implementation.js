@@ -36,11 +36,13 @@ class PrivacyTarotEngine {
       ];
     }
 
-    // Friction keywords indicate vague, obstructive language (triggers reversals)
+    // Friction keywords indicate vague, obstructive language (triggers reversals).
+    // Kept specific to avoid false positives on routine legal boilerplate.
     this.frictionKeywords = [
-      'however', 'unless', 'at our discretion', 'may change',
-      'subject to', 'limited', 'circumstances', 'as needed', 'unspecified',
-      'from time to time', 'in our sole discretion', 'as we deem appropriate'
+      'however', 'unless', 'at our discretion', 'may change without notice',
+      'subject to', 'as needed', 'unspecified',
+      'from time to time', 'in our sole discretion', 'as we deem appropriate',
+      'without limitation', 'at any time without notice', 'in our judgment'
     ];
   }
 
@@ -48,15 +50,136 @@ class PrivacyTarotEngine {
     return card.card || `${card.rank} of ${card.suit.charAt(0).toUpperCase() + card.suit.slice(1)}`;
   }
 
-  performSpread(collectionText, sharingText, retentionText) {
-    // Reset for new spread
+  performSpread(fullText) {
     this.drawnCards.clear();
-
-    return {
-      collection: this.pullCard(collectionText, 'collection'),
-      sharing: this.pullCard(sharingText, 'sharing'),
-      retention: this.pullCard(retentionText, 'retention')
+    const segments = this.segmentText(fullText);
+    const spread = {
+      collection: this.pullCard(segments.collection, 'collection'),
+      sharing: this.pullCard(segments.sharing, 'sharing'),
+      retention: this.pullCard(segments.retention, 'retention'),
+      segments
     };
+    return spread;
+  }
+
+  segmentText(text) {
+    const sectionResult = this._splitBySections(text);
+    if (sectionResult) return sectionResult;
+    return this._splitByKeywords(text);
+  }
+
+  _classifyHeader(headerText) {
+    const h = headerText.toLowerCase();
+    const collectionSignals = ['collect', 'gather', 'obtain', 'receiv', 'what we', 'information we', 'data we', 'personal info', 'types of', 'categories of', 'data we hold'];
+    const sharingSignals = ['shar', 'disclos', 'transfer', 'sell', 'distribut', 'third part', 'affiliat', 'partner', 'who we', 'how we share'];
+    const retentionSignals = ['retain', 'how long', 'stor', 'keep', 'delet', 'remov', 'purg', 'eras', 'duration', 'retention', 'archiv'];
+
+    const score = signals => signals.filter(s => h.includes(s)).length;
+    const c = score(collectionSignals);
+    const s = score(sharingSignals);
+    const r = score(retentionSignals);
+
+    if (c === 0 && s === 0 && r === 0) return null;
+    if (c >= s && c >= r) return 'collection';
+    if (s >= c && s >= r) return 'sharing';
+    return 'retention';
+  }
+
+  _splitBySections(text) {
+    const lines = text.split('\n');
+    const sections = [];
+
+    lines.forEach((line, i) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.length < 3) return;
+
+      const isMarkdown = /^#{1,4}\s+\S/.test(trimmed);
+      const isAllCaps  = /^[A-Z][A-Z\s\d\-:]{9,79}$/.test(trimmed);
+      const isNumbered = /^(\d+\.)+\d*\s+[A-Za-z]/.test(trimmed);
+      const isBold     = /^\*\*[^*]{4,60}\*\*$/.test(trimmed);
+
+      if (isMarkdown || isAllCaps || isNumbered || isBold) {
+        const clean = trimmed
+          .replace(/^#+\s+/, '')
+          .replace(/\*\*/g, '')
+          .replace(/^[\d.]+\s+/, '');
+        const station = this._classifyHeader(clean);
+        if (station) sections.push({ station, lineIndex: i });
+      }
+    });
+
+    if (sections.length < 2) return null;
+
+    const segments = { collection: '', sharing: '', retention: '' };
+
+    // Text before the first header — route by keyword
+    if (sections[0].lineIndex > 0) {
+      const preamble = lines.slice(0, sections[0].lineIndex).join('\n');
+      if (preamble.trim()) {
+        const pre = this._splitByKeywords(preamble);
+        Object.keys(segments).forEach(k => { segments[k] += pre[k]; });
+      }
+    }
+
+    for (let i = 0; i < sections.length; i++) {
+      const startLine = sections[i].lineIndex + 1;
+      const endLine   = i + 1 < sections.length ? sections[i + 1].lineIndex : lines.length;
+      segments[sections[i].station] += lines.slice(startLine, endLine).join('\n') + '\n';
+    }
+
+    const filled = Object.values(segments).filter(s => s.trim().length > 30).length;
+    return filled >= 2 ? segments : null;
+  }
+
+  _splitByKeywords(text) {
+    const collectionKw = ['collect', 'gather', 'obtain', 'receiv', 'captur', 'record', 'track', 'monitor', 'acquir', 'what data', 'what information', 'types of data', 'categories of', 'personal data', 'personal information'];
+    const sharingKw    = ['shar', 'disclos', 'transfer', 'sell', 'distribut', 'third part', 'affiliat', 'partner', 'vendor', 'service provider', 'advertis', 'with whom'];
+    const retentionKw  = ['retain', 'how long', 'storag', 'stored', 'delet', 'remov', 'purg', 'eras', 'destroy', 'archiv', 'duration', 'for a period', 'months', 'years', 'days after', 'upon terminat', 'as long as'];
+
+    // Split into paragraphs, then sentences within each paragraph
+    const sentences = [];
+    text.split(/\n{2,}/).forEach(para => {
+      const parts = para.match(/[^.!?\n]+[.!?\n]+/g) || [para];
+      parts.forEach(s => { if (s.trim()) sentences.push(s.trim()); });
+    });
+
+    const segments = { collection: '', sharing: '', retention: '' };
+    let lastStation = 'collection';
+
+    sentences.forEach(sentence => {
+      const s = sentence.toLowerCase();
+      const score = kws => kws.filter(k => s.includes(k)).length;
+      const c  = score(collectionKw);
+      const sh = score(sharingKw);
+      const r  = score(retentionKw);
+
+      let station;
+      if (c === 0 && sh === 0 && r === 0) {
+        station = lastStation; // inherit context
+      } else if (c >= sh && c >= r) {
+        station = 'collection';
+      } else if (sh >= c && sh >= r) {
+        station = 'sharing';
+      } else {
+        station = 'retention';
+      }
+
+      lastStation = station;
+      segments[station] += sentence + ' ';
+    });
+
+    // If any station is empty, fall back to equal thirds
+    const allFilled = Object.values(segments).every(s => s.trim().length > 0);
+    if (!allFilled) {
+      const third = Math.floor(text.length / 3);
+      return {
+        collection: text.substring(0, third),
+        sharing:    text.substring(third, third * 2),
+        retention:  text.substring(third * 2)
+      };
+    }
+
+    return segments;
   }
 
   pullCard(segmentText, station) {
@@ -67,22 +190,28 @@ class PrivacyTarotEngine {
       !this.drawnCards.has(this.getCardName(c))
     );
 
-    // Determine Reversal (Shadow Side) - friction_hits >= 3 flips the card
+    // Count friction hits — vague/obstructive language that can flip a card reversed.
+    // High-valence cards (upright_valence >= 2) require more hits to reverse,
+    // since strong positive signals shouldn't be overridden by routine legal phrasing.
     let frictionHits = 0;
     this.frictionKeywords.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
       const matches = segmentText.match(regex);
       if (matches) frictionHits += matches.length;
     });
-    const isReversed = frictionHits >= 3; // Flip card if policy is 'shady' or vague
+    const shouldReverse = card => {
+      const threshold = (card.upright_valence >= 2) ? 5 : 3;
+      return frictionHits >= threshold && !!card.reversed_logic;
+    };
 
     // Score each card based on keyword matches
-    let totalNegatedHits = 0;
+    // negatedScores tracks per-card negated hits — evidence for that card reversed
+    const negatedScores = {};
     availablePool.forEach(card => {
       const name = this.getCardName(card);
       let score = 0;
+      let negatedScore = 0;
 
-      // Match keywords - each non-negated occurrence worth 10 points
       const keywords = card.keywords || [];
       keywords.forEach(keyword => {
         const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
@@ -91,28 +220,45 @@ class PrivacyTarotEngine {
           if (!isNegatedMatch(segmentText, match.index)) {
             score += 10;
           } else {
-            totalNegatedHits++;
+            negatedScore += 10;
           }
         }
       });
 
-      // Only add to results if score > 0
+      negatedScores[name] = negatedScore;
+
+      // A card with only negated hits (score=0, negatedScore>0) is a candidate reversed
+      if (score === 0 && negatedScore > 0 && card.reversed_logic) {
+        if (card.station_logic && station in card.station_logic) {
+          negatedScore += 2;
+        }
+        scoredResults.push({
+          card: card,
+          name: name,
+          isReversed: true,
+          score: negatedScore,
+          logic: card.reversed_logic
+        });
+        return;
+      }
+
       if (score > 0) {
         // Station logic bonus - tiebreaker for cards that already matched keywords
         if (card.station_logic && station in card.station_logic) {
           score += 2;
         }
-        let logicText = card.station_logic[station];
+        let logicText = card.station_logic?.[station] || card.reversed_logic || '';
 
-        // Format logic based on reversal
-        if (isReversed && card.reversed_logic) {
-          logicText = `REVERSED: ${card.reversed_logic} ${logicText}`;
+        // Friction-based reversal overrides keyword-based upright selection
+        const cardIsReversed = shouldReverse(card);
+        if (cardIsReversed) {
+          logicText = card.reversed_logic;
         }
 
         scoredResults.push({
           card: card,
           name: name,
-          isReversed: isReversed,
+          isReversed: cardIsReversed,
           score: score,
           logic: logicText
         });
@@ -122,18 +268,19 @@ class PrivacyTarotEngine {
     // Final selection
     let winner;
     if (scoredResults.length === 0) {
+      const totalNegatedHits = Object.values(negatedScores).reduce((a, b) => a + b, 0);
       let fallbackCard;
+      let fallbackReversed = false;
 
       if (totalNegatedHits > 0) {
-        // The policy is explicitly distancing itself from data practices.
-        // Use a station-appropriate card that reflects minimal/no data activity.
-        // Collection & sharing → The Hermit ("no third parties, stays on-device")
-        // Retention → Death ("absolute deletion")
+        // Negated hits mean the policy explicitly distances itself from a practice —
+        // pick the station card reversed (e.g. "won't delete" → Death reversed)
         const minimalCardName = station === 'retention' ? 'Death' : 'The Hermit';
         fallbackCard =
           availablePool.find(c => this.getCardName(c) === minimalCardName) ||
           availablePool.find(c => this.getCardName(c) === 'The Fool') ||
           availablePool[0];
+        fallbackReversed = shouldReverse(fallbackCard);
       } else {
         // Genuinely vague — no relevant language found at all
         fallbackCard =
@@ -145,9 +292,11 @@ class PrivacyTarotEngine {
       winner = {
         card: fallbackCard,
         name: fallbackName,
-        isReversed: isReversed,
+        isReversed: fallbackReversed,
         score: 0,
-        logic: fallbackCard.station_logic?.[station] || `Vague ${station} terms.`
+        logic: fallbackReversed && fallbackCard.reversed_logic
+          ? fallbackCard.reversed_logic
+          : fallbackCard.station_logic?.[station] || `Vague ${station} terms.`
       };
     } else {
       // Sort by score descending and pick the winner
@@ -189,7 +338,11 @@ class TarotSynthesizer {
         const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
         let match;
         while ((match = regex.exec(trimmed)) !== null) {
-          if (!isNegatedMatch(trimmed, match.index) && !found.some(f => f.sentence === trimmed)) {
+          const negated = isNegatedMatch(trimmed, match.index);
+          // Upright cards: cite non-negated matches (positive evidence)
+          // Reversed cards: cite negated matches (negation is why the card reversed)
+          const relevant = this.isReversed ? negated : !negated;
+          if (relevant && !found.some(f => f.sentence === trimmed)) {
             found.push({
               sentence: trimmed,
               section: pos !== -1 ? this._findNearestSection(text, pos) : null
@@ -232,27 +385,17 @@ class TarotSynthesizer {
     return lastSection;
   }
 
-  createSummary(sting) {
+  createSummary(sting, valence, usedClosings = new Set()) {
     // Get the station-specific logic
     const stationLogic = this.card.station_logic?.[this.station] ||
       `Vague ${this.station} terms detected.`;
 
     // Open with the mystical "magic sting" (caller may pass a pre-assigned one)
     if (!sting) {
-      const magicStings = [
-        "The stars suggest this digital bond is written in permanent ink.",
-        "A flickering light remains in the digital void, should you choose to follow it.",
-        "The scales are tipped; the price of entry is your own reflection.",
-        "The cards see a mirror held up to your data, but whose eyes are looking back?",
-        "What is hidden in shadow will eventually find the light—or remain buried forever.",
-        "The thread of your data weaves through unseen hands.",
-        "In this digital realm, transparency is both illusion and truth."
-      ];
-      sting = magicStings[Math.floor(Math.random() * magicStings.length)];
+      sting = "The cards see a mirror held up to your data, but whose eyes are looking back?";
     }
 
-    // Add reversed logic if applicable
-    const uprightClosings = [
+    const positiveClosings = [
       "The language used is standard for this industry, suggesting a structured, predictable flow of information.",
       "The terms here carry a clear intention — what they claim to protect, they appear to mean.",
       "The path of your data is mapped in plain sight; the terms offer few shadows to hide within.",
@@ -261,7 +404,16 @@ class TarotSynthesizer {
       "The boundaries drawn here are legible — a rare clarity in the fine print."
     ];
 
-    const reversedClosings = [
+    const neutralClosings = [
+      "The terms here are neither remarkable nor alarming — a policy that does what it says, no more.",
+      "The language is functional. It does not overreach, but it offers no more than it must.",
+      "What is written here is measured — not a covenant of trust, but not a warning either.",
+      "The policy is legible, if unremarkable — the path is clear, though not particularly generous.",
+      "The fine print here is neither punishing nor protective — a transaction, plainly stated.",
+      "The terms occupy the middle ground — present, accounted for, and little more."
+    ];
+
+    const negativeClosings = [
       "The language here is notably vague, using conditional terms to limit your oversight.",
       "Read the margins carefully — the freedom granted with one hand is quietly reclaimed with another.",
       "Beneath the reassuring surface, the terms reserve more power than they surrender.",
@@ -270,16 +422,24 @@ class TarotSynthesizer {
       "The architecture of this language is designed to give ground, then take it back."
     ];
 
-    let summary;
-    if (this.isReversed && this.card.reversed_logic) {
-      summary = this.card.reversed_logic;
-      summary += "\n\n" + reversedClosings[Math.floor(Math.random() * reversedClosings.length)];
-    } else {
-      summary = stationLogic;
-      summary += "\n\n" + uprightClosings[Math.floor(Math.random() * uprightClosings.length)];
-    }
+    const effectiveValence = valence ?? (this.isReversed
+      ? (this.card.reversed_valence ?? -1)
+      : (this.card.upright_valence ?? 0));
 
-    return `${sting}\n\n${summary}`;
+    const closings = effectiveValence >= 1 ? positiveClosings
+      : effectiveValence === 0 ? neutralClosings
+      : negativeClosings;
+
+    const available = closings.filter(c => !usedClosings.has(c));
+    const pool = available.length > 0 ? available : closings;
+    const closing = pool[Math.floor(Math.random() * pool.length)];
+    usedClosings.add(closing);
+
+    const summary = (this.isReversed && this.card.reversed_logic)
+      ? this.card.reversed_logic
+      : stationLogic;
+
+    return `${sting}\n\n${summary}\n\n${closing}`;
   }
 }
 
