@@ -2817,6 +2817,7 @@
   // ── Navigation & History Management ──────────────────────────────────
 
   function navigateTo(screenName) {
+    window.scrollTo(0, 0);
     // Hide all screens
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
 
