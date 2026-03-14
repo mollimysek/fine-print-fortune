@@ -18,6 +18,10 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html, body {
+      overflow-x: hidden;
+    }
+
     body {
       background: #B5D3EB;
       min-height: 100vh;
@@ -1215,6 +1219,11 @@
       /* 2. Body copy size */
       body {
         font-size: 20px;
+      }
+
+      /* Prevent iOS Safari from zooming on input focus (requires font-size ≥ 16px) */
+      #userText, #urlInput {
+        font-size: 16px;
       }
 
       /* 3. Hamburger nav */
