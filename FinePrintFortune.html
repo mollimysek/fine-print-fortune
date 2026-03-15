@@ -1316,6 +1316,20 @@
 
     /* ── Draw screen: single-column + sticky deck (600px and narrower) ── */
     @media (max-width: 600px) {
+      /* Pulse animation: quick lift (mimics click) then 2s rest, stops on first draw */
+      @keyframes deckPulse {
+        0%, 20%, 100% {
+          transform: translateY(0);
+          filter: drop-shadow(0 4px 10px rgba(49,38,26,0.3));
+        }
+        8% {
+          transform: translateY(-6px);
+          filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
+        }
+      }
+      #screen-draw:not(.cards-started) .deck-img {
+        animation: deckPulse 2.5s ease-in-out 0.5s infinite;
+      }
       .spread {
         flex-direction: column;
         align-items: center;
@@ -3590,8 +3604,11 @@
 
   const HISTORY_NORMAL_HEADER = `
     <tr>
-      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"><span id="bulkInfo" style="position:absolute;left:38px;top:50%;transform:translateY(-50%);font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;display:inline-flex;align-items:center;gap:16px;white-space:nowrap;"><span id="bulkCount" style="opacity:0.7;"></span><button id="bulkDeleteBtn" class="btn-secondary" style="padding:4px 14px;font-size:12px;display:none;" onclick="bulkDeleteReadings()">Delete selected</button></span></th>
-      <th class="col-date"></th>
+      <th class="col-check"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" title="Select all"></th>
+      <th class="col-date" style="white-space:nowrap;">
+        <span id="bulkCount" style="font-weight:normal;font-family:'Courier Prime',monospace;font-size:13px;opacity:0.7;"></span>
+        <button id="bulkDeleteBtn" class="btn-secondary" style="padding:4px 14px;font-size:12px;display:none;" onclick="bulkDeleteReadings()"></button>
+      </th>
       <th class="col-platform"></th>
       <th class="col-cards"></th>
       <th class="col-summary"></th>
@@ -3612,10 +3629,14 @@
     if (!bulkCount) return;
 
     if (checked.length > 0) {
-      bulkCount.textContent = `${checked.length} of ${total.length} selected`;
-      if (bulkDeleteBtn) bulkDeleteBtn.style.display = '';
+      bulkCount.style.display = 'none';
+      if (bulkDeleteBtn) {
+        bulkDeleteBtn.textContent = `Delete ${checked.length} reading${checked.length > 1 ? 's' : ''}`;
+        bulkDeleteBtn.style.display = '';
+      }
     } else {
-      bulkCount.textContent = `${total.length} readings`;
+      bulkCount.style.display = '';
+      bulkCount.textContent = `${total.length} reading${total.length !== 1 ? 's' : ''}`;
       if (bulkDeleteBtn) bulkDeleteBtn.style.display = 'none';
     }
 
