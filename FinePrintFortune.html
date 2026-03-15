@@ -1316,6 +1316,20 @@
 
     /* ── Draw screen: single-column + sticky deck (600px and narrower) ── */
     @media (max-width: 600px) {
+      /* Pulse animation: quick lift (mimics click) then 2s rest, stops on first draw */
+      @keyframes deckPulse {
+        0%, 20%, 100% {
+          transform: translateY(0);
+          filter: drop-shadow(0 4px 10px rgba(49,38,26,0.3));
+        }
+        8% {
+          transform: translateY(-6px);
+          filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
+        }
+      }
+      #screen-draw:not(.cards-started) .deck-img {
+        animation: deckPulse 2.5s ease-in-out 0.5s infinite;
+      }
       .spread {
         flex-direction: column;
         align-items: center;
